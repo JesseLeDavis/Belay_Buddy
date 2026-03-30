@@ -1,6 +1,7 @@
 import 'package:belay_buddy/models/crag.dart';
 import 'package:belay_buddy/providers/firestore_providers.dart';
 import 'package:belay_buddy/theme/app_theme.dart';
+import 'package:belay_buddy/utils/map_markers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -16,8 +17,22 @@ class MapScreen extends ConsumerStatefulWidget {
 
 class _MapScreenState extends ConsumerState<MapScreen> {
   bool _mapExpanded = false;
+  BitmapDescriptor? _cragIcon;
+  BitmapDescriptor? _gymIcon;
 
   static const double _collapsedHeight = 220;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMarkerIcons();
+  }
+
+  Future<void> _loadMarkerIcons() async {
+    final crag = await buildCragMarker();
+    final gym = await buildGymMarker();
+    if (mounted) setState(() { _cragIcon = crag; _gymIcon = gym; });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +103,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final markers = crags.map((crag) => Marker(
       markerId: MarkerId(crag.id),
       position: LatLng(crag.location.latitude, crag.location.longitude),
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
+      icon: crag.isGym
+          ? (_gymIcon ?? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue))
+          : (_cragIcon ?? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange)),
       onTap: () => context.push('/crag/${crag.id}'),
     )).toSet();
 
@@ -207,7 +224,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                           color: AppColors.darkNavy, size: 16),
                       const SizedBox(width: AppSpacing.sm),
                       Text(
-                        '${crags.length} CRAGS',
+                        '${crags.where((c) => !c.isGym).length} CRAGS · ${crags.where((c) => c.isGym).length} GYMS',
                         style: GoogleFonts.spaceMono(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -269,9 +286,9 @@ class _CragCard extends StatelessWidget {
                 horizontal: AppSpacing.sm + 4,
                 vertical: 10,
               ),
-              color: AppColors.oliveGreen,
+              color: crag.isGym ? AppColors.darkNavy : AppColors.oliveGreen,
               child: Text(
-                'CRAG',
+                crag.isGym ? 'GYM' : 'CRAG',
                 style: GoogleFonts.spaceMono(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,

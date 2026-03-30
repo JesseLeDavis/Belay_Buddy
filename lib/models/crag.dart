@@ -32,6 +32,7 @@ class Crag with _$Crag {
     String? imageUrl,
     String? region,
     String? country,
+    @Default(false) bool isGym,
     @Default(0) int activeClimbersCount,
     DateTime? createdAt,
     String? createdBy, // User ID who added this crag

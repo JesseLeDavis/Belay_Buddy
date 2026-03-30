@@ -24,6 +24,7 @@ _$ClimbingPostImpl _$$ClimbingPostImplFromJson(Map<String, dynamic> json) =>
       createdAt: json['createdAt'] == null
           ? null
           : DateTime.parse(json['createdAt'] as String),
+      isExpired: json['isExpired'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$$ClimbingPostImplToJson(_$ClimbingPostImpl instance) =>
@@ -39,6 +40,7 @@ Map<String, dynamic> _$$ClimbingPostImplToJson(_$ClimbingPostImpl instance) =>
       'offeringBelay': instance.offeringBelay,
       'expiresAt': instance.expiresAt?.toIso8601String(),
       'createdAt': instance.createdAt?.toIso8601String(),
+      'isExpired': instance.isExpired,
     };
 
 const _$PostTypeEnumMap = {

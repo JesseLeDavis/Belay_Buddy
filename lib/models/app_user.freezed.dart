@@ -28,6 +28,14 @@ mixin _$AppUser {
   ExperienceLevel get experienceLevel => throw _privateConstructorUsedError;
   List<ClimbingStyle> get climbingStyles => throw _privateConstructorUsedError;
   List<String> get favoriteCragIds => throw _privateConstructorUsedError;
+  List<String> get favoriteGymIds => throw _privateConstructorUsedError;
+  List<String> get connectionIds => throw _privateConstructorUsedError;
+  List<String> get pendingConnectionIds => throw _privateConstructorUsedError;
+  String? get homeGymId => throw _privateConstructorUsedError;
+  String? get homeCragId => throw _privateConstructorUsedError;
+  bool get isHomeVisible => throw _privateConstructorUsedError;
+  bool get notifyHomeCatch => throw _privateConstructorUsedError;
+  bool get notifyHomeConnections => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
   DateTime? get lastActive => throw _privateConstructorUsedError;
 
@@ -54,6 +62,14 @@ abstract class $AppUserCopyWith<$Res> {
       ExperienceLevel experienceLevel,
       List<ClimbingStyle> climbingStyles,
       List<String> favoriteCragIds,
+      List<String> favoriteGymIds,
+      List<String> connectionIds,
+      List<String> pendingConnectionIds,
+      String? homeGymId,
+      String? homeCragId,
+      bool isHomeVisible,
+      bool notifyHomeCatch,
+      bool notifyHomeConnections,
       DateTime? createdAt,
       DateTime? lastActive});
 }
@@ -81,6 +97,14 @@ class _$AppUserCopyWithImpl<$Res, $Val extends AppUser>
     Object? experienceLevel = null,
     Object? climbingStyles = null,
     Object? favoriteCragIds = null,
+    Object? favoriteGymIds = null,
+    Object? connectionIds = null,
+    Object? pendingConnectionIds = null,
+    Object? homeGymId = freezed,
+    Object? homeCragId = freezed,
+    Object? isHomeVisible = null,
+    Object? notifyHomeCatch = null,
+    Object? notifyHomeConnections = null,
     Object? createdAt = freezed,
     Object? lastActive = freezed,
   }) {
@@ -117,6 +141,38 @@ class _$AppUserCopyWithImpl<$Res, $Val extends AppUser>
           ? _value.favoriteCragIds
           : favoriteCragIds // ignore: cast_nullable_to_non_nullable
               as List<String>,
+      favoriteGymIds: null == favoriteGymIds
+          ? _value.favoriteGymIds
+          : favoriteGymIds // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      connectionIds: null == connectionIds
+          ? _value.connectionIds
+          : connectionIds // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      pendingConnectionIds: null == pendingConnectionIds
+          ? _value.pendingConnectionIds
+          : pendingConnectionIds // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      homeGymId: freezed == homeGymId
+          ? _value.homeGymId
+          : homeGymId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      homeCragId: freezed == homeCragId
+          ? _value.homeCragId
+          : homeCragId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      isHomeVisible: null == isHomeVisible
+          ? _value.isHomeVisible
+          : isHomeVisible // ignore: cast_nullable_to_non_nullable
+              as bool,
+      notifyHomeCatch: null == notifyHomeCatch
+          ? _value.notifyHomeCatch
+          : notifyHomeCatch // ignore: cast_nullable_to_non_nullable
+              as bool,
+      notifyHomeConnections: null == notifyHomeConnections
+          ? _value.notifyHomeConnections
+          : notifyHomeConnections // ignore: cast_nullable_to_non_nullable
+              as bool,
       createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -145,6 +201,14 @@ abstract class _$$AppUserImplCopyWith<$Res> implements $AppUserCopyWith<$Res> {
       ExperienceLevel experienceLevel,
       List<ClimbingStyle> climbingStyles,
       List<String> favoriteCragIds,
+      List<String> favoriteGymIds,
+      List<String> connectionIds,
+      List<String> pendingConnectionIds,
+      String? homeGymId,
+      String? homeCragId,
+      bool isHomeVisible,
+      bool notifyHomeCatch,
+      bool notifyHomeConnections,
       DateTime? createdAt,
       DateTime? lastActive});
 }
@@ -170,6 +234,14 @@ class __$$AppUserImplCopyWithImpl<$Res>
     Object? experienceLevel = null,
     Object? climbingStyles = null,
     Object? favoriteCragIds = null,
+    Object? favoriteGymIds = null,
+    Object? connectionIds = null,
+    Object? pendingConnectionIds = null,
+    Object? homeGymId = freezed,
+    Object? homeCragId = freezed,
+    Object? isHomeVisible = null,
+    Object? notifyHomeCatch = null,
+    Object? notifyHomeConnections = null,
     Object? createdAt = freezed,
     Object? lastActive = freezed,
   }) {
@@ -206,6 +278,38 @@ class __$$AppUserImplCopyWithImpl<$Res>
           ? _value._favoriteCragIds
           : favoriteCragIds // ignore: cast_nullable_to_non_nullable
               as List<String>,
+      favoriteGymIds: null == favoriteGymIds
+          ? _value._favoriteGymIds
+          : favoriteGymIds // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      connectionIds: null == connectionIds
+          ? _value._connectionIds
+          : connectionIds // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      pendingConnectionIds: null == pendingConnectionIds
+          ? _value._pendingConnectionIds
+          : pendingConnectionIds // ignore: cast_nullable_to_non_nullable
+              as List<String>,
+      homeGymId: freezed == homeGymId
+          ? _value.homeGymId
+          : homeGymId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      homeCragId: freezed == homeCragId
+          ? _value.homeCragId
+          : homeCragId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      isHomeVisible: null == isHomeVisible
+          ? _value.isHomeVisible
+          : isHomeVisible // ignore: cast_nullable_to_non_nullable
+              as bool,
+      notifyHomeCatch: null == notifyHomeCatch
+          ? _value.notifyHomeCatch
+          : notifyHomeCatch // ignore: cast_nullable_to_non_nullable
+              as bool,
+      notifyHomeConnections: null == notifyHomeConnections
+          ? _value.notifyHomeConnections
+          : notifyHomeConnections // ignore: cast_nullable_to_non_nullable
+              as bool,
       createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -230,10 +334,21 @@ class _$AppUserImpl implements _AppUser {
       this.experienceLevel = ExperienceLevel.intermediate,
       final List<ClimbingStyle> climbingStyles = const [ClimbingStyle.all],
       final List<String> favoriteCragIds = const [],
+      final List<String> favoriteGymIds = const [],
+      final List<String> connectionIds = const [],
+      final List<String> pendingConnectionIds = const [],
+      this.homeGymId,
+      this.homeCragId,
+      this.isHomeVisible = true,
+      this.notifyHomeCatch = true,
+      this.notifyHomeConnections = false,
       this.createdAt,
       this.lastActive})
       : _climbingStyles = climbingStyles,
-        _favoriteCragIds = favoriteCragIds;
+        _favoriteCragIds = favoriteCragIds,
+        _favoriteGymIds = favoriteGymIds,
+        _connectionIds = connectionIds,
+        _pendingConnectionIds = pendingConnectionIds;
 
   factory _$AppUserImpl.fromJson(Map<String, dynamic> json) =>
       _$$AppUserImplFromJson(json);
@@ -269,6 +384,47 @@ class _$AppUserImpl implements _AppUser {
     return EqualUnmodifiableListView(_favoriteCragIds);
   }
 
+  final List<String> _favoriteGymIds;
+  @override
+  @JsonKey()
+  List<String> get favoriteGymIds {
+    if (_favoriteGymIds is EqualUnmodifiableListView) return _favoriteGymIds;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_favoriteGymIds);
+  }
+
+  final List<String> _connectionIds;
+  @override
+  @JsonKey()
+  List<String> get connectionIds {
+    if (_connectionIds is EqualUnmodifiableListView) return _connectionIds;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_connectionIds);
+  }
+
+  final List<String> _pendingConnectionIds;
+  @override
+  @JsonKey()
+  List<String> get pendingConnectionIds {
+    if (_pendingConnectionIds is EqualUnmodifiableListView)
+      return _pendingConnectionIds;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_pendingConnectionIds);
+  }
+
+  @override
+  final String? homeGymId;
+  @override
+  final String? homeCragId;
+  @override
+  @JsonKey()
+  final bool isHomeVisible;
+  @override
+  @JsonKey()
+  final bool notifyHomeCatch;
+  @override
+  @JsonKey()
+  final bool notifyHomeConnections;
   @override
   final DateTime? createdAt;
   @override
@@ -276,7 +432,7 @@ class _$AppUserImpl implements _AppUser {
 
   @override
   String toString() {
-    return 'AppUser(uid: $uid, email: $email, displayName: $displayName, photoUrl: $photoUrl, bio: $bio, experienceLevel: $experienceLevel, climbingStyles: $climbingStyles, favoriteCragIds: $favoriteCragIds, createdAt: $createdAt, lastActive: $lastActive)';
+    return 'AppUser(uid: $uid, email: $email, displayName: $displayName, photoUrl: $photoUrl, bio: $bio, experienceLevel: $experienceLevel, climbingStyles: $climbingStyles, favoriteCragIds: $favoriteCragIds, favoriteGymIds: $favoriteGymIds, connectionIds: $connectionIds, pendingConnectionIds: $pendingConnectionIds, homeGymId: $homeGymId, homeCragId: $homeCragId, isHomeVisible: $isHomeVisible, notifyHomeCatch: $notifyHomeCatch, notifyHomeConnections: $notifyHomeConnections, createdAt: $createdAt, lastActive: $lastActive)';
   }
 
   @override
@@ -297,6 +453,22 @@ class _$AppUserImpl implements _AppUser {
                 .equals(other._climbingStyles, _climbingStyles) &&
             const DeepCollectionEquality()
                 .equals(other._favoriteCragIds, _favoriteCragIds) &&
+            const DeepCollectionEquality()
+                .equals(other._favoriteGymIds, _favoriteGymIds) &&
+            const DeepCollectionEquality()
+                .equals(other._connectionIds, _connectionIds) &&
+            const DeepCollectionEquality()
+                .equals(other._pendingConnectionIds, _pendingConnectionIds) &&
+            (identical(other.homeGymId, homeGymId) ||
+                other.homeGymId == homeGymId) &&
+            (identical(other.homeCragId, homeCragId) ||
+                other.homeCragId == homeCragId) &&
+            (identical(other.isHomeVisible, isHomeVisible) ||
+                other.isHomeVisible == isHomeVisible) &&
+            (identical(other.notifyHomeCatch, notifyHomeCatch) ||
+                other.notifyHomeCatch == notifyHomeCatch) &&
+            (identical(other.notifyHomeConnections, notifyHomeConnections) ||
+                other.notifyHomeConnections == notifyHomeConnections) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.lastActive, lastActive) ||
@@ -315,6 +487,14 @@ class _$AppUserImpl implements _AppUser {
       experienceLevel,
       const DeepCollectionEquality().hash(_climbingStyles),
       const DeepCollectionEquality().hash(_favoriteCragIds),
+      const DeepCollectionEquality().hash(_favoriteGymIds),
+      const DeepCollectionEquality().hash(_connectionIds),
+      const DeepCollectionEquality().hash(_pendingConnectionIds),
+      homeGymId,
+      homeCragId,
+      isHomeVisible,
+      notifyHomeCatch,
+      notifyHomeConnections,
       createdAt,
       lastActive);
 
@@ -344,6 +524,14 @@ abstract class _AppUser implements AppUser {
       final ExperienceLevel experienceLevel,
       final List<ClimbingStyle> climbingStyles,
       final List<String> favoriteCragIds,
+      final List<String> favoriteGymIds,
+      final List<String> connectionIds,
+      final List<String> pendingConnectionIds,
+      final String? homeGymId,
+      final String? homeCragId,
+      final bool isHomeVisible,
+      final bool notifyHomeCatch,
+      final bool notifyHomeConnections,
       final DateTime? createdAt,
       final DateTime? lastActive}) = _$AppUserImpl;
 
@@ -365,6 +553,22 @@ abstract class _AppUser implements AppUser {
   List<ClimbingStyle> get climbingStyles;
   @override
   List<String> get favoriteCragIds;
+  @override
+  List<String> get favoriteGymIds;
+  @override
+  List<String> get connectionIds;
+  @override
+  List<String> get pendingConnectionIds;
+  @override
+  String? get homeGymId;
+  @override
+  String? get homeCragId;
+  @override
+  bool get isHomeVisible;
+  @override
+  bool get notifyHomeCatch;
+  @override
+  bool get notifyHomeConnections;
   @override
   DateTime? get createdAt;
   @override

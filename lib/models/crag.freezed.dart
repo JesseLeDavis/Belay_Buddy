@@ -197,6 +197,7 @@ mixin _$Crag {
   String? get imageUrl => throw _privateConstructorUsedError;
   String? get region => throw _privateConstructorUsedError;
   String? get country => throw _privateConstructorUsedError;
+  bool get isGym => throw _privateConstructorUsedError;
   int get activeClimbersCount => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
   String? get createdBy => throw _privateConstructorUsedError;
@@ -224,6 +225,7 @@ abstract class $CragCopyWith<$Res> {
       String? imageUrl,
       String? region,
       String? country,
+      bool isGym,
       int activeClimbersCount,
       DateTime? createdAt,
       String? createdBy});
@@ -254,6 +256,7 @@ class _$CragCopyWithImpl<$Res, $Val extends Crag>
     Object? imageUrl = freezed,
     Object? region = freezed,
     Object? country = freezed,
+    Object? isGym = null,
     Object? activeClimbersCount = null,
     Object? createdAt = freezed,
     Object? createdBy = freezed,
@@ -291,6 +294,10 @@ class _$CragCopyWithImpl<$Res, $Val extends Crag>
           ? _value.country
           : country // ignore: cast_nullable_to_non_nullable
               as String?,
+      isGym: null == isGym
+          ? _value.isGym
+          : isGym // ignore: cast_nullable_to_non_nullable
+              as bool,
       activeClimbersCount: null == activeClimbersCount
           ? _value.activeClimbersCount
           : activeClimbersCount // ignore: cast_nullable_to_non_nullable
@@ -333,6 +340,7 @@ abstract class _$$CragImplCopyWith<$Res> implements $CragCopyWith<$Res> {
       String? imageUrl,
       String? region,
       String? country,
+      bool isGym,
       int activeClimbersCount,
       DateTime? createdAt,
       String? createdBy});
@@ -361,6 +369,7 @@ class __$$CragImplCopyWithImpl<$Res>
     Object? imageUrl = freezed,
     Object? region = freezed,
     Object? country = freezed,
+    Object? isGym = null,
     Object? activeClimbersCount = null,
     Object? createdAt = freezed,
     Object? createdBy = freezed,
@@ -398,6 +407,10 @@ class __$$CragImplCopyWithImpl<$Res>
           ? _value.country
           : country // ignore: cast_nullable_to_non_nullable
               as String?,
+      isGym: null == isGym
+          ? _value.isGym
+          : isGym // ignore: cast_nullable_to_non_nullable
+              as bool,
       activeClimbersCount: null == activeClimbersCount
           ? _value.activeClimbersCount
           : activeClimbersCount // ignore: cast_nullable_to_non_nullable
@@ -426,6 +439,7 @@ class _$CragImpl implements _Crag {
       this.imageUrl,
       this.region,
       this.country,
+      this.isGym = false,
       this.activeClimbersCount = 0,
       this.createdAt,
       this.createdBy})
@@ -459,6 +473,9 @@ class _$CragImpl implements _Crag {
   final String? country;
   @override
   @JsonKey()
+  final bool isGym;
+  @override
+  @JsonKey()
   final int activeClimbersCount;
   @override
   final DateTime? createdAt;
@@ -467,7 +484,7 @@ class _$CragImpl implements _Crag {
 
   @override
   String toString() {
-    return 'Crag(id: $id, name: $name, location: $location, description: $description, types: $types, imageUrl: $imageUrl, region: $region, country: $country, activeClimbersCount: $activeClimbersCount, createdAt: $createdAt, createdBy: $createdBy)';
+    return 'Crag(id: $id, name: $name, location: $location, description: $description, types: $types, imageUrl: $imageUrl, region: $region, country: $country, isGym: $isGym, activeClimbersCount: $activeClimbersCount, createdAt: $createdAt, createdBy: $createdBy)';
   }
 
   @override
@@ -486,6 +503,7 @@ class _$CragImpl implements _Crag {
                 other.imageUrl == imageUrl) &&
             (identical(other.region, region) || other.region == region) &&
             (identical(other.country, country) || other.country == country) &&
+            (identical(other.isGym, isGym) || other.isGym == isGym) &&
             (identical(other.activeClimbersCount, activeClimbersCount) ||
                 other.activeClimbersCount == activeClimbersCount) &&
             (identical(other.createdAt, createdAt) ||
@@ -506,6 +524,7 @@ class _$CragImpl implements _Crag {
       imageUrl,
       region,
       country,
+      isGym,
       activeClimbersCount,
       createdAt,
       createdBy);
@@ -536,6 +555,7 @@ abstract class _Crag implements Crag {
       final String? imageUrl,
       final String? region,
       final String? country,
+      final bool isGym,
       final int activeClimbersCount,
       final DateTime? createdAt,
       final String? createdBy}) = _$CragImpl;
@@ -558,6 +578,8 @@ abstract class _Crag implements Crag {
   String? get region;
   @override
   String? get country;
+  @override
+  bool get isGym;
   @override
   int get activeClimbersCount;
   @override

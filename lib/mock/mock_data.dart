@@ -1,6 +1,8 @@
 import 'package:belay_buddy/models/app_user.dart';
+import 'package:belay_buddy/models/climbing_notification.dart';
 import 'package:belay_buddy/models/climbing_post.dart';
 import 'package:belay_buddy/models/crag.dart';
+import 'package:belay_buddy/models/lost_found_item.dart';
 import 'package:belay_buddy/models/message.dart';
 
 /// The mock "current user" ID used throughout the app.
@@ -20,6 +22,14 @@ class MockData {
       experienceLevel: ExperienceLevel.intermediate,
       climbingStyles: [ClimbingStyle.sport, ClimbingStyle.trad],
       favoriteCragIds: ['crag_red_rocks', 'crag_smith_rock'],
+      favoriteGymIds: ['gym_movement_denver'],
+      connectionIds: ['user_2', 'user_3'],
+      pendingConnectionIds: ['user_5'],
+      homeCragId: 'crag_red_rocks',
+      homeGymId: 'gym_movement_denver',
+      isHomeVisible: true,
+      notifyHomeCatch: true,
+      notifyHomeConnections: false,
       createdAt: DateTime(2025, 1, 15),
       lastActive: DateTime.now(),
     ),
@@ -31,6 +41,13 @@ class MockData {
       experienceLevel: ExperienceLevel.advanced,
       climbingStyles: [ClimbingStyle.boulder, ClimbingStyle.sport],
       favoriteCragIds: ['crag_eldorado', 'crag_rumney'],
+      favoriteGymIds: ['gym_brooklyn_boulders'],
+      connectionIds: ['user_1'],
+      homeCragId: 'crag_rumney',
+      homeGymId: 'gym_brooklyn_boulders',
+      isHomeVisible: true,
+      notifyHomeCatch: true,
+      notifyHomeConnections: true,
       createdAt: DateTime(2024, 11, 3),
       lastActive: DateTime.now().subtract(const Duration(hours: 2)),
     ),
@@ -42,6 +59,13 @@ class MockData {
       experienceLevel: ExperienceLevel.expert,
       climbingStyles: [ClimbingStyle.trad],
       favoriteCragIds: ['crag_yosemite', 'crag_eldorado'],
+      favoriteGymIds: [],
+      connectionIds: ['user_1'],
+      homeCragId: 'crag_eldorado',
+      homeGymId: null,
+      isHomeVisible: false, // private but still counts
+      notifyHomeCatch: true,
+      notifyHomeConnections: false,
       createdAt: DateTime(2024, 6, 20),
       lastActive: DateTime.now().subtract(const Duration(minutes: 45)),
     ),
@@ -53,8 +77,33 @@ class MockData {
       experienceLevel: ExperienceLevel.beginner,
       climbingStyles: [ClimbingStyle.all],
       favoriteCragIds: ['crag_red_rocks'],
+      favoriteGymIds: ['gym_earth_treks'],
+      connectionIds: [],
+      homeCragId: 'crag_red_rocks',
+      homeGymId: 'gym_earth_treks',
+      isHomeVisible: true,
+      notifyHomeCatch: false,
+      notifyHomeConnections: false,
       createdAt: DateTime(2025, 3, 1),
       lastActive: DateTime.now().subtract(const Duration(days: 1)),
+    ),
+    AppUser(
+      uid: 'user_5',
+      email: 'sam@vertical.co',
+      displayName: 'Sam Crimperton',
+      bio: 'Finger strength > everything. Send help (and beta).',
+      experienceLevel: ExperienceLevel.advanced,
+      climbingStyles: [ClimbingStyle.sport, ClimbingStyle.boulder],
+      favoriteCragIds: ['crag_rumney', 'crag_smith_rock'],
+      favoriteGymIds: ['gym_sender_one'],
+      connectionIds: [],
+      homeCragId: 'crag_smith_rock',
+      homeGymId: 'gym_sender_one',
+      isHomeVisible: true,
+      notifyHomeCatch: true,
+      notifyHomeConnections: true,
+      createdAt: DateTime(2025, 2, 10),
+      lastActive: DateTime.now().subtract(const Duration(hours: 1)),
     ),
   ];
 
@@ -119,6 +168,56 @@ class MockData {
       region: 'Oregon, USA',
       country: 'US',
       activeClimbersCount: 7,
+      createdAt: DateTime(2024, 1, 1),
+    ),
+
+    // Gyms
+    Crag(
+      id: 'gym_movement_denver',
+      name: 'Movement Denver',
+      location: const CragLocation(latitude: 39.7661, longitude: -104.9759),
+      description: 'Premier bouldering gym with world-class setting routes and a strong community.',
+      types: [CragType.boulder],
+      region: 'Colorado, USA',
+      country: 'US',
+      isGym: true,
+      activeClimbersCount: 4,
+      createdAt: DateTime(2024, 1, 1),
+    ),
+    Crag(
+      id: 'gym_brooklyn_boulders',
+      name: 'Brooklyn Boulders',
+      location: const CragLocation(latitude: 40.6892, longitude: -73.9442),
+      description: 'NYC\'s flagship climbing gym with bouldering, top rope, and lead walls.',
+      types: [CragType.boulder, CragType.sport],
+      region: 'New York, USA',
+      country: 'US',
+      isGym: true,
+      activeClimbersCount: 9,
+      createdAt: DateTime(2024, 1, 1),
+    ),
+    Crag(
+      id: 'gym_earth_treks',
+      name: 'Earth Treks Columbia',
+      location: const CragLocation(latitude: 39.2037, longitude: -76.8610),
+      description: 'One of the largest climbing gyms on the East Coast with extensive lead and bouldering walls.',
+      types: [CragType.sport, CragType.boulder],
+      region: 'Maryland, USA',
+      country: 'US',
+      isGym: true,
+      activeClimbersCount: 6,
+      createdAt: DateTime(2024, 1, 1),
+    ),
+    Crag(
+      id: 'gym_sender_one',
+      name: 'Sender One Santa Ana',
+      location: const CragLocation(latitude: 33.7175, longitude: -117.8311),
+      description: 'World-class training facility and climbing gym with extensive route variety.',
+      types: [CragType.sport, CragType.boulder],
+      region: 'California, USA',
+      country: 'US',
+      isGym: true,
+      activeClimbersCount: 11,
       createdAt: DateTime(2024, 1, 1),
     ),
   ];
@@ -470,6 +569,90 @@ class MockData {
       ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
   }
 
+  // ============ LOST & FOUND ============
+
+  static final List<LostFoundItem> lostFoundItems = [
+    // Red Rocks
+    LostFoundItem(
+      id: 'lf_1',
+      cragId: 'crag_red_rocks',
+      userId: 'user_2',
+      status: LostFoundStatus.found,
+      category: LostFoundCategory.gear,
+      itemName: 'Black ATC belay device',
+      description: 'Found near Calico Basin. Well worn, has a carabiner attached.',
+      locationNote: 'Base of Calico Basin wall',
+      createdAt: DateTime.now().subtract(const Duration(hours: 3)),
+    ),
+    LostFoundItem(
+      id: 'lf_2',
+      cragId: 'crag_red_rocks',
+      userId: 'user_3',
+      status: LostFoundStatus.lost,
+      category: LostFoundCategory.clothing,
+      itemName: 'Blue Patagonia fleece',
+      description: 'Has my name written on the inside tag. Lost somewhere near the main wall.',
+      locationNote: 'Main wall / parking area',
+      createdAt: DateTime.now().subtract(const Duration(days: 1)),
+    ),
+    LostFoundItem(
+      id: 'lf_3',
+      cragId: 'crag_red_rocks',
+      userId: 'user_1',
+      status: LostFoundStatus.found,
+      category: LostFoundCategory.personalItem,
+      itemName: 'Prescription glasses in case',
+      description: 'Wire-framed glasses in a green hard case. Found at Calico Hills.',
+      locationNote: 'Calico Hills area',
+      createdAt: DateTime.now().subtract(const Duration(hours: 6)),
+    ),
+
+    // Smith Rock
+    LostFoundItem(
+      id: 'lf_4',
+      cragId: 'crag_smith_rock',
+      userId: 'user_4',
+      status: LostFoundStatus.lost,
+      category: LostFoundCategory.gear,
+      itemName: 'Orange Petzl Grigri',
+      description: 'Has a small nick on the side plate. Lost near the Dihedrals.',
+      locationNote: 'Near the Dihedrals',
+      createdAt: DateTime.now().subtract(const Duration(hours: 8)),
+    ),
+    LostFoundItem(
+      id: 'lf_5',
+      cragId: 'crag_smith_rock',
+      userId: 'user_2',
+      status: LostFoundStatus.found,
+      category: LostFoundCategory.rope,
+      itemName: '60m dry-treated rope',
+      description: 'Blue/green pattern, left at the base of Monkey Face. No bag.',
+      locationNote: 'Base of Monkey Face',
+      createdAt: DateTime.now().subtract(const Duration(days: 2)),
+    ),
+
+    // Yosemite
+    LostFoundItem(
+      id: 'lf_6',
+      cragId: 'crag_yosemite',
+      userId: 'user_3',
+      status: LostFoundStatus.lost,
+      category: LostFoundCategory.personalItem,
+      itemName: 'GoPro Hero 12',
+      description: 'In a black protective case with a chest harness. Lost somewhere on the approach to El Cap.',
+      locationNote: 'El Cap approach trail',
+      createdAt: DateTime.now().subtract(const Duration(hours: 12)),
+    ),
+  ];
+
+  static List<LostFoundItem> getLostFoundForCrag(String cragId) {
+    return lostFoundItems
+        .where((item) => item.cragId == cragId && !item.isResolved)
+        .toList()
+      ..sort((a, b) => (b.createdAt ?? DateTime(2000))
+          .compareTo(a.createdAt ?? DateTime(2000)));
+  }
+
   /// Helper: get conversations for a user
   static List<Conversation> getConversationsForUser(String userId) {
     return conversations
@@ -478,5 +661,103 @@ class MockData {
       ..sort((a, b) =>
           (b.lastMessageTime ?? DateTime(2000))
               .compareTo(a.lastMessageTime ?? DateTime(2000)));
+  }
+
+  // ============ NOTIFICATIONS ============
+
+  static final List<ClimbingNotification> notifications = [
+    // Maya (user_2, connection) posted needing a catch
+    ClimbingNotification(
+      id: 'notif_1',
+      toUserId: 'user_1',
+      fromUserId: 'user_2',
+      fromUserName: 'Maya Sendsalot',
+      type: NotificationType.catchNeeded,
+      postId: 'post_9',
+      cragId: 'crag_rumney',
+      cragName: 'Rumney',
+      isRead: false,
+      createdAt: DateTime.now().subtract(const Duration(minutes: 5)),
+    ),
+    // Carlos (user_3, connection) posted needing a catch
+    ClimbingNotification(
+      id: 'notif_2',
+      toUserId: 'user_1',
+      fromUserId: 'user_3',
+      fromUserName: 'Carlos Trad-Dad',
+      type: NotificationType.catchNeeded,
+      postId: 'post_11',
+      cragId: 'crag_smith_rock',
+      cragName: 'Smith Rock',
+      isRead: false,
+      createdAt: DateTime.now().subtract(const Duration(hours: 1)),
+    ),
+    // Sam (user_5) sent a connection request to user_1
+    ClimbingNotification(
+      id: 'notif_3',
+      toUserId: 'user_1',
+      fromUserId: 'user_5',
+      fromUserName: 'Sam Crimperton',
+      type: NotificationType.connectionRequest,
+      isRead: false,
+      createdAt: DateTime.now().subtract(const Duration(hours: 3)),
+    ),
+    // An older read notification
+    ClimbingNotification(
+      id: 'notif_4',
+      toUserId: 'user_1',
+      fromUserId: 'user_4',
+      fromUserName: 'Priya Betaspray',
+      type: NotificationType.connectionAccepted,
+      isRead: true,
+      createdAt: DateTime.now().subtract(const Duration(days: 1)),
+    ),
+  ];
+
+  static List<ClimbingNotification> getNotificationsForUser(String userId) {
+    return notifications
+        .where((n) => n.toUserId == userId)
+        .toList()
+      ..sort((a, b) =>
+          (b.createdAt ?? DateTime(2000))
+              .compareTo(a.createdAt ?? DateTime(2000)));
+  }
+
+  static int getUnreadNotificationCount(String userId) {
+    return notifications
+        .where((n) => n.toUserId == userId && !n.isRead)
+        .length;
+  }
+
+  static List<AppUser> getConnectionsForUser(String userId) {
+    final user = getUserById(userId);
+    if (user == null) return [];
+    return users.where((u) => user.connectionIds.contains(u.uid)).toList();
+  }
+
+  static List<AppUser> getPendingRequestsForUser(String userId) {
+    final user = getUserById(userId);
+    if (user == null) return [];
+    return users.where((u) => user.pendingConnectionIds.contains(u.uid)).toList();
+  }
+
+  /// All users except the current user, for browsing
+  static List<AppUser> getDiscoverableUsers(String currentUserId) {
+    return users.where((u) => u.uid != currentUserId).toList();
+  }
+
+  /// Count of users who have set this crag/gym as their home location.
+  /// Counts everyone regardless of visibility — visibility only affects display names.
+  static int getHomeMemberCount(String cragId) {
+    return users.where((u) => u.homeCragId == cragId || u.homeGymId == cragId).length;
+  }
+
+  /// Visible home members (isHomeVisible == true) for a location.
+  static List<AppUser> getVisibleHomeMembers(String cragId) {
+    return users
+        .where((u) =>
+            (u.homeCragId == cragId || u.homeGymId == cragId) &&
+            u.isHomeVisible)
+        .toList();
   }
 }

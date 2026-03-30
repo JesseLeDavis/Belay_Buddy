@@ -30,6 +30,7 @@ _$CragImpl _$$CragImplFromJson(Map<String, dynamic> json) => _$CragImpl(
       imageUrl: json['imageUrl'] as String?,
       region: json['region'] as String?,
       country: json['country'] as String?,
+      isGym: json['isGym'] as bool? ?? false,
       activeClimbersCount: (json['activeClimbersCount'] as num?)?.toInt() ?? 0,
       createdAt: json['createdAt'] == null
           ? null
@@ -47,6 +48,7 @@ Map<String, dynamic> _$$CragImplToJson(_$CragImpl instance) =>
       'imageUrl': instance.imageUrl,
       'region': instance.region,
       'country': instance.country,
+      'isGym': instance.isGym,
       'activeClimbersCount': instance.activeClimbersCount,
       'createdAt': instance.createdAt?.toIso8601String(),
       'createdBy': instance.createdBy,

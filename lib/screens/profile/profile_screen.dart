@@ -1,5 +1,7 @@
 import 'package:belay_buddy/models/app_user.dart';
 import 'package:belay_buddy/providers/firestore_providers.dart';
+import 'package:belay_buddy/screens/profile/find_climbers_screen.dart';
+import 'package:belay_buddy/screens/profile/notifications_screen.dart';
 import 'package:belay_buddy/theme/app_theme.dart';
 import 'package:belay_buddy/widgets/retro_button.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +29,7 @@ class ProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(currentUserProvider);
+    final unreadCount = ref.watch(unreadNotificationCountProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -39,6 +42,44 @@ class ProfileScreen extends ConsumerWidget {
             color: AppColors.darkNavy,
           ),
         ),
+        actions: [
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.notifications_outlined,
+                    color: AppColors.darkNavy),
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => const NotificationsScreen(),
+                )),
+              ),
+              if (unreadCount > 0)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    width: 16,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: AppColors.dullOrange,
+                      border:
+                          Border.all(color: AppColors.darkNavy, width: 1.5),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '$unreadCount',
+                        style: GoogleFonts.spaceMono(
+                            fontSize: 8,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(width: AppSpacing.xs),
+        ],
       ),
       body: userAsync.when(
         data: (user) {
@@ -53,7 +94,7 @@ class ProfileScreen extends ConsumerWidget {
               ),
             );
           }
-          return _buildProfile(context, user);
+          return _buildProfile(context, ref, user);
         },
         loading: () => Center(
           child: Text(
@@ -75,7 +116,7 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildProfile(BuildContext context, AppUser user) {
+  Widget _buildProfile(BuildContext context, WidgetRef ref, AppUser user) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
@@ -218,6 +259,48 @@ class ProfileScreen extends ConsumerWidget {
                 ),
             ],
           ),
+          const SizedBox(height: AppSpacing.md),
+
+          // Connections — blue header
+          _ConnectionsCard(user: user, ref: ref),
+          const SizedBox(height: AppSpacing.lg),
+
+          // Find climbers button
+          GestureDetector(
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => const FindClimbersScreen(),
+            )),
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              decoration: const BoxDecoration(
+                color: AppColors.accentBlue,
+                border: Border.fromBorderSide(
+                    BorderSide(color: AppColors.darkNavy, width: 2.5)),
+                boxShadow: [
+                  BoxShadow(
+                      color: AppColors.darkNavy,
+                      offset: Offset(4, 4),
+                      blurRadius: 0)
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.group_add_outlined,
+                      color: Colors.white, size: 18),
+                  const SizedBox(width: AppSpacing.sm),
+                  Text(
+                    'FIND CLIMBERS',
+                    style: GoogleFonts.spaceMono(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
           const SizedBox(height: AppSpacing.lg),
 
           // Sign out — ink fill, orange shadow
@@ -353,6 +436,191 @@ class _StatLine extends StatelessWidget {
                 color: valueColor ?? AppColors.textPrimary,
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ConnectionsCard extends StatelessWidget {
+  final AppUser user;
+  final WidgetRef ref;
+  const _ConnectionsCard({required this.user, required this.ref});
+
+  @override
+  Widget build(BuildContext context) {
+    final connectionsAsync = ref.watch(connectionsProvider);
+    final pendingAsync = ref.watch(pendingConnectionRequestsProvider);
+    final connections = connectionsAsync.valueOrNull ?? [];
+    final pending = pendingAsync.valueOrNull ?? [];
+
+    return Container(
+      decoration: const BoxDecoration(
+        color: AppColors.surface,
+        border: Border.fromBorderSide(
+            BorderSide(color: AppColors.darkNavy, width: 2.5)),
+        boxShadow: [
+          BoxShadow(
+              color: AppColors.darkNavy, offset: Offset(4, 4), blurRadius: 0)
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Header
+          Container(
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.sm + 4, vertical: 10),
+            color: AppColors.accentBlue,
+            child: Row(
+              children: [
+                Text(
+                  'CONNECTIONS',
+                  style: GoogleFonts.spaceMono(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+                const Spacer(),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: AppColors.darkNavy, width: 1.5),
+                  ),
+                  child: Text(
+                    '${connections.length}',
+                    style: GoogleFonts.spaceMono(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.accentBlue,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Pending requests
+          if (pending.isNotEmpty) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+              color: AppColors.chipBg,
+              child: Row(
+                children: [
+                  const Icon(Icons.person_add_outlined,
+                      size: 14, color: AppColors.accentBlue),
+                  const SizedBox(width: AppSpacing.xs),
+                  Text(
+                    '${pending.length} PENDING REQUEST${pending.length > 1 ? 'S' : ''}',
+                    style: GoogleFonts.spaceMono(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.accentBlue,
+                    ),
+                  ),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const NotificationsScreen(),
+                    )),
+                    child: Text(
+                      'REVIEW →',
+                      style: GoogleFonts.spaceMono(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.accentBlue,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1, thickness: 1, color: AppColors.darkNavy),
+          ],
+
+          // Connection list
+          if (connections.isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: Text(
+                'No connections yet. Find climbers to connect with!',
+                style: GoogleFonts.cabin(
+                    fontSize: 13, color: AppColors.textSecondary),
+              ),
+            )
+          else
+            ...connections.map((c) => _ConnectionRow(user: c)),
+        ],
+      ),
+    );
+  }
+}
+
+class _ConnectionRow extends StatelessWidget {
+  final AppUser user;
+  const _ConnectionRow({required this.user});
+
+  static const _levelColors = {
+    ExperienceLevel.beginner: AppColors.oliveGreen,
+    ExperienceLevel.intermediate: AppColors.amber,
+    ExperienceLevel.advanced: AppColors.dullOrange,
+    ExperienceLevel.expert: AppColors.error,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+      decoration: const BoxDecoration(
+        border:
+            Border(bottom: BorderSide(color: AppColors.darkGrey, width: 1)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: _levelColors[user.experienceLevel] ?? AppColors.darkNavy,
+              border: Border.all(color: AppColors.darkNavy, width: 2),
+            ),
+            child: Center(
+              child: Text(
+                user.displayName.isNotEmpty
+                    ? user.displayName[0].toUpperCase()
+                    : '?',
+                style: GoogleFonts.spaceMono(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              user.displayName,
+              style: GoogleFonts.cabin(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppColors.darkNavy,
+              ),
+            ),
+          ),
+          Text(
+            user.climbingStyles
+                .take(2)
+                .map((s) => s.name.toUpperCase())
+                .join(' · '),
+            style: GoogleFonts.spaceMono(
+                fontSize: 9, color: AppColors.textSecondary),
           ),
         ],
       ),

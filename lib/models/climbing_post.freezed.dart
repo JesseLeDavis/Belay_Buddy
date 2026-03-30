@@ -31,6 +31,7 @@ mixin _$ClimbingPost {
   bool get offeringBelay => throw _privateConstructorUsedError;
   DateTime? get expiresAt => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
+  bool get isExpired => throw _privateConstructorUsedError;
 
   /// Serializes this ClimbingPost to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -59,7 +60,8 @@ abstract class $ClimbingPostCopyWith<$Res> {
       bool needsBelay,
       bool offeringBelay,
       DateTime? expiresAt,
-      DateTime? createdAt});
+      DateTime? createdAt,
+      bool isExpired});
 }
 
 /// @nodoc
@@ -88,6 +90,7 @@ class _$ClimbingPostCopyWithImpl<$Res, $Val extends ClimbingPost>
     Object? offeringBelay = null,
     Object? expiresAt = freezed,
     Object? createdAt = freezed,
+    Object? isExpired = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -134,6 +137,10 @@ class _$ClimbingPostCopyWithImpl<$Res, $Val extends ClimbingPost>
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
+      isExpired: null == isExpired
+          ? _value.isExpired
+          : isExpired // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 }
@@ -157,7 +164,8 @@ abstract class _$$ClimbingPostImplCopyWith<$Res>
       bool needsBelay,
       bool offeringBelay,
       DateTime? expiresAt,
-      DateTime? createdAt});
+      DateTime? createdAt,
+      bool isExpired});
 }
 
 /// @nodoc
@@ -184,6 +192,7 @@ class __$$ClimbingPostImplCopyWithImpl<$Res>
     Object? offeringBelay = null,
     Object? expiresAt = freezed,
     Object? createdAt = freezed,
+    Object? isExpired = null,
   }) {
     return _then(_$ClimbingPostImpl(
       id: null == id
@@ -230,6 +239,10 @@ class __$$ClimbingPostImplCopyWithImpl<$Res>
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
               as DateTime?,
+      isExpired: null == isExpired
+          ? _value.isExpired
+          : isExpired // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -248,7 +261,8 @@ class _$ClimbingPostImpl implements _ClimbingPost {
       this.needsBelay = false,
       this.offeringBelay = false,
       this.expiresAt,
-      this.createdAt});
+      this.createdAt,
+      this.isExpired = false});
 
   factory _$ClimbingPostImpl.fromJson(Map<String, dynamic> json) =>
       _$$ClimbingPostImplFromJson(json);
@@ -278,10 +292,13 @@ class _$ClimbingPostImpl implements _ClimbingPost {
   final DateTime? expiresAt;
   @override
   final DateTime? createdAt;
+  @override
+  @JsonKey()
+  final bool isExpired;
 
   @override
   String toString() {
-    return 'ClimbingPost(id: $id, userId: $userId, cragId: $cragId, title: $title, description: $description, dateTime: $dateTime, type: $type, needsBelay: $needsBelay, offeringBelay: $offeringBelay, expiresAt: $expiresAt, createdAt: $createdAt)';
+    return 'ClimbingPost(id: $id, userId: $userId, cragId: $cragId, title: $title, description: $description, dateTime: $dateTime, type: $type, needsBelay: $needsBelay, offeringBelay: $offeringBelay, expiresAt: $expiresAt, createdAt: $createdAt, isExpired: $isExpired)';
   }
 
   @override
@@ -305,7 +322,9 @@ class _$ClimbingPostImpl implements _ClimbingPost {
             (identical(other.expiresAt, expiresAt) ||
                 other.expiresAt == expiresAt) &&
             (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt));
+                other.createdAt == createdAt) &&
+            (identical(other.isExpired, isExpired) ||
+                other.isExpired == isExpired));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -322,7 +341,8 @@ class _$ClimbingPostImpl implements _ClimbingPost {
       needsBelay,
       offeringBelay,
       expiresAt,
-      createdAt);
+      createdAt,
+      isExpired);
 
   /// Create a copy of ClimbingPost
   /// with the given fields replaced by the non-null parameter values.
@@ -352,7 +372,8 @@ abstract class _ClimbingPost implements ClimbingPost {
       final bool needsBelay,
       final bool offeringBelay,
       final DateTime? expiresAt,
-      final DateTime? createdAt}) = _$ClimbingPostImpl;
+      final DateTime? createdAt,
+      final bool isExpired}) = _$ClimbingPostImpl;
 
   factory _ClimbingPost.fromJson(Map<String, dynamic> json) =
       _$ClimbingPostImpl.fromJson;
@@ -379,6 +400,8 @@ abstract class _ClimbingPost implements ClimbingPost {
   DateTime? get expiresAt;
   @override
   DateTime? get createdAt;
+  @override
+  bool get isExpired;
 
   /// Create a copy of ClimbingPost
   /// with the given fields replaced by the non-null parameter values.

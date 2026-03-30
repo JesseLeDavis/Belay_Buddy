@@ -24,6 +24,23 @@ _$AppUserImpl _$$AppUserImplFromJson(Map<String, dynamic> json) =>
               ?.map((e) => e as String)
               .toList() ??
           const [],
+      favoriteGymIds: (json['favoriteGymIds'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+      connectionIds: (json['connectionIds'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+      pendingConnectionIds: (json['pendingConnectionIds'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+      homeGymId: json['homeGymId'] as String?,
+      homeCragId: json['homeCragId'] as String?,
+      isHomeVisible: json['isHomeVisible'] as bool? ?? true,
+      notifyHomeCatch: json['notifyHomeCatch'] as bool? ?? true,
+      notifyHomeConnections: json['notifyHomeConnections'] as bool? ?? false,
       createdAt: json['createdAt'] == null
           ? null
           : DateTime.parse(json['createdAt'] as String),
@@ -44,6 +61,14 @@ Map<String, dynamic> _$$AppUserImplToJson(_$AppUserImpl instance) =>
           .map((e) => _$ClimbingStyleEnumMap[e]!)
           .toList(),
       'favoriteCragIds': instance.favoriteCragIds,
+      'favoriteGymIds': instance.favoriteGymIds,
+      'connectionIds': instance.connectionIds,
+      'pendingConnectionIds': instance.pendingConnectionIds,
+      'homeGymId': instance.homeGymId,
+      'homeCragId': instance.homeCragId,
+      'isHomeVisible': instance.isHomeVisible,
+      'notifyHomeCatch': instance.notifyHomeCatch,
+      'notifyHomeConnections': instance.notifyHomeConnections,
       'createdAt': instance.createdAt?.toIso8601String(),
       'lastActive': instance.lastActive?.toIso8601String(),
     };

@@ -22,6 +22,7 @@ class ClimbingPost with _$ClimbingPost {
     @Default(false) bool offeringBelay,
     DateTime? expiresAt,
     DateTime? createdAt,
+    @Default(false) bool isExpired,
   }) = _ClimbingPost;
 
   factory ClimbingPost.fromJson(Map<String, dynamic> json) =>

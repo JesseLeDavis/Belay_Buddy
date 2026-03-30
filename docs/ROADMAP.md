@@ -1,165 +1,150 @@
 # Belay Buddy — Product Roadmap
 
-**Last updated:** 2026-03-29
+**Last updated:** 2026-03-30
 **Owner:** Solo developer, personal project
+
+---
+
+## DONE — Shipped
+
+### v0.1 — Initial scaffold
+- [x] Flutter project, Firebase config, go_router, Riverpod, Freezed models
+- [x] Login screen (email/password)
+- [x] Google Maps with terrain view + crag markers
+- [x] Crag detail / bulletin board screen
+- [x] Post creation form (NOW / PLANNED, date picker, belay status)
+- [x] Mock data layer (entire app runs offline, no Firebase dependency)
+- [x] Bottom nav bar (MAP / MSG / ME)
+
+### v0.2 — Neobrutalist UI overhaul
+- [x] Full design system: zero border-radius, darkNavy hard shadows, Space Mono + Cabin fonts
+- [x] Color tokens: dullOrange, oliveGreen, amber, accentBlue, darkNavy, cream background
+- [x] Custom neo-brutalist nav bar with active-tab highlight
+- [x] Full-screen map expand + unified CustomScrollView page
+- [x] Post card redesign: colored left-border strip, NOW/PLANNED badges
+- [x] Profile screen with experience bar (diagonal hatching), styles, favorites
+
+### v0.3 — Social + Venue features
+- [x] **Gym support** — `isGym` on Crag model; 4 gym entries in mock data; GYM vs CRAG labels on map list cards
+- [x] **Custom map markers** — Programmatic neo-brutalist square pin icons: orange for crags, blue for gyms
+- [x] **Crag detail redesign** — Lost & Found Bin panel + Community Board panel replacing flat post list
+- [x] **7-day heatmap strip** — Partner demand visualization on Community Board; dot color scales with activity
+- [x] **LostFoundItem model** — `status` (found/lost), `category`, `locationNote`, `isResolved`
+- [x] **Branching FAB** — Partner Session vs Lost & Found options
+- [x] **Post detail bottom sheet** — Full post info with user profile snippet
+- [x] **Connections system** — `connectionIds`, `pendingConnectionIds` on AppUser; FindClimbersScreen (CONNECT / PENDING / CONNECTED); NotificationsScreen (catch-needed, connection request/accepted); unread badge on profile tab; CONNECT button on post detail sheet
+- [x] **Home Base** — `homeGymId`, `homeCragId`, `isHomeVisible`, `notifyHomeCatch`, `notifyHomeConnections` on AppUser; home member count on crag/gym detail; `_HomeBaseSheet` with all 4 toggles; `HomeSettingsNotifier` for live in-session state
+- [x] **Favorites** — `favoriteCragIds`, `favoriteGymIds` on AppUser; `isFavoriteCragProvider`, `isFavoriteGymProvider`
 
 ---
 
 ## NOW — Current Sprint
 
-> Actively in progress or just landed.
+> These are the two stub screens that are visible in the UI but show "COMING SOON".
 
-- [x] **Neobrutalist UI overhaul** — Bold color system (vivid orange/green/blue/yellow), hard offset shadows, 0 border radius, Space Mono typography throughout
-- [x] **Custom nav bar** — Replaced Material `NavigationBar` with hand-rolled Neobrutalist tab bar; fixed active tab highlighting (ShellRoute location propagation), fixed safe area double-padding gap
-- [x] **Full-screen map expand + unified scroll** — Map collapses to 220px at top; tap expand strip to go full-screen; crag list and map scroll as one unified `CustomScrollView` page
-- [x] **Post screen cleanup** — Removed belay status checkboxes (redundant), removed "LIVE"/"ACTIVE" labels, "● NOW" replaces "● LIVE"
-- [x] **Mock data layer** — Entire app runs on mock data (4 users, 5 crags, 13 posts, 3 conversations); no Firebase dependency during UI prototyping
-- [x] **Initial GitHub push** — Repo live at `github.com/JesseLeDavis/Belay_Buddy`; `.env` gitignored, iOS Google Maps key restricted by bundle ID in Google Cloud Console
+### 1. Lost & Found Screen `[M]`
+The `LostFoundScreen` is a live stub reachable from the crag detail panel. Full implementation:
+- Filter tabs: ALL / FOUND / LOST
+- `LostFoundCard` widget with FOUND/LOST badge, category, item name, location note, time ago
+- Item detail bottom sheet with "Mark as Resolved" for the post owner
+- Create form (accessible from the FAB → Lost & Found path): Lost/Found toggle, category picker, item name, description, location note
+
+### 2. Community Board / Schedule Screen `[M]`
+The `CragScheduleScreen` is a live stub. Full implementation:
+- Full session list sorted by date (all upcoming posts at this crag)
+- Day filter: tap a day in a week view to filter the list
+- Show partner's name, belay status, time, and a message/connect CTA per row
 
 ---
 
 ## NEXT — Up Next
 
-> Build these in order. Each unblocks the one after it.
+### 3. Favorites UI `[S]`
+Model fields exist (`favoriteCragIds`, `favoriteGymIds`), providers exist (`isFavoriteCragProvider`, `isFavoriteGymProvider`). Wire up the UI:
+- Heart/star icon on crag detail screen (tap to toggle)
+- Favorited crags/gyms surfaced at the top of the map list
+- Favorites section on the profile screen
 
-### 1. Profile Setup on Signup `[S]`
-**The single biggest bug.** Sign-up creates a Firebase Auth account but never collects a display name or creates an `AppUser` Firestore document. Every post card shows "Unknown" and "?" avatar.
+### 4. Edit Profile `[S]`
+Profile screen is read-only. Add edit mode for:
+- Display name
+- Bio
+- Experience level
+- Climbing styles
 
-- Add a profile setup screen after sign-up: display name (required), experience level, climbing styles
-- Create `AppUser` document in Firestore on completion
-- Gate the main app on profile completion
+### 5. Crag Search `[S]`
+Search icon in map app bar is a stub. Wire to a text input that filters the crag list by name and/or region.
 
-### 2. Fix Auth Bypass `[S]`
-`initialLocation: '/'` skips the auth gate. Unauthenticated users land on the map. Swap to a proper `redirect` in go_router that checks Firebase auth state.
+### 6. Wire Messaging to Firestore `[M]`
+Chat UI and conversation list are built. When Firebase is active:
+- `ChatScreen._sendMessage()` calls `FirestoreService.sendMessage()`
+- `MessagesScreen` uses `userConversationsProvider` streaming from Firestore
+- Unread badge count on Messages tab
 
-### 3. Wire Post Creation to the UI `[S]`
-`CreatePostScreen` works but is unreachable. Add a FAB on `CragDetailScreen` that navigates to it with the crag object as `extra`. This is the core action of the entire app.
-
-### 4. Wire Messaging `[M]`
-The UI, data models, and Firestore service all exist. Connect the dots:
-- Tapping a post card → opens/creates a conversation → navigates to `ChatScreen`
-- `ChatScreen._sendMessage()` calls `FirestoreService.sendMessage()` instead of showing a snackbar
-- `MessagesScreen` pulls real user display names from Firestore instead of `MockData`
-- Unread badge count on the Messages tab
-
-### 5. Fix Negative Time Formatting `[S]`
-`PostCard._formatDateTime` returns "in -120m" for past posts. Handle past datetimes as "Xh ago" / "Xm ago".
-
-### 6. Center Map on User Location `[S]`
-Map defaults to USA center. One `geolocator` call on init to center the camera on the user's position if permission is granted.
+### 7. Firebase Activation `[M]`
+- Uncomment `Firebase.initializeApp()` in `main.dart`
+- Replace `lib/providers/firestore_providers.dart` re-export with real Firestore providers
+- Deploy `firestore.rules` and `storage.rules`
+- Run `seedInitialCrags()` once
 
 ---
 
-## LATER — Backlog (Prioritized)
+## LATER — Backlog
 
-### Venue Expansion
+### Core Experience
 
-**Gyms** `[L]`
-Gyms as a distinct venue type. Different from crags: owner-claimed, curated content, events.
-- `Gym` Firestore model
-- Gym markers on map (distinct icon from crags)
-- Gym detail screen: hours, events, partner board
-- Gym claiming flow (owner submits claim → admin verifies)
-- Gym owners post events: comps, clinics, intro classes
-- *Depends on: admin tooling (can be lightweight at first — manual Firestore edits)*
+| Item | Notes |
+|---|---|
+| Profile photo upload | Firebase Storage is in the stack; needs upload UI + Storage rules |
+| Delete own post | Owner sees delete option on their post in the detail sheet |
+| Fix auth bypass | `initialLocation: '/'` skips auth gate for unauthenticated users |
+| Profile setup on signup | Collect displayName + experienceLevel after sign-up before landing on map |
+| Map center on user location | One `geolocator` call in `initState`; permission already declared |
+| Post reactions / "+1 I'll be there" | Lower friction than opening a conversation |
+| Experience filter on board | Filter chips: Beginner / Intermediate / Advanced / Expert |
 
-**Lost & Found per Crag** `[M]`
-- "LOST & FOUND" tab alongside "BOARD" on each crag detail screen
-- Post types: Lost Item / Found Item
-- Categories: shoes, harness, draws, cam, clothing, other
-- Persists until poster marks as resolved
-- Contact via in-app messaging
-- *New model: `LostFoundPost`*
+### Notifications (Firebase)
 
-**Climbing Coalitions** `[L]`
-Local Access Fund chapters, climbing clubs, and stewardship orgs get a verified presence.
-- `Coalition` model: name, region, description, website, adminUserIds
-- Coalition events: **climbing clinics, crag care days**, meetings
-- Events linked to crags appear on that crag's board + global events feed
-- Crag map markers show a badge for upcoming coalition events
-- Claiming flow (same pattern as gyms)
-- *Depends on: gym claiming infrastructure (reuse the pattern)*
+| Item | Notes |
+|---|---|
+| Push notifications | FCM for: new message, catch needed at home location, post expiry reminder |
+| Cloud Function: `onPostCreate` | Set `expiresAt` server-side; prevents client tampering |
+| Cloud Function: `expireOldPosts` | Scheduled sweep to set `isExpired: true` on stale posts |
 
-### Core Polish
+### Venue & Community
 
-**User Profile View** `[S]`
-Tappable from any post card. Shows: display name, experience level, climbing styles, member since. The trust layer that makes strangers feel real.
-
-**Delete Own Post** `[S]`
-Climbers' plans change. Stale "here today" posts erode board quality. Owner sees a delete option on their own cards.
-
-**Crag Search** `[S]`
-Name-based filter on the map screen. The search icon is already in the app bar — wire it to a text input that filters the crag list.
-
-**Edit Profile** `[S]`
-Bio, experience level, climbing styles. Currently the profile screen is read-only.
-
-**Favorites** `[S]`
-Star a crag for quick access. `favoriteCragIds` already exists on `AppUser`. Show favorited crags at the top of the map screen list.
-
-**My Posts Tab** `[S]`
-Bottom nav "Posts" tab → show the user's active posts with delete. `userPostsProvider` already exists.
-
-**Profile Photos** `[M]`
-Upload a profile photo. Firebase Storage is already in the stack.
-
-**Firestore Indexes + Security Rules** `[S]`
-Deploy the composite index for `postsAtCragStream` and the security rules already written in the README. Both are launch blockers that just need deployment.
+| Item | Notes |
+|---|---|
+| User-submitted crags | `createdBy` field exists on Crag; needs submit form + admin review |
+| Climbing coalitions | Access Fund chapters, clubs, stewardship orgs; event model + crag linking |
+| Gym claiming flow | Owner submits claim; admin verifies; claimed gyms get "Official" badge |
+| Weather widget per crag | Open-Meteo free API; show 1-day forecast on crag detail header |
+| Active climber count on map markers | Badge on marker showing posts today |
 
 ### Growth
 
-**Push Notifications** `[L]`
-New message, coalition event at a favorited crag, post expiry reminder.
-*Depends on: FCM setup, notification permission flow*
-
-**User-Submitted Crags** `[M]`
-`Crag.createdBy` field exists. Build a submit form. Admin-review before publishing (lightweight: manual approval via Firestore console).
-
-**Experience Filter on Board** `[S]`
-Filter chips on the bulletin board: Beginner / Intermediate / Advanced / Expert.
-
-**Weather per Crag** `[M]`
-One-day forecast using Open-Meteo (free API, no key required). Show on crag detail header.
-
-**Social Auth (Google / Apple)** `[M]`
-Email/password is a conversion killer. Google + Apple sign-in should be primary options.
-
-**Post Reactions** `[S]`
-"+1 I'll be there" on a post. Lower friction than opening a conversation with a stranger.
+| Item | Notes |
+|---|---|
+| Social auth (Google / Apple) | Email/password is a conversion killer for a casual app |
+| Post expiry re-engagement | "Your post expired — still at the crag?" push prompt |
+| Crag coverage expansion | Import a public crag database or build user submission for launch |
 
 ---
 
 ## FUTURE — Research Needed
 
-These need more definition before scoping.
-
-- **Route database within crags** — Big scope, possible partnership with Mountain Project or 27crags
+- **Route database within crags** — Big scope; possible partnership with Mountain Project or 27crags
 - **Group climbing requests** — "Looking for 2-3 people for a multi-pitch day"
 - **User ratings / trust signals** — Vouching system between climbers who have climbed together
-- **Photo uploads for crags / posts** — Crag hero photos, post attachments
-- **Social graph** — Follow users, activity feed. Deliberate choice to avoid this unless there's clear demand.
-- **Offline mode** — Cache crag + board data for areas with poor cell service (common at crags)
+- **Offline mode** — Cache crag + board data for areas with poor cell service
 - **App Store launch** — Trademark check on "Belay Buddy" before investing in store assets
-
----
-
-## Data Models Needed for Upcoming Features
-
-| Model | Needed For | Status |
-|---|---|---|
-| `Gym` | Gym venue type | Not started |
-| `GymEvent` | Gym events | Not started |
-| `LostFoundPost` | Lost & Found per crag | Not started |
-| `Coalition` | Climbing coalitions | Not started |
-| `CoalitionEvent` | Coalition events (clinics, crag care days) | Not started |
-| `ClaimRequest` | Gym + coalition claiming flow (shared) | Not started |
 
 ---
 
 ## Open Questions
 
-1. **Gym verification** — Who approves gym claims at launch? Manual (you via Firestore console) or an in-app admin panel? Manual is fine for MVP.
-2. **Coalition verification** — Same question. Manual is the right call until volume demands automation.
-3. **Crag coverage** — 8 seeded crags is not enough for launch. Plan to either import a public database or build user submission flow before going public.
-4. **Public vs. auth-required boards** — Should boards be readable without logging in? Recommendation: yes, to support sharing links from Mountain Project / Instagram. Require auth to post.
-5. **Post expiry notification** — "Your post expired — still at the crag?" This re-engagement hook could drive stickiness. Plan it alongside push notifications.
+1. **Gym verification** — Who approves gym claims at launch? Manual (Firestore console) is fine for MVP.
+2. **Crag coverage** — 9 mock venues won't be enough for launch. Import a public database or build user submission before going public.
+3. **Public vs. auth-required boards** — Recommendation: public read (supports shared links), auth required to post.
+4. **Notification delivery for home base** — Push vs. in-app badge. In-app is already built; push needs FCM setup.
+5. **Home base: one crag + one gym, or multiple?** — Current model supports exactly one each. May want to expand to a ranked list.
