@@ -62,3 +62,5 @@ android/app/build/
 # Dart/Flutter build
 build/
 **/.dart_tool/
+# Firebase Functions
+functions/node_modules/
