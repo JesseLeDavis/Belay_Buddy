@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "972604838572",
+    "project_id": "belay-buddy-85d82",
+    "storage_bucket": "belay-buddy-85d82.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:972604838572:android:aa5e20251514ba6bcf8509",
+        "android_client_info": {
+          "package_name": "com.belaybuddy.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBs2uMgTZOnWhRWQ1maul01vO9gtmtFmec"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
