@@ -1,8 +1,8 @@
 # Belay Buddy — Product Specification
 
-**Version:** 0.1 (Pre-launch)
-**Status:** Functional MVP skeleton — core post creation and bulletin board work; messaging, profile, and search are stubbed out with snackbars
-**Last updated:** 2026-03-11
+**Version:** 0.2 (UI Prototype)
+**Status:** Full Neobrutalist UI prototype running on mock data — all screens navigable, no Firebase dependency. Core post creation and bulletin board work; messaging, profile, and search are stubbed.
+**Last updated:** 2026-03-29
 
 ---
 
@@ -138,7 +138,8 @@ This is the single most important action. Everything else is secondary.
 | Tap crag marker → crag detail | Working | |
 | Crag detail / bulletin board screen | Working | Good UI with cork board aesthetic |
 | Real-time post streaming per crag | Working | Filtered by expiry |
-| Post card UI (paper note aesthetic) | Working | Push pins, rotation, color-coded by type |
+| Map full-screen expand + unified scroll | Working | Map collapses to 220px; tap to expand full-screen; scrolls with crag list as one page |
+| Post card UI (Neobrutalist aesthetic) | Working | Solid color header strip, hard offset shadow, color-coded by type (NOW = orange, SCHEDULED = green) |
 | Post expiry (12h now / 2h past scheduled) | Working | Server-side filter on `expiresAt` |
 | Post creation form | Working | Title, description, date/time, belay status |
 | Post submit to Firestore | Working | |
@@ -147,7 +148,7 @@ This is the single most important action. Everything else is secondary.
 | User name on post card | Broken | Shows "Unknown" — Firestore user doc never created on signup |
 | Conversations data model | Built, not wired | Full CRUD in FirestoreService |
 | Messages data model | Built, not wired | Full CRUD in FirestoreService |
-| Bottom nav bar (Map/Posts/Messages) | Stub | Posts and Messages tabs show snackbars |
+| Bottom nav bar (Map/Messages/Profile) | Working | Custom Neobrutalist tab bar; active tab highlights correctly; safe area handled |
 | FAB on map screen ("Post Availability") | Stub | Shows snackbar only |
 | Search button on map screen | Stub | Shows snackbar only |
 | Profile menu item | Stub | Shows snackbar only |
@@ -339,11 +340,9 @@ After a user successfully creates a post and taps "Post to Board," the app pops 
 
 **Fix:** After successful post, navigate to the relevant `CragDetailScreen` and scroll to the user's new post, or show a more persistent confirmation with a "View Board" button.
 
-### Gap 7: Both "Need Belay" and "Can Belay" Can Be Checked Simultaneously
+### ~~Gap 7: Both "Need Belay" and "Can Belay" Can Be Checked Simultaneously~~ ✅ Resolved
 
-The `CreatePostScreen` has two independent checkboxes: "I need a belay partner" and "I can belay someone." A user can (and likely will by accident) check both. A post that reads both "Need Belay" and "Can Belay" is contradictory and confusing. On the data model side, `needsBelay: true, offeringBelay: true` is a valid state.
-
-**Fix:** Make belay status a radio group or segmented button: "Need Belay" / "Can Belay" / "Either / Just climbing." This also reduces form cognitive load.
+Belay status checkboxes have been removed from `CreatePostScreen` entirely. The fields remain on the `ClimbingPost` model and are still displayed on post cards where present in mock data, but users no longer set belay status when creating a post. If belay status re-enters the creation flow in the future, use a radio group ("Need Belay" / "Can Belay" / "Either") rather than independent checkboxes.
 
 ### Gap 8: Post Title Field Has No Guidance
 

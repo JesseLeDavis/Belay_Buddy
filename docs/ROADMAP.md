@@ -10,8 +10,11 @@
 > Actively in progress or just landed.
 
 - [x] **Neobrutalist UI overhaul** — Bold color system (vivid orange/green/blue/yellow), hard offset shadows, 0 border radius, Space Mono typography throughout
-- [x] **Collapsible map widget** — Real Google Maps at top of home screen (220px → 420px expandable), crag markers, crag list below
+- [x] **Custom nav bar** — Replaced Material `NavigationBar` with hand-rolled Neobrutalist tab bar; fixed active tab highlighting (ShellRoute location propagation), fixed safe area double-padding gap
+- [x] **Full-screen map expand + unified scroll** — Map collapses to 220px at top; tap expand strip to go full-screen; crag list and map scroll as one unified `CustomScrollView` page
 - [x] **Post screen cleanup** — Removed belay status checkboxes (redundant), removed "LIVE"/"ACTIVE" labels, "● NOW" replaces "● LIVE"
+- [x] **Mock data layer** — Entire app runs on mock data (4 users, 5 crags, 13 posts, 3 conversations); no Firebase dependency during UI prototyping
+- [x] **Initial GitHub push** — Repo live at `github.com/JesseLeDavis/Belay_Buddy`; `.env` gitignored, iOS Google Maps key restricted by bundle ID in Google Cloud Console
 
 ---
 
