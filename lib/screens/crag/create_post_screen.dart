@@ -103,12 +103,13 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
               // Crag info card
               Container(
                 padding: const EdgeInsets.all(AppSpacing.md),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
                   border: Border.fromBorderSide(
                     BorderSide(color: AppColors.darkNavy, width: 2.5),
                   ),
-                  boxShadow: [
+                  boxShadow: const [
                     BoxShadow(
                       color: AppColors.darkNavy,
                       offset: Offset(5, 5),
@@ -174,6 +175,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                           color: _postType == PostType.immediate
                               ? AppColors.dullOrange
                               : AppColors.surface,
+                          borderRadius: BorderRadius.circular(AppRadius.sm),
                           border: Border.all(
                             color: AppColors.darkNavy,
                             width: _postType == PostType.immediate ? 3 : 2,
@@ -223,6 +225,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                           color: _postType == PostType.scheduled
                               ? AppColors.oliveGreen
                               : AppColors.surface,
+                          borderRadius: BorderRadius.circular(AppRadius.sm),
                           border: Border.all(
                             color: AppColors.darkNavy,
                             width: _postType == PostType.scheduled ? 3 : 2,

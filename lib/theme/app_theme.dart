@@ -90,15 +90,15 @@ class AppSpacing {
   static const double xxl = 48.0;
 }
 
-/// Border radius tokens — ZERO for Neobrutalist boxy feel.
+/// Border radius tokens — subtle rounding, keeps the neo-brutalist edge.
 class AppRadius {
   AppRadius._();
 
-  static const double xs = 0.0;
-  static const double sm = 0.0;
-  static const double md = 0.0;
-  static const double lg = 0.0;
-  static const double xl = 0.0;
+  static const double xs = 3.0;   // badges, chips, small tags
+  static const double sm = 4.0;   // buttons, inputs, small cards
+  static const double md = 6.0;   // panels, cards
+  static const double lg = 8.0;   // bottom sheets, large containers
+  static const double xl = 12.0;  // modals
   static const double full = 999.0; // avatars only
 }
 
@@ -234,7 +234,7 @@ class AppTheme {
         color: AppColors.surface,
         shadowColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(0),
+          borderRadius: BorderRadius.circular(AppRadius.sm),
           side: const BorderSide(color: AppColors.darkNavy, width: 2.5),
         ),
         margin: EdgeInsets.zero,
@@ -243,15 +243,15 @@ class AppTheme {
         filled: true,
         fillColor: AppColors.chipBg,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(0),
+          borderRadius: BorderRadius.circular(AppRadius.sm),
           borderSide: const BorderSide(color: AppColors.darkNavy, width: 2),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(0),
+          borderRadius: BorderRadius.circular(AppRadius.sm),
           borderSide: const BorderSide(color: AppColors.darkNavy, width: 2),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(0),
+          borderRadius: BorderRadius.circular(AppRadius.sm),
           borderSide: const BorderSide(color: AppColors.dullOrange, width: 2.5),
         ),
         labelStyle: const TextStyle(color: AppColors.textSecondary),
@@ -266,7 +266,7 @@ class AppTheme {
           backgroundColor: AppColors.darkNavy,
           foregroundColor: AppColors.textOnPrimary,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(0),
+            borderRadius: BorderRadius.circular(AppRadius.sm),
             side: const BorderSide(color: AppColors.darkNavy, width: 2.5),
           ),
           padding: const EdgeInsets.symmetric(
@@ -284,7 +284,7 @@ class AppTheme {
         foregroundColor: Colors.white,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(0),
+          borderRadius: BorderRadius.circular(AppRadius.sm),
           side: const BorderSide(color: AppColors.darkNavy, width: 2.5),
         ),
         extendedTextStyle: GoogleFonts.spaceMono(
@@ -295,7 +295,7 @@ class AppTheme {
       chipTheme: ChipThemeData(
         backgroundColor: AppColors.chipBg,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(0),
+          borderRadius: BorderRadius.circular(AppRadius.xs),
           side: const BorderSide(color: AppColors.darkNavy, width: 2),
         ),
         labelStyle: GoogleFonts.spaceMono(
@@ -316,8 +316,8 @@ class AppTheme {
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.surface,
         indicatorColor: AppColors.orangeLight,
-        indicatorShape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.zero,
+        indicatorShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.xs),
         ),
         surfaceTintColor: Colors.transparent,
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
@@ -348,7 +348,7 @@ class AppTheme {
         backgroundColor: AppColors.darkNavy,
         contentTextStyle: GoogleFonts.cabin(color: Colors.white),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(0),
+          borderRadius: BorderRadius.circular(AppRadius.sm),
         ),
         behavior: SnackBarBehavior.floating,
       ),
@@ -371,7 +371,7 @@ class AppTheme {
           ),
           shape: WidgetStateProperty.all(
             RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(0),
+              borderRadius: BorderRadius.circular(AppRadius.xs),
             ),
           ),
         ),
@@ -396,7 +396,7 @@ class AppTheme {
           filled: true,
           fillColor: AppColors.chipBg,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(0),
+            borderRadius: BorderRadius.circular(AppRadius.sm),
             borderSide: const BorderSide(color: AppColors.darkNavy, width: 2),
           ),
         ),

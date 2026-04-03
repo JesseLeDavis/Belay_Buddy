@@ -126,12 +126,11 @@ class _ConversationCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: AppColors.surface,
-          border: Border.fromBorderSide(
-            BorderSide(color: AppColors.darkNavy, width: 2.5),
-          ),
-          boxShadow: [
+          borderRadius: BorderRadius.circular(AppRadius.sm),
+          border: Border.all(color: AppColors.darkNavy, width: 2.5),
+          boxShadow: const [
             BoxShadow(
               color: AppColors.darkNavy,
               offset: Offset(4, 4),
@@ -139,6 +138,7 @@ class _ConversationCard extends StatelessWidget {
             ),
           ],
         ),
+        clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

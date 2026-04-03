@@ -58,6 +58,7 @@ class HeatmapStrip extends StatelessWidget {
                         ? BoxDecoration(
                             border: Border.all(
                                 color: AppColors.darkNavy, width: 2),
+                            borderRadius: BorderRadius.circular(AppRadius.sm),
                           )
                         : null,
                     child: Column(

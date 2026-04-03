@@ -153,19 +153,19 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         fontSize: 14,
                         color: AppColors.textDisabled,
                       ),
-                      border: const OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                        borderSide: BorderSide(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(AppRadius.sm),
+                        borderSide: const BorderSide(
                             color: AppColors.darkNavy, width: 2),
                       ),
-                      enabledBorder: const OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                        borderSide: BorderSide(
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(AppRadius.sm),
+                        borderSide: const BorderSide(
                             color: AppColors.darkNavy, width: 2),
                       ),
-                      focusedBorder: const OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                        borderSide: BorderSide(
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(AppRadius.sm),
+                        borderSide: const BorderSide(
                             color: AppColors.dullOrange, width: 2.5),
                       ),
                       filled: true,
@@ -182,6 +182,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 Container(
                   decoration: BoxDecoration(
                     color: AppColors.dullOrange,
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
                     border: Border.all(
                         color: AppColors.darkNavy, width: 2),
                   ),
@@ -214,68 +215,159 @@ class _ChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bubbleColor = isMe ? AppColors.dullOrange : AppColors.surface;
+
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+      padding: const EdgeInsets.only(bottom: AppSpacing.md + 4),
       child: Column(
         crossAxisAlignment:
             isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
-          Container(
-            constraints: BoxConstraints(
-              maxWidth: MediaQuery.of(context).size.width * 0.75,
-            ),
-            decoration: BoxDecoration(
-              color: isMe ? AppColors.dullOrange : AppColors.surface,
-              border: Border.all(
-                color: AppColors.darkNavy,
-                width: 2,
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              // Shadow layer (hard offset, drawn behind)
+              Positioned(
+                top: 3,
+                left: 3,
+                right: -3,
+                bottom: -3,
+                child: Container(color: AppColors.darkNavy),
               ),
-              boxShadow: const [
-                BoxShadow(
-                  color: AppColors.darkNavy,
-                  offset: Offset(3, 3),
-                  blurRadius: 0,
+
+              // Tail — behind the bubble so the bottom border hides the seam
+              Positioned(
+                bottom: -10,
+                left: isMe ? null : 12,
+                right: isMe ? 12 : null,
+                child: CustomPaint(
+                  size: const Size(16, 12),
+                  painter: _TailPainter(isMe: isMe, color: bubbleColor),
                 ),
-              ],
-            ),
-            padding: const EdgeInsets.all(AppSpacing.sm + 4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  senderName.toUpperCase(),
-                  style: GoogleFonts.spaceMono(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    color: isMe
-                        ? Colors.white.withAlpha(200)
-                        : AppColors.textSecondary,
+              ),
+
+              // Bubble
+              Container(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width * 0.72,
+                ),
+                decoration: BoxDecoration(
+                  color: bubbleColor,
+                  borderRadius: BorderRadius.only(
+                    topLeft: const Radius.circular(AppRadius.md),
+                    topRight: const Radius.circular(AppRadius.md),
+                    bottomLeft: Radius.circular(isMe ? AppRadius.md : AppRadius.xs),
+                    bottomRight: Radius.circular(isMe ? AppRadius.xs : AppRadius.md),
                   ),
+                  border: Border.all(color: AppColors.darkNavy, width: 2),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  text,
-                  style: GoogleFonts.cabin(
-                    fontSize: 14,
-                    color: isMe ? Colors.white : AppColors.textPrimary,
-                    height: 1.4,
-                  ),
+                padding: const EdgeInsets.all(AppSpacing.sm + 4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      senderName.toUpperCase(),
+                      style: GoogleFonts.spaceMono(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: isMe
+                            ? Colors.white.withAlpha(200)
+                            : AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      text,
+                      style: GoogleFonts.cabin(
+                        fontSize: 14,
+                        color: isMe ? Colors.white : AppColors.textPrimary,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      DateFormat('h:mm a').format(timestamp),
+                      style: GoogleFonts.spaceMono(
+                        fontSize: 9,
+                        color: isMe
+                            ? Colors.white.withAlpha(150)
+                            : AppColors.textDisabled,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  DateFormat('h:mm a').format(timestamp),
-                  style: GoogleFonts.spaceMono(
-                    fontSize: 9,
-                    color: isMe
-                        ? Colors.white.withAlpha(150)
-                        : AppColors.textDisabled,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
+}
+
+/// Paints a triangular tail below the bubble with a hard-offset shadow.
+/// Sent (isMe): tail points down-right, sits at bottom-right.
+/// Received (!isMe): tail points down-left, sits at bottom-left.
+class _TailPainter extends CustomPainter {
+  final bool isMe;
+  final Color color;
+
+  const _TailPainter({required this.isMe, required this.color});
+
+  Path _buildTailPath(Size size, {double dx = 0, double dy = 0}) {
+    final path = Path();
+    if (isMe) {
+      path.moveTo(dx, dy);
+      path.lineTo(size.width + dx, dy);
+      path.lineTo(size.width + dx, size.height + dy);
+      path.close();
+    } else {
+      path.moveTo(dx, dy);
+      path.lineTo(size.width + dx, dy);
+      path.lineTo(dx, size.height + dy);
+      path.close();
+    }
+    return path;
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Hard-offset shadow (matches bubble shadow)
+    canvas.drawPath(
+      _buildTailPath(size, dx: 3, dy: 3),
+      Paint()
+        ..color = AppColors.darkNavy
+        ..style = PaintingStyle.fill,
+    );
+
+    // Fill
+    canvas.drawPath(
+      _buildTailPath(size),
+      Paint()
+        ..color = color
+        ..style = PaintingStyle.fill,
+    );
+
+    // Border — only the two outer edges (top edge hidden by bubble)
+    final borderPaint = Paint()
+      ..color = AppColors.darkNavy
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2
+      ..strokeJoin = StrokeJoin.miter;
+
+    final outerPath = Path();
+    if (isMe) {
+      outerPath.moveTo(0, 0);
+      outerPath.lineTo(size.width, size.height);
+      outerPath.lineTo(size.width, 0);
+    } else {
+      outerPath.moveTo(size.width, 0);
+      outerPath.lineTo(0, size.height);
+      outerPath.lineTo(0, 0);
+    }
+    canvas.drawPath(outerPath, borderPaint);
+  }
+
+  @override
+  bool shouldRepaint(_TailPainter old) => old.isMe != isMe || old.color != color;
 }

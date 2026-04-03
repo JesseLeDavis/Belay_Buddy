@@ -64,6 +64,7 @@ class ProfileScreen extends ConsumerWidget {
                       color: AppColors.dullOrange,
                       border:
                           Border.all(color: AppColors.darkNavy, width: 1.5),
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
                     ),
                     child: Center(
                       child: Text(
@@ -223,6 +224,7 @@ class ProfileScreen extends ConsumerWidget {
                     decoration: BoxDecoration(
                       border:
                           Border.all(color: AppColors.darkNavy, width: 2),
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
                     ),
                     child: Text(
                       _styleLabels[s] ?? s.name.toUpperCase(),
@@ -272,11 +274,12 @@ class ProfileScreen extends ConsumerWidget {
             )),
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 14),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColors.accentBlue,
-                border: Border.fromBorderSide(
+                border: const Border.fromBorderSide(
                     BorderSide(color: AppColors.darkNavy, width: 2.5)),
-                boxShadow: [
+                borderRadius: BorderRadius.circular(AppRadius.sm),
+                boxShadow: const [
                   BoxShadow(
                       color: AppColors.darkNavy,
                       offset: Offset(4, 4),
@@ -352,47 +355,47 @@ class _ProfileCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border.fromBorderSide(
-          BorderSide(color: AppColors.darkNavy, width: 2.5),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.darkNavy,
-            offset: Offset(4, 4),
-            blurRadius: 0,
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Colored top strip — bold fill
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.sm + 4,
-              vertical: 10,
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          border: Border.all(color: AppColors.darkNavy, width: 2.5),
+          borderRadius: BorderRadius.circular(AppRadius.sm),
+          boxShadow: const [
+            BoxShadow(
+              color: AppColors.darkNavy,
+              offset: Offset(4, 4),
+              blurRadius: 0,
             ),
-            color: stripColor,
-            child: Text(
-              title,
-              style: GoogleFonts.spaceMono(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: titleColor,
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Colored top strip — bold fill
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.sm + 4,
+                vertical: 10,
+              ),
+              color: stripColor,
+              child: Text(
+                title,
+                style: GoogleFonts.spaceMono(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: titleColor,
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: children,
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: children,
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
     );
   }
 }
@@ -456,15 +459,16 @@ class _ConnectionsCard extends StatelessWidget {
     final pending = pendingAsync.valueOrNull ?? [];
 
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.surface,
-        border: Border.fromBorderSide(
-            BorderSide(color: AppColors.darkNavy, width: 2.5)),
-        boxShadow: [
+        border: Border.all(color: AppColors.darkNavy, width: 2.5),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        boxShadow: const [
           BoxShadow(
               color: AppColors.darkNavy, offset: Offset(4, 4), blurRadius: 0)
         ],
       ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -489,6 +493,7 @@ class _ConnectionsCard extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: Colors.white,
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
                     border: Border.all(color: AppColors.darkNavy, width: 1.5),
                   ),
                   child: Text(
@@ -588,6 +593,7 @@ class _ConnectionRow extends StatelessWidget {
             height: 32,
             decoration: BoxDecoration(
               color: _levelColors[user.experienceLevel] ?? AppColors.darkNavy,
+              borderRadius: BorderRadius.circular(AppRadius.sm),
               border: Border.all(color: AppColors.darkNavy, width: 2),
             ),
             child: Center(
@@ -677,9 +683,11 @@ class _ExperienceBar extends StatelessWidget {
         Container(
           height: 24,
           decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppRadius.sm),
             border: Border.all(color: AppColors.darkNavy, width: 2),
           ),
-          child: ClipRect(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(AppRadius.sm),
             child: Stack(
               children: [
                 // Background

@@ -6,6 +6,7 @@ import 'package:belay_buddy/providers/firestore_providers.dart';
 import 'package:belay_buddy/screens/crag/crag_schedule_screen.dart';
 import 'package:belay_buddy/screens/crag/lost_found_screen.dart';
 import 'package:belay_buddy/theme/app_theme.dart';
+import 'package:belay_buddy/widgets/collage_header.dart';
 import 'package:belay_buddy/widgets/heatmap_strip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -84,9 +85,10 @@ class CragDetailScreen extends ConsumerWidget {
       slivers: [
         _buildAppBar(context, crag),
         SliverToBoxAdapter(child: _buildCragInfo(context, ref, crag)),
-        SliverToBoxAdapter(
-          child: _buildLostFoundPanel(context, crag, lostFound),
-        ),
+        if (!crag.isGym)
+          SliverToBoxAdapter(
+            child: _buildLostFoundPanel(context, crag, lostFound),
+          ),
         SliverToBoxAdapter(
           child: _buildCommunityPanel(context, ref, crag, posts, countsByDate),
         ),
@@ -100,9 +102,10 @@ class CragDetailScreen extends ConsumerWidget {
   SliverAppBar _buildAppBar(BuildContext context, Crag crag) {
     final headerColor =
         crag.isGym ? AppColors.accentBlue : AppColors.oliveGreen;
+    const expandedHeight = 260.0;
 
     return SliverAppBar(
-      expandedHeight: 140,
+      expandedHeight: expandedHeight,
       pinned: true,
       backgroundColor: headerColor,
       leading: BackButton(
@@ -113,27 +116,50 @@ class CragDetailScreen extends ConsumerWidget {
       shape: const Border(
         bottom: BorderSide(color: AppColors.darkNavy, width: 3),
       ),
-      flexibleSpace: FlexibleSpaceBar(
-        title: Text(
-          crag.name,
-          style: GoogleFonts.spaceMono(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-          ),
-        ),
-        background: Container(
-          color: headerColor,
-          padding: const EdgeInsets.only(left: AppSpacing.lg, bottom: 50),
-          alignment: Alignment.bottomLeft,
-          child: Text(
-            '${crag.region ?? 'Unknown region'} / ${crag.types.map((t) => t.name.toUpperCase()).join(', ')}',
-            style: GoogleFonts.spaceMono(
-              fontSize: 11,
-              color: Colors.white.withAlpha(204),
+      flexibleSpace: LayoutBuilder(
+        builder: (context, constraints) {
+          final topPadding = MediaQuery.of(context).padding.top;
+          final collapsedHeight = kToolbarHeight + topPadding;
+          final scrollFraction = (1 -
+                  (constraints.maxHeight - collapsedHeight) /
+                      (expandedHeight - collapsedHeight + topPadding))
+              .clamp(0.0, 1.0);
+
+          return FlexibleSpaceBar(
+            centerTitle: true,
+            titlePadding: const EdgeInsets.only(bottom: 16),
+            title: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  crag.name,
+                  style: GoogleFonts.spaceMono(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                if (scrollFraction < 0.7)
+                  Opacity(
+                    opacity: (1 - scrollFraction / 0.7).clamp(0.0, 1.0),
+                    child: Text(
+                      '${crag.region ?? 'Unknown region'} / ${crag.types.map((t) => t.name.toUpperCase()).join(', ')}',
+                      style: GoogleFonts.spaceMono(
+                        fontSize: 10,
+                        color: Colors.white.withAlpha(204),
+                      ),
+                    ),
+                  ),
+              ],
             ),
-          ),
-        ),
+            background: CollageHeader(
+              cragId: crag.id,
+              isGym: crag.isGym,
+              scrollFraction: scrollFraction,
+            ),
+          );
+        },
       ),
     );
   }
@@ -170,7 +196,8 @@ class CragDetailScreen extends ConsumerWidget {
                           horizontal: AppSpacing.sm, vertical: 3),
                       decoration: BoxDecoration(
                           border: Border.all(
-                              color: AppColors.darkNavy, width: 2)),
+                              color: AppColors.darkNavy, width: 2),
+                          borderRadius: BorderRadius.circular(AppRadius.sm)),
                       child: Text(
                         t.name.toUpperCase(),
                         style: GoogleFonts.spaceMono(
@@ -206,6 +233,7 @@ class CragDetailScreen extends ConsumerWidget {
                     ? (crag.isGym ? AppColors.accentBlue : AppColors.oliveGreen)
                         .withAlpha(20)
                     : AppColors.chipBg,
+                borderRadius: BorderRadius.circular(AppRadius.sm),
                 border: Border.all(
                   color: isHome
                       ? (crag.isGym
@@ -247,6 +275,7 @@ class CragDetailScreen extends ConsumerWidget {
                         horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: AppColors.darkNavy,
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
                       border:
                           Border.all(color: AppColors.darkNavy, width: 1.5),
                     ),
@@ -267,6 +296,11 @@ class CragDetailScreen extends ConsumerWidget {
             ),
           ),
 
+          const SizedBox(height: AppSpacing.sm),
+
+          // Favorite + notification row
+          _FavoriteNotifyRow(crag: crag),
+
           const SizedBox(height: AppSpacing.md),
           const Divider(color: AppColors.darkNavy, thickness: 1),
         ],
@@ -279,7 +313,7 @@ class CragDetailScreen extends ConsumerWidget {
       context: context,
       backgroundColor: AppColors.surface,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg))),
       builder: (_) => _HomeBaseSheet(crag: crag),
     );
   }
@@ -297,15 +331,16 @@ class CragDetailScreen extends ConsumerWidget {
     return Container(
       margin: const EdgeInsets.fromLTRB(
           AppSpacing.md, AppSpacing.sm, AppSpacing.md, 0),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.surface,
-        border: Border.fromBorderSide(
-            BorderSide(color: AppColors.darkNavy, width: 2.5)),
-        boxShadow: [
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        border: Border.all(color: AppColors.darkNavy, width: 2.5),
+        boxShadow: const [
           BoxShadow(
               color: AppColors.darkNavy, offset: Offset(5, 5), blurRadius: 0)
         ],
       ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -385,15 +420,16 @@ class CragDetailScreen extends ConsumerWidget {
 
     return Container(
       margin: const EdgeInsets.all(AppSpacing.md),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.surface,
-        border: Border.fromBorderSide(
-            BorderSide(color: AppColors.darkNavy, width: 2.5)),
-        boxShadow: [
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        border: Border.all(color: AppColors.darkNavy, width: 2.5),
+        boxShadow: const [
           BoxShadow(
               color: AppColors.darkNavy, offset: Offset(5, 5), blurRadius: 0)
         ],
       ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -466,8 +502,9 @@ class CragDetailScreen extends ConsumerWidget {
 
   Widget _buildFab(BuildContext context, Crag crag) {
     return Container(
-      decoration: const BoxDecoration(
-        boxShadow: [
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        boxShadow: const [
           BoxShadow(
               color: AppColors.darkNavy, offset: Offset(4, 4), blurRadius: 0)
         ],
@@ -477,7 +514,7 @@ class CragDetailScreen extends ConsumerWidget {
         backgroundColor: AppColors.dullOrange,
         foregroundColor: Colors.white,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.zero,
+          borderRadius: BorderRadius.all(Radius.circular(AppRadius.sm)),
           side: BorderSide(color: AppColors.darkNavy, width: 2.5),
         ),
         onPressed: () => _showPostTypeSheet(context, crag),
@@ -495,7 +532,7 @@ class CragDetailScreen extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg))),
       builder: (_) => _PostTypeSheet(crag: crag),
     );
   }
@@ -508,7 +545,7 @@ class CragDetailScreen extends ConsumerWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg))),
       builder: (_) => PostDetailSheet(post: post),
     );
   }
@@ -557,6 +594,7 @@ class _CountBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
       decoration: BoxDecoration(
         color: color,
+        borderRadius: BorderRadius.circular(AppRadius.sm),
         border: Border.all(color: AppColors.darkNavy, width: 2),
       ),
       child: Text(
@@ -623,6 +661,7 @@ class _LostFoundPreviewRow extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
               color: isFound ? AppColors.oliveGreen : AppColors.dullOrange,
+              borderRadius: BorderRadius.circular(AppRadius.sm),
               border: Border.all(color: AppColors.darkNavy, width: 1.5),
             ),
             child: Text(
@@ -826,19 +865,21 @@ class _PostTypeSheet extends StatelessWidget {
               context.push('/crag/${crag.id}/post', extra: crag);
             },
           ),
-          const Divider(height: 1, thickness: 1, color: AppColors.darkNavy),
-          _PostTypeOption(
-            accentColor: AppColors.amber,
-            icon: Icons.inventory_2_outlined,
-            title: 'LOST & FOUND',
-            subtitle: 'Report a found item or post a lookout request',
-            onTap: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => LostFoundScreen(cragId: crag.id),
-              ));
-            },
-          ),
+          if (!crag.isGym) ...[
+            const Divider(height: 1, thickness: 1, color: AppColors.darkNavy),
+            _PostTypeOption(
+              accentColor: AppColors.amber,
+              icon: Icons.inventory_2_outlined,
+              title: 'LOST & FOUND',
+              subtitle: 'Report a found item or post a lookout request',
+              onTap: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => LostFoundScreen(cragId: crag.id),
+                ));
+              },
+            ),
+          ],
         ],
       ),
     );
@@ -954,6 +995,7 @@ class PostDetailSheet extends ConsumerWidget {
                           color: post.type == PostType.immediate
                               ? AppColors.dullOrange
                               : AppColors.oliveGreen,
+                          borderRadius: BorderRadius.circular(AppRadius.sm),
                           border: Border.all(
                               color: AppColors.darkNavy, width: 2),
                         ),
@@ -1088,6 +1130,7 @@ class PostDetailSheet extends ConsumerWidget {
       padding:
           const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 4),
       decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppRadius.sm),
           border: Border.all(color: AppColors.darkNavy, width: 2),
           color: color),
       child: Text(label,
@@ -1206,6 +1249,7 @@ class _PostActionButtonsState extends ConsumerState<_PostActionButtons> {
                 color: _connectRequestSent
                     ? AppColors.chipBg
                     : AppColors.accentBlue,
+                borderRadius: BorderRadius.circular(AppRadius.sm),
                 border:
                     Border.all(color: AppColors.darkNavy, width: 2.5),
                 boxShadow: _connectRequestSent
@@ -1251,6 +1295,7 @@ class _PostActionButtonsState extends ConsumerState<_PostActionButtons> {
             padding: const EdgeInsets.symmetric(vertical: 14),
             decoration: BoxDecoration(
               color: AppColors.oliveGreen,
+              borderRadius: BorderRadius.circular(AppRadius.sm),
               border: Border.all(color: AppColors.darkNavy, width: 2.5),
             ),
             child: Row(
@@ -1270,6 +1315,268 @@ class _PostActionButtonsState extends ConsumerState<_PostActionButtons> {
             ),
           ),
       ],
+    );
+  }
+}
+
+// ── Favorite + Notify row ────────────────────────────────────────────────────
+
+class _FavoriteNotifyRow extends ConsumerWidget {
+  final Crag crag;
+  const _FavoriteNotifyRow({required this.crag});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isFav = ref.watch(isFavoriteProvider(crag.id));
+    final notifyPrefs = ref.watch(venueNotifyPrefsProvider(crag.id));
+    final hasNotifications =
+        notifyPrefs.notifyCatch || notifyPrefs.notifyConnections;
+    final accentColor =
+        crag.isGym ? AppColors.accentBlue : AppColors.oliveGreen;
+
+    return Row(
+      children: [
+        // Favorite button
+        Expanded(
+          child: GestureDetector(
+            onTap: () =>
+                ref.read(favoritesProvider.notifier).toggleFavorite(crag.id),
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sm, vertical: 8),
+              decoration: BoxDecoration(
+                color: isFav ? AppColors.amber.withAlpha(25) : AppColors.chipBg,
+                borderRadius: BorderRadius.circular(AppRadius.sm),
+                border: Border.all(
+                  color: isFav ? AppColors.amber : AppColors.darkGrey,
+                  width: 2,
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    isFav ? Icons.star : Icons.star_outline,
+                    size: 16,
+                    color: isFav ? AppColors.amber : AppColors.textSecondary,
+                  ),
+                  const SizedBox(width: AppSpacing.xs),
+                  Text(
+                    isFav ? 'FAVORITED' : 'FAVORITE',
+                    style: GoogleFonts.spaceMono(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color:
+                          isFav ? AppColors.amber : AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+
+        // Notification bell — opens venue notify sheet
+        GestureDetector(
+          onTap: () => _showVenueNotifySheet(context, crag),
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: hasNotifications
+                  ? accentColor.withAlpha(20)
+                  : AppColors.chipBg,
+              borderRadius: BorderRadius.circular(AppRadius.sm),
+              border: Border.all(
+                color: hasNotifications ? accentColor : AppColors.darkGrey,
+                width: 2,
+              ),
+            ),
+            child: Icon(
+              hasNotifications
+                  ? Icons.notifications_active
+                  : Icons.notifications_none,
+              size: 18,
+              color: hasNotifications ? accentColor : AppColors.textSecondary,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showVenueNotifySheet(BuildContext context, Crag crag) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+      ),
+      builder: (_) => _VenueNotifySheet(crag: crag),
+    );
+  }
+}
+
+// ── Venue notification sheet ─────────────────────────────────────────────────
+
+class _VenueNotifySheet extends ConsumerWidget {
+  final Crag crag;
+  const _VenueNotifySheet({required this.crag});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isFav = ref.watch(isFavoriteProvider(crag.id));
+    final notifyPrefs = ref.watch(venueNotifyPrefsProvider(crag.id));
+    final favNotifier = ref.read(favoritesProvider.notifier);
+    final accentColor =
+        crag.isGym ? AppColors.accentBlue : AppColors.oliveGreen;
+    final label = crag.isGym ? 'GYM' : 'CRAG';
+
+    return Container(
+      decoration: const BoxDecoration(
+        color: AppColors.surface,
+        border: Border(top: BorderSide(color: AppColors.darkNavy, width: 3)),
+      ),
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).padding.bottom + AppSpacing.lg,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Header
+          Container(
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.md, vertical: 14),
+            decoration: BoxDecoration(
+              color: accentColor,
+              border: const Border(
+                  bottom: BorderSide(color: AppColors.darkNavy, width: 2)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.notifications, size: 18, color: Colors.white),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Text(
+                    'NOTIFICATIONS · ${crag.name.toUpperCase()}',
+                    style: GoogleFonts.spaceMono(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Favorite required hint
+          if (!isFav) ...[
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: Container(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                decoration: BoxDecoration(
+                  color: AppColors.amber.withAlpha(20),
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                  border: Border.all(color: AppColors.amber, width: 2),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.star_outline,
+                        size: 18, color: AppColors.amber),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: Text(
+                        'Favorite this $label to enable notifications',
+                        style: GoogleFonts.cabin(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    GestureDetector(
+                      onTap: () => favNotifier.toggleFavorite(crag.id),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.sm, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppColors.amber,
+                          borderRadius: BorderRadius.circular(AppRadius.sm),
+                          border: Border.all(
+                              color: AppColors.darkNavy, width: 2),
+                        ),
+                        child: Text(
+                          'FAVORITE',
+                          style: GoogleFonts.spaceMono(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ] else ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.md, AppSpacing.md, AppSpacing.md, 0),
+              child: Text(
+                'Get notified about activity at this ${label.toLowerCase()}, '
+                'even if it\'s not your home ${label.toLowerCase()}.',
+                style: GoogleFonts.cabin(
+                    fontSize: 13, color: AppColors.textSecondary, height: 1.4),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+          ],
+
+          // Catch needed toggle
+          _SheetTile(
+            icon: Icons.pan_tool_outlined,
+            iconColor: AppColors.dullOrange,
+            title: 'CATCH / BELAY NEEDED',
+            subtitle:
+                'Alert when someone at this ${label.toLowerCase()} needs a partner',
+            enabled: isFav,
+            trailing: Switch(
+              value: notifyPrefs.notifyCatch,
+              activeColor: AppColors.dullOrange,
+              onChanged: isFav
+                  ? (_) => favNotifier.toggleNotifyCatch(crag.id)
+                  : null,
+            ),
+          ),
+
+          const Divider(height: 1, thickness: 1, color: AppColors.darkGrey),
+
+          // New connections toggle
+          _SheetTile(
+            icon: Icons.person_add_outlined,
+            iconColor: AppColors.accentBlue,
+            title: 'NEW MEMBERS',
+            subtitle:
+                'Alert when someone new joins this ${label.toLowerCase()}',
+            enabled: isFav,
+            trailing: Switch(
+              value: notifyPrefs.notifyConnections,
+              activeColor: AppColors.accentBlue,
+              onChanged: isFav
+                  ? (_) => favNotifier.toggleNotifyConnections(crag.id)
+                  : null,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -1331,6 +1638,7 @@ class _HomeBaseSheet extends ConsumerWidget {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: Colors.white,
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
                     border: Border.all(color: AppColors.darkNavy, width: 1.5),
                   ),
                   child: Text(

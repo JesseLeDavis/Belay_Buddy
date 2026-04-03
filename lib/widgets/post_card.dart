@@ -35,24 +35,24 @@ class PostCard extends ConsumerWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.sm,
-        ),
-        decoration: const BoxDecoration(
-          color: AppColors.surface,
-          border: Border.fromBorderSide(
-            BorderSide(color: AppColors.darkNavy, width: 2.5),
+          margin: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: AppSpacing.sm,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.darkNavy,
-              offset: Offset(5, 5),
-              blurRadius: 0,
-            ),
-          ],
-        ),
-        child: Stack(
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(AppRadius.sm),
+            border: Border.all(color: AppColors.darkNavy, width: 2.5),
+            boxShadow: const [
+              BoxShadow(
+                color: AppColors.darkNavy,
+                offset: Offset(5, 5),
+                blurRadius: 0,
+              ),
+            ],
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Stack(
           clipBehavior: Clip.none,
           children: [
             Column(
@@ -258,6 +258,7 @@ class _BrandChip extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         border: Border.all(color: AppColors.darkNavy, width: 2),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
         color: fillColor,
       ),
       child: Text(

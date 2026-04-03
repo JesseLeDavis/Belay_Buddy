@@ -80,7 +80,7 @@ class _RetroButtonState extends State<RetroButton> {
             color: AppColors.darkNavy,
             width: 2.5,
           ),
-          borderRadius: BorderRadius.zero,
+          borderRadius: BorderRadius.circular(AppRadius.sm),
           boxShadow: isEnabled
               ? [
                   BoxShadow(

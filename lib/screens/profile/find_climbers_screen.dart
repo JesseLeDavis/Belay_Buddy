@@ -109,15 +109,16 @@ class _ClimberCardState extends ConsumerState<_ClimberCard> {
     final hasPending = ref.watch(hasPendingRequestFromProvider(widget.user.uid));
 
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.surface,
-        border: Border.fromBorderSide(
-            BorderSide(color: AppColors.darkNavy, width: 2.5)),
-        boxShadow: [
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        border: Border.all(color: AppColors.darkNavy, width: 2.5),
+        boxShadow: const [
           BoxShadow(
               color: AppColors.darkNavy, offset: Offset(4, 4), blurRadius: 0)
         ],
       ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -132,6 +133,7 @@ class _ClimberCardState extends ConsumerState<_ClimberCard> {
                   height: 48,
                   decoration: BoxDecoration(
                     color: _avatarColor(widget.user.uid),
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
                     border: Border.all(color: AppColors.darkNavy, width: 2),
                   ),
                   child: Center(
@@ -208,6 +210,7 @@ class _ClimberCardState extends ConsumerState<_ClimberCard> {
                 return Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                   decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
                     border: Border.all(color: AppColors.darkNavy, width: 1.5),
                   ),
                   child: Text(
@@ -234,6 +237,7 @@ class _ClimberCardState extends ConsumerState<_ClimberCard> {
             const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 6),
         decoration: BoxDecoration(
           color: AppColors.oliveGreen,
+          borderRadius: BorderRadius.circular(AppRadius.sm),
           border: Border.all(color: AppColors.darkNavy, width: 2),
         ),
         child: Row(
@@ -260,6 +264,7 @@ class _ClimberCardState extends ConsumerState<_ClimberCard> {
             const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 6),
         decoration: BoxDecoration(
           color: AppColors.chipBg,
+          borderRadius: BorderRadius.circular(AppRadius.sm),
           border: Border.all(color: AppColors.darkNavy, width: 2),
         ),
         child: Text(
@@ -289,6 +294,7 @@ class _ClimberCardState extends ConsumerState<_ClimberCard> {
             const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 6),
         decoration: BoxDecoration(
           color: AppColors.accentBlue,
+          borderRadius: BorderRadius.circular(AppRadius.sm),
           border: Border.all(color: AppColors.darkNavy, width: 2),
           boxShadow: const [
             BoxShadow(

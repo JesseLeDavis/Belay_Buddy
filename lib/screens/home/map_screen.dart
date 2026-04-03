@@ -37,6 +37,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   @override
   Widget build(BuildContext context) {
     final cragsAsync = ref.watch(allCragsProvider);
+    final favoritesAsync = ref.watch(favoriteCragsProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -71,7 +72,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         ],
       ),
       body: cragsAsync.when(
-        data: (crags) => _buildBody(crags),
+        data: (crags) {
+          final favorites = favoritesAsync.valueOrNull ?? [];
+          return _buildBody(crags, favorites);
+        },
         loading: () => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -99,7 +103,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     );
   }
 
-  Widget _buildBody(List<Crag> crags) {
+  Widget _buildBody(List<Crag> crags, List<Crag> favorites) {
     final markers = crags.map((crag) => Marker(
       markerId: MarkerId(crag.id),
       position: LatLng(crag.location.latitude, crag.location.longitude),
@@ -127,7 +131,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 margin: _mapExpanded
                     ? EdgeInsets.zero
                     : const EdgeInsets.all(AppSpacing.md),
+                clipBehavior: Clip.antiAlias,
                 decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
                   border: Border.fromBorderSide(
                     BorderSide(
                       color: AppColors.darkNavy,
@@ -220,30 +226,59 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.terrain,
-                          color: AppColors.darkNavy, size: 16),
+                      const Icon(Icons.star,
+                          color: AppColors.dullOrange, size: 16),
                       const SizedBox(width: AppSpacing.sm),
                       Text(
-                        '${crags.where((c) => !c.isGym).length} CRAGS · ${crags.where((c) => c.isGym).length} GYMS',
+                        favorites.isEmpty
+                            ? 'NO FAVORITES YET'
+                            : '${favorites.where((c) => !c.isGym).length} CRAGS · ${favorites.where((c) => c.isGym).length} GYMS',
                         style: GoogleFonts.spaceMono(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                           color: AppColors.textSecondary,
                         ),
                       ),
+                      const Spacer(),
+                      Text(
+                        'FAVORITES',
+                        style: GoogleFonts.spaceMono(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textDisabled,
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
-              SliverPadding(
-                padding: const EdgeInsets.all(AppSpacing.md),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) => _CragCard(crag: crags[index]),
-                    childCount: crags.length,
+              if (favorites.isEmpty)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: AppSpacing.xl, horizontal: AppSpacing.md),
+                    child: Center(
+                      child: Text(
+                        'Tap a crag or gym on the map to add it to your favorites',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.cabin(
+                          fontSize: 14,
+                          color: AppColors.textDisabled,
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              else
+                SliverPadding(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) => _CragCard(crag: favorites[index]),
+                      childCount: favorites.length,
+                    ),
                   ),
                 ),
-              ),
             ],
           ],
         );
@@ -264,12 +299,11 @@ class _CragCard extends StatelessWidget {
       onTap: () => context.push('/crag/${crag.id}'),
       child: Container(
         margin: const EdgeInsets.only(bottom: AppSpacing.md),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppRadius.sm),
           color: AppColors.surface,
-          border: Border.fromBorderSide(
-            BorderSide(color: AppColors.darkNavy, width: 2.5),
-          ),
-          boxShadow: [
+          border: Border.all(color: AppColors.darkNavy, width: 2.5),
+          boxShadow: const [
             BoxShadow(
               color: AppColors.darkNavy,
               offset: Offset(5, 5),
@@ -277,6 +311,7 @@ class _CragCard extends StatelessWidget {
             ),
           ],
         ),
+        clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -338,6 +373,7 @@ class _CragCard extends StatelessWidget {
                           vertical: 3,
                         ),
                         decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(AppRadius.sm),
                           border:
                               Border.all(color: AppColors.darkNavy, width: 2),
                         ),

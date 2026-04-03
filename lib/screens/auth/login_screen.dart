@@ -110,12 +110,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(AppSpacing.md),
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
                       border: Border.fromBorderSide(
                         BorderSide(color: AppColors.darkNavy, width: 2.5),
                       ),
-                      boxShadow: [
+                      boxShadow: const [
                         BoxShadow(
                           color: AppColors.darkNavy,
                           offset: Offset(5, 5),

@@ -152,6 +152,7 @@ class _NotifTile extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: accentColor,
                 border: Border.all(color: AppColors.darkNavy, width: 2),
+                borderRadius: BorderRadius.circular(AppRadius.sm),
               ),
               child: Icon(icon, size: 18, color: Colors.white),
             ),
@@ -210,6 +211,7 @@ class _NotifTile extends ConsumerWidget {
                     color: AppColors.dullOrange,
                     border:
                         Border.all(color: AppColors.darkNavy, width: 2),
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
                     boxShadow: const [
                       BoxShadow(
                           color: AppColors.darkNavy,
@@ -291,6 +293,7 @@ class _AcceptButtonState extends State<_AcceptButton> {
         decoration: BoxDecoration(
           color: AppColors.oliveGreen,
           border: Border.all(color: AppColors.darkNavy, width: 2),
+          borderRadius: BorderRadius.circular(AppRadius.sm),
         ),
         child: Text(
           'CONNECTED',
@@ -311,6 +314,7 @@ class _AcceptButtonState extends State<_AcceptButton> {
         decoration: BoxDecoration(
           color: AppColors.accentBlue,
           border: Border.all(color: AppColors.darkNavy, width: 2),
+          borderRadius: BorderRadius.circular(AppRadius.sm),
           boxShadow: const [
             BoxShadow(
                 color: AppColors.darkNavy,
