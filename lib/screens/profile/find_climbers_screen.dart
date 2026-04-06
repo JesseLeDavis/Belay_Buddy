@@ -89,18 +89,11 @@ class _ClimberCardState extends ConsumerState<_ClimberCard> {
     ClimbingStyle.all: 'ALL',
   };
 
-  static const _levelLabels = {
-    ExperienceLevel.beginner: 'BEGINNER',
-    ExperienceLevel.intermediate: 'INTER',
-    ExperienceLevel.advanced: 'ADVANCED',
-    ExperienceLevel.expert: 'EXPERT',
-  };
-
-  static const _levelColors = {
-    ExperienceLevel.beginner: AppColors.oliveGreen,
-    ExperienceLevel.intermediate: AppColors.amber,
-    ExperienceLevel.advanced: AppColors.dullOrange,
-    ExperienceLevel.expert: AppColors.error,
+  static const _disciplineColors = {
+    ClimbingStyle.sport: AppColors.accentBlue,
+    ClimbingStyle.trad: AppColors.dullOrange,
+    ClimbingStyle.boulder: AppColors.oliveGreen,
+    ClimbingStyle.all: AppColors.amber,
   };
 
   @override
@@ -162,20 +155,26 @@ class _ClimberCardState extends ConsumerState<_ClimberCard> {
                           color: AppColors.darkNavy,
                         ),
                       ),
-                      const SizedBox(height: 2),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
-                        color: _levelColors[widget.user.experienceLevel] ??
-                            AppColors.textDisabled,
-                        child: Text(
-                          _levelLabels[widget.user.experienceLevel] ?? '',
-                          style: GoogleFonts.spaceMono(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
+                      const SizedBox(height: 4),
+                      Wrap(
+                        spacing: 4,
+                        runSpacing: 4,
+                        children: widget.user.climbingStyles.map((s) {
+                          return Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
+                            color: _disciplineColors[s] ??
+                                AppColors.textDisabled,
+                            child: Text(
+                              _styleLabels[s] ?? s.name.toUpperCase(),
+                              style: GoogleFonts.spaceMono(
+                                fontSize: 9,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                          );
+                        }).toList(),
                       ),
                     ],
                   ),

@@ -19,6 +19,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   bool _mapExpanded = false;
   BitmapDescriptor? _cragIcon;
   BitmapDescriptor? _gymIcon;
+  GoogleMapController? _mapController;
+  bool _hasAnimatedToHome = false;
 
   static const double _collapsedHeight = 220;
 
@@ -32,6 +34,35 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final crag = await buildCragMarker();
     final gym = await buildGymMarker();
     if (mounted) setState(() { _cragIcon = crag; _gymIcon = gym; });
+  }
+
+  void _onMapCreated(GoogleMapController controller) {
+    _mapController = controller;
+    _animateToHome();
+  }
+
+  void _animateToHome() {
+    if (_hasAnimatedToHome || _mapController == null) return;
+
+    final settings = ref.read(homeSettingsProvider);
+    final homeId = settings.homeGymId ?? settings.homeCragId;
+    if (homeId == null) return;
+
+    final crags = ref.read(allCragsProvider).valueOrNull;
+    if (crags == null) return;
+
+    final home = crags.where((c) => c.id == homeId).firstOrNull;
+    if (home == null) return;
+
+    _hasAnimatedToHome = true;
+    _mapController!.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: LatLng(home.location.latitude, home.location.longitude),
+          zoom: 12.0,
+        ),
+      ),
+    );
   }
 
   @override
@@ -159,6 +190,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                           target: LatLng(39.5, -98.35),
                           zoom: 4.0,
                         ),
+                        onMapCreated: _onMapCreated,
                         mapType: MapType.terrain,
                         markers: markers,
                         myLocationButtonEnabled: false,

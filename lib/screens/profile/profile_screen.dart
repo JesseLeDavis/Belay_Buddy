@@ -12,13 +12,6 @@ import 'package:google_fonts/google_fonts.dart';
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
-  static const _experienceLabels = {
-    ExperienceLevel.beginner: 'BEGINNER',
-    ExperienceLevel.intermediate: 'INTERMEDIATE',
-    ExperienceLevel.advanced: 'ADVANCED',
-    ExperienceLevel.expert: 'EXPERT',
-  };
-
   static const _styleLabels = {
     ClimbingStyle.sport: 'SPORT',
     ClimbingStyle.trad: 'TRAD',
@@ -185,31 +178,21 @@ class ProfileScreen extends ConsumerWidget {
                   label: 'EMAIL',
                   value: user.email),
               _StatLine(
-                  label: 'LEVEL',
-                  value: _experienceLabels[user.experienceLevel] ??
-                      user.experienceLevel.name.toUpperCase(),
-                  valueColor: _levelColor(user.experienceLevel)),
+                  label: 'DISCIPLINE',
+                  value: user.climbingStyles
+                      .map((s) =>
+                          _styleLabels[s] ?? s.name.toUpperCase())
+                      .join(', ')),
               if (user.bio != null)
                 _StatLine(label: 'BIO', value: user.bio!),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
 
-          // Experience level — green header
+          // Discipline — green header
           _ProfileCard(
-            title: 'EXPERIENCE',
+            title: 'DISCIPLINE',
             stripColor: AppColors.oliveGreen,
-            titleColor: Colors.white,
-            children: [
-              _ExperienceBar(level: user.experienceLevel),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-
-          // Climbing styles — blue header
-          _ProfileCard(
-            title: 'CLIMBING STYLES',
-            stripColor: AppColors.accentBlue,
             titleColor: Colors.white,
             children: [
               Wrap(
@@ -222,8 +205,9 @@ class ProfileScreen extends ConsumerWidget {
                       vertical: AppSpacing.xs + 2,
                     ),
                     decoration: BoxDecoration(
+                      color: _disciplineColor(s).withAlpha(25),
                       border:
-                          Border.all(color: AppColors.darkNavy, width: 2),
+                          Border.all(color: _disciplineColor(s), width: 2),
                       borderRadius: BorderRadius.circular(AppRadius.sm),
                     ),
                     child: Text(
@@ -231,7 +215,7 @@ class ProfileScreen extends ConsumerWidget {
                       style: GoogleFonts.spaceMono(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.darkNavy,
+                        color: _disciplineColor(s),
                       ),
                     ),
                   );
@@ -325,16 +309,16 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Color _levelColor(ExperienceLevel level) {
-    switch (level) {
-      case ExperienceLevel.beginner:
-        return AppColors.oliveGreen;
-      case ExperienceLevel.intermediate:
-        return AppColors.amber;
-      case ExperienceLevel.advanced:
+  Color _disciplineColor(ClimbingStyle style) {
+    switch (style) {
+      case ClimbingStyle.sport:
+        return AppColors.accentBlue;
+      case ClimbingStyle.trad:
         return AppColors.dullOrange;
-      case ExperienceLevel.expert:
-        return AppColors.error;
+      case ClimbingStyle.boulder:
+        return AppColors.oliveGreen;
+      case ClimbingStyle.all:
+        return AppColors.amber;
     }
   }
 }
@@ -403,12 +387,10 @@ class _ProfileCard extends StatelessWidget {
 class _StatLine extends StatelessWidget {
   final String label;
   final String value;
-  final Color? valueColor;
 
   const _StatLine({
     required this.label,
     required this.value,
-    this.valueColor,
   });
 
   @override
@@ -436,7 +418,7 @@ class _StatLine extends StatelessWidget {
               value,
               style: GoogleFonts.cabin(
                 fontSize: 14,
-                color: valueColor ?? AppColors.textPrimary,
+                color: AppColors.textPrimary,
               ),
             ),
           ),
@@ -570,15 +552,19 @@ class _ConnectionRow extends StatelessWidget {
   final AppUser user;
   const _ConnectionRow({required this.user});
 
-  static const _levelColors = {
-    ExperienceLevel.beginner: AppColors.oliveGreen,
-    ExperienceLevel.intermediate: AppColors.amber,
-    ExperienceLevel.advanced: AppColors.dullOrange,
-    ExperienceLevel.expert: AppColors.error,
+  static const _disciplineColors = {
+    ClimbingStyle.sport: AppColors.accentBlue,
+    ClimbingStyle.trad: AppColors.dullOrange,
+    ClimbingStyle.boulder: AppColors.oliveGreen,
+    ClimbingStyle.all: AppColors.amber,
   };
 
   @override
   Widget build(BuildContext context) {
+    final primaryStyle = user.climbingStyles.isNotEmpty
+        ? user.climbingStyles.first
+        : ClimbingStyle.all;
+
     return Container(
       padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.md, vertical: AppSpacing.sm),
@@ -592,7 +578,7 @@ class _ConnectionRow extends StatelessWidget {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: _levelColors[user.experienceLevel] ?? AppColors.darkNavy,
+              color: _disciplineColors[primaryStyle] ?? AppColors.darkNavy,
               borderRadius: BorderRadius.circular(AppRadius.sm),
               border: Border.all(color: AppColors.darkNavy, width: 2),
             ),
@@ -635,113 +621,3 @@ class _ConnectionRow extends StatelessWidget {
 }
 
 /// Experience progress bar with diagonal hatching pattern.
-class _ExperienceBar extends StatelessWidget {
-  final ExperienceLevel level;
-
-  const _ExperienceBar({required this.level});
-
-  double get _progress {
-    switch (level) {
-      case ExperienceLevel.beginner:
-        return 0.25;
-      case ExperienceLevel.intermediate:
-        return 0.5;
-      case ExperienceLevel.advanced:
-        return 0.75;
-      case ExperienceLevel.expert:
-        return 1.0;
-    }
-  }
-
-  String get _label {
-    switch (level) {
-      case ExperienceLevel.beginner:
-        return 'Beginner';
-      case ExperienceLevel.intermediate:
-        return 'Intermediate';
-      case ExperienceLevel.advanced:
-        return 'Advanced';
-      case ExperienceLevel.expert:
-        return 'Expert';
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          _label.toUpperCase(),
-          style: GoogleFonts.spaceMono(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: AppColors.darkNavy,
-          ),
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        Container(
-          height: 24,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppRadius.sm),
-            border: Border.all(color: AppColors.darkNavy, width: 2),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(AppRadius.sm),
-            child: Stack(
-              children: [
-                // Background
-                Container(color: AppColors.background),
-                // Filled portion with hatching
-                FractionallySizedBox(
-                  widthFactor: _progress,
-                  child: CustomPaint(
-                    painter: _HatchPainter(
-                      color: AppColors.dullOrange,
-                      backgroundColor: AppColors.orangeLight,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// Paints diagonal hatching pattern.
-class _HatchPainter extends CustomPainter {
-  final Color color;
-  final Color backgroundColor;
-
-  _HatchPainter({required this.color, required this.backgroundColor});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    // Fill background
-    canvas.drawRect(
-      Offset.zero & size,
-      Paint()..color = backgroundColor,
-    );
-
-    // Draw diagonal lines
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 3
-      ..style = PaintingStyle.stroke;
-
-    const spacing = 8.0;
-    for (double x = -size.height; x < size.width + size.height; x += spacing) {
-      canvas.drawLine(
-        Offset(x, size.height),
-        Offset(x + size.height, 0),
-        paint,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}

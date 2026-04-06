@@ -7,12 +7,15 @@ Future<BitmapDescriptor> buildCragMarker() => _buildMarker(isGym: false);
 Future<BitmapDescriptor> buildGymMarker() => _buildMarker(isGym: true);
 
 Future<BitmapDescriptor> _buildMarker({required bool isGym}) async {
-  const double w = 64;
-  const double bodyH = 64;
-  const double tipH = 14;
-  const double border = 4.0;
-  const double canvasW = w + 6;
-  const double canvasH = bodyH + tipH + 6;
+  // Render at 2x for retina, but keep the logical size compact.
+  const double s = 2.0;
+  const double w = 48 * s;
+  const double bodyH = 48 * s;
+  const double tipH = 12 * s;
+  const double border = 3.0 * s;
+  const double shadowOff = 4.0 * s;
+  const double canvasW = w + shadowOff;
+  const double canvasH = bodyH + tipH + shadowOff;
 
   final recorder = ui.PictureRecorder();
   final canvas = Canvas(recorder, const Rect.fromLTWH(0, 0, canvasW, canvasH));
@@ -20,30 +23,34 @@ Future<BitmapDescriptor> _buildMarker({required bool isGym}) async {
   const navy = Color(0xFF0F0F0F);
   final fill = isGym ? const Color(0xFF1D63D4) : const Color(0xFFFF6B2B);
 
-  // Shadow
+  // Hard-offset shadow
   canvas.drawPath(
-    _pinPath(5, 5, w, bodyH, tipH),
-    Paint()..color = const Color(0x55000000),
+    _pinPath(shadowOff, shadowOff, w, bodyH, tipH),
+    Paint()..color = navy.withAlpha(70),
   );
 
-  // Navy outline
+  // Dark outline
   canvas.drawPath(_pinPath(0, 0, w, bodyH, tipH), Paint()..color = navy);
 
-  // Colored fill (inset by border)
+  // Color fill
   canvas.drawPath(
-    _pinPath(border, border, w - border * 2, bodyH - border * 2, tipH - 2),
+    _pinPath(border, border, w - border * 2, bodyH - border * 2, tipH - 2 * s),
     Paint()..color = fill,
   );
 
-  // Icon
-  final iconRect = Rect.fromLTWH(
-    border + 8, border + 8,
-    w - border * 2 - 16, bodyH - border * 2 - 16,
+  // Icon area (centered in the body)
+  const iconInset = border + 8 * s;
+  const iconRect = Rect.fromLTWH(
+    iconInset,
+    iconInset,
+    w - iconInset * 2,
+    bodyH - iconInset * 2,
   );
+
   if (isGym) {
-    _drawBuilding(canvas, iconRect);
+    _drawGymIcon(canvas, iconRect, s);
   } else {
-    _drawMountain(canvas, iconRect);
+    _drawCragIcon(canvas, iconRect, s);
   }
 
   final picture = recorder.endRecording();
@@ -53,67 +60,112 @@ Future<BitmapDescriptor> _buildMarker({required bool isGym}) async {
 }
 
 Path _pinPath(double x, double y, double w, double h, double tipH) {
+  final r = w * 0.08; // proportional corner rounding
   return Path()
-    ..moveTo(x, y)
-    ..lineTo(x + w, y)
-    ..lineTo(x + w, y + h)
-    ..lineTo(x + w / 2 + tipH * 0.6, y + h)
+    ..moveTo(x + r, y)
+    ..lineTo(x + w - r, y)
+    ..arcToPoint(Offset(x + w, y + r), radius: Radius.circular(r))
+    ..lineTo(x + w, y + h - r)
+    ..arcToPoint(Offset(x + w - r, y + h), radius: Radius.circular(r))
+    ..lineTo(x + w / 2 + tipH * 0.5, y + h)
     ..lineTo(x + w / 2, y + h + tipH)
-    ..lineTo(x + w / 2 - tipH * 0.6, y + h)
-    ..lineTo(x, y + h)
+    ..lineTo(x + w / 2 - tipH * 0.5, y + h)
+    ..lineTo(x + r, y + h)
+    ..arcToPoint(Offset(x, y + h - r), radius: Radius.circular(r))
+    ..lineTo(x, y + r)
+    ..arcToPoint(Offset(x + r, y), radius: Radius.circular(r))
     ..close();
 }
 
-void _drawMountain(Canvas canvas, Rect area) {
-  final paint = Paint()
+/// Crag icon — bold two-peak mountain with snow cap.
+/// Kept to 3 shapes so it reads crisp at small size.
+void _drawCragIcon(Canvas canvas, Rect a, double s) {
+  final white = Paint()
     ..color = Colors.white
     ..style = PaintingStyle.fill;
 
-  // Background peak (slightly lighter)
+  // Back peak (smaller, offset right, semi-transparent)
   canvas.drawPath(
     Path()
-      ..moveTo(area.left + area.width * 0.55, area.top + area.height * 0.2)
-      ..lineTo(area.right, area.bottom)
-      ..lineTo(area.left + area.width * 0.3, area.bottom)
+      ..moveTo(a.left + a.width * 0.62, a.top + a.height * 0.25)
+      ..lineTo(a.right, a.bottom)
+      ..lineTo(a.left + a.width * 0.35, a.bottom)
       ..close(),
     Paint()..color = Colors.white.withAlpha(100),
   );
 
   // Main peak
+  final peakX = a.left + a.width * 0.38;
+  final peakY = a.top;
   canvas.drawPath(
     Path()
-      ..moveTo(area.center.dx, area.top)
-      ..lineTo(area.right, area.bottom)
-      ..lineTo(area.left, area.bottom)
+      ..moveTo(peakX, peakY)
+      ..lineTo(a.right - a.width * 0.1, a.bottom)
+      ..lineTo(a.left, a.bottom)
       ..close(),
-    paint,
+    white,
+  );
+
+  // Snow cap — clean triangle cutout at the summit
+  final capH = a.height * 0.32;
+  final capW = capH * 0.7;
+  canvas.drawPath(
+    Path()
+      ..moveTo(peakX, peakY)
+      ..lineTo(peakX + capW, peakY + capH)
+      ..lineTo(peakX - capW, peakY + capH)
+      ..close(),
+    Paint()..color = const Color(0xFFFF6B2B), // match crag fill to "punch out"
+  );
+
+  // Re-draw snow in slightly transparent white so it's visible but distinct
+  canvas.drawPath(
+    Path()
+      ..moveTo(peakX, peakY)
+      ..lineTo(peakX + capW, peakY + capH)
+      ..lineTo(peakX - capW, peakY + capH)
+      ..close(),
+    Paint()..color = Colors.white.withAlpha(180),
   );
 }
 
-void _drawBuilding(Canvas canvas, Rect area) {
-  final paint = Paint()
+/// Gym icon — bold climbing wall with 3 holds.
+/// Angled wall silhouette + chunky hold dots = instantly readable.
+void _drawGymIcon(Canvas canvas, Rect a, double s) {
+  final white = Paint()
     ..color = Colors.white
     ..style = PaintingStyle.fill;
-
-  final l = area.left;
-  final t = area.top;
-  final w = area.width;
-  final h = area.height;
-
-  // Main body
-  canvas.drawRect(Rect.fromLTWH(l + w * 0.1, t + h * 0.3, w * 0.8, h * 0.7), paint);
-
-  // Taller center tower
-  canvas.drawRect(Rect.fromLTWH(l + w * 0.3, t, w * 0.4, h * 0.75), paint);
-
-  // Windows (dark cutouts)
-  final windowPaint = Paint()
+  final blueFill = Paint()
     ..color = const Color(0xFF1D63D4)
     ..style = PaintingStyle.fill;
-  final winW = w * 0.18;
-  final winH = h * 0.18;
-  final winY = t + h * 0.45;
-  canvas.drawRect(Rect.fromLTWH(l + w * 0.14, winY, winW, winH), windowPaint);
-  canvas.drawRect(Rect.fromLTWH(l + w * 0.68, winY, winW, winH), windowPaint);
-  canvas.drawRect(Rect.fromLTWH(l + w * 0.38, t + h * 0.12, w * 0.24, winH), windowPaint);
+
+  // Angled wall slab
+  canvas.drawPath(
+    Path()
+      ..moveTo(a.left + a.width * 0.12, a.bottom)
+      ..lineTo(a.left + a.width * 0.28, a.top)
+      ..lineTo(a.right, a.top)
+      ..lineTo(a.right, a.bottom)
+      ..close(),
+    white,
+  );
+
+  // Three bold climbing holds (staggered)
+  final holdR = 3.6 * s;
+  final holds = [
+    Offset(a.left + a.width * 0.52, a.top + a.height * 0.28),
+    Offset(a.left + a.width * 0.72, a.top + a.height * 0.55),
+    Offset(a.left + a.width * 0.48, a.top + a.height * 0.78),
+  ];
+  for (final c in holds) {
+    canvas.drawCircle(c, holdR, blueFill);
+    canvas.drawCircle(
+      c,
+      holdR,
+      Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5 * s,
+    );
+  }
 }

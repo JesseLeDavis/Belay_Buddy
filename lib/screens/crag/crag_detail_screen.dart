@@ -1099,7 +1099,7 @@ class PostDetailSheet extends ConsumerWidget {
                               ),
                               if (user != null)
                                 Text(
-                                  '${_experienceName(user.experienceLevel)} · ${user.climbingStyles.map(_styleName).join(', ')}',
+                                  user.climbingStyles.map(_styleName).join(' · '),
                                   style: GoogleFonts.spaceMono(
                                       fontSize: 11,
                                       color: AppColors.textSecondary),
@@ -1154,14 +1154,6 @@ class PostDetailSheet extends ConsumerWidget {
       if (diff.inHours < 24) return '${diff.inHours}h ago';
       return DateFormat('EEE, MMM d \'at\' h:mm a').format(dt);
     }
-  }
-
-  String _experienceName(dynamic level) {
-    const names = {
-      'beginner': 'Beginner', 'intermediate': 'Intermediate',
-      'advanced': 'Advanced', 'expert': 'Expert',
-    };
-    return names[level.toString().split('.').last] ?? level.toString();
   }
 
   String _styleName(dynamic style) {
@@ -1345,10 +1337,10 @@ class _FavoriteNotifyRow extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.sm, vertical: 8),
               decoration: BoxDecoration(
-                color: isFav ? AppColors.amber.withAlpha(25) : AppColors.chipBg,
+                color: isFav ? AppColors.accentBlue.withAlpha(25) : AppColors.chipBg,
                 borderRadius: BorderRadius.circular(AppRadius.sm),
                 border: Border.all(
-                  color: isFav ? AppColors.amber : AppColors.darkGrey,
+                  color: isFav ? AppColors.accentBlue : AppColors.darkGrey,
                   width: 2,
                 ),
               ),
@@ -1358,7 +1350,7 @@ class _FavoriteNotifyRow extends ConsumerWidget {
                   Icon(
                     isFav ? Icons.star : Icons.star_outline,
                     size: 16,
-                    color: isFav ? AppColors.amber : AppColors.textSecondary,
+                    color: isFav ? AppColors.accentBlue : AppColors.textSecondary,
                   ),
                   const SizedBox(width: AppSpacing.xs),
                   Text(
@@ -1367,7 +1359,7 @@ class _FavoriteNotifyRow extends ConsumerWidget {
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                       color:
-                          isFav ? AppColors.amber : AppColors.textSecondary,
+                          isFav ? AppColors.accentBlue : AppColors.textSecondary,
                     ),
                   ),
                 ],
