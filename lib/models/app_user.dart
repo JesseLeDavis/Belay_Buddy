@@ -27,6 +27,7 @@ class AppUser with _$AppUser {
     String? bio,
     @Default(ExperienceLevel.intermediate) ExperienceLevel experienceLevel,
     @Default([ClimbingStyle.all]) List<ClimbingStyle> climbingStyles,
+    @Default([]) List<String> climbingTags,
     @Default([]) List<String> favoriteCragIds,
     @Default([]) List<String> favoriteGymIds,
     @Default([]) List<String> connectionIds,

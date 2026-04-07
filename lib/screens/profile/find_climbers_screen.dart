@@ -3,6 +3,7 @@ import 'package:belay_buddy/providers/firestore_providers.dart';
 import 'package:belay_buddy/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class FindClimbersScreen extends ConsumerWidget {
@@ -101,7 +102,9 @@ class _ClimberCardState extends ConsumerState<_ClimberCard> {
     final isConnected = ref.watch(isConnectedProvider(widget.user.uid));
     final hasPending = ref.watch(hasPendingRequestFromProvider(widget.user.uid));
 
-    return Container(
+    return GestureDetector(
+      onTap: () => context.push('/profile/${widget.user.uid}'),
+      child: Container(
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppRadius.sm),
@@ -225,6 +228,7 @@ class _ClimberCardState extends ConsumerState<_ClimberCard> {
             ),
           ),
         ],
+      ),
       ),
     );
   }

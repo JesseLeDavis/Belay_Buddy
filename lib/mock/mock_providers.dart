@@ -21,9 +21,36 @@ final currentUserIdSyncProvider = Provider<String?>((ref) {
 
 // ============ USER ============
 
-/// Current user profile from mock data.
+/// Mutable current user profile — allows in-session edits (name, bio, styles).
+class CurrentUserNotifier extends StateNotifier<AppUser?> {
+  CurrentUserNotifier() : super(MockData.getUserById(mockCurrentUserId));
+
+  void updateProfile({
+    String? displayName,
+    String? bio,
+    List<ClimbingStyle>? climbingStyles,
+    List<String>? climbingTags,
+  }) {
+    final user = state;
+    if (user == null) return;
+    state = user.copyWith(
+      displayName: displayName ?? user.displayName,
+      bio: bio,
+      climbingStyles: climbingStyles ?? user.climbingStyles,
+      climbingTags: climbingTags ?? user.climbingTags,
+    );
+  }
+}
+
+final currentUserNotifierProvider =
+    StateNotifierProvider<CurrentUserNotifier, AppUser?>(
+  (ref) => CurrentUserNotifier(),
+);
+
+/// Current user profile — reads from the mutable notifier.
 final currentUserProvider = StreamProvider<AppUser?>((ref) {
-  return Stream.value(MockData.getUserById(mockCurrentUserId));
+  final user = ref.watch(currentUserNotifierProvider);
+  return Stream.value(user);
 });
 
 /// Look up any user by ID.
@@ -221,6 +248,12 @@ final homeSettingsProvider =
     StateNotifierProvider<HomeSettingsNotifier, HomeSettings>(
   (ref) => HomeSettingsNotifier(),
 );
+
+/// Visible home members for a crag/gym (those with isHomeVisible == true).
+final visibleHomeMembersProvider =
+    Provider.family<List<AppUser>, String>((ref, cragId) {
+  return MockData.getVisibleHomeMembers(cragId);
+});
 
 /// Member count for a crag/gym — base count from mock data adjusted by
 /// whether the current user has this as their home location.

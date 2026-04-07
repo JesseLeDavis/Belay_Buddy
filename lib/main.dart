@@ -6,6 +6,7 @@ import 'package:belay_buddy/screens/home/map_screen.dart';
 import 'package:belay_buddy/screens/messages/chat_screen.dart';
 import 'package:belay_buddy/screens/messages/messages_screen.dart';
 import 'package:belay_buddy/screens/profile/profile_screen.dart';
+import 'package:belay_buddy/screens/profile/user_profile_screen.dart';
 import 'package:belay_buddy/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -79,6 +80,15 @@ final _router = GoRouter(
         GoRoute(
           path: '/profile',
           builder: (context, state) => const ProfileScreen(),
+          routes: [
+            GoRoute(
+              path: ':userId',
+              builder: (context, state) {
+                final userId = state.pathParameters['userId']!;
+                return UserProfileScreen(userId: userId);
+              },
+            ),
+          ],
         ),
       ],
     ),

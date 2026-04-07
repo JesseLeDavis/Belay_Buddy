@@ -1,5 +1,7 @@
 import 'package:belay_buddy/models/app_user.dart';
+import 'package:belay_buddy/models/crag.dart';
 import 'package:belay_buddy/providers/firestore_providers.dart';
+import 'package:belay_buddy/utils/climbing_tags.dart';
 import 'package:belay_buddy/screens/profile/find_climbers_screen.dart';
 import 'package:belay_buddy/screens/profile/notifications_screen.dart';
 import 'package:belay_buddy/theme/app_theme.dart';
@@ -12,12 +14,14 @@ import 'package:google_fonts/google_fonts.dart';
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
-  static const _styleLabels = {
-    ClimbingStyle.sport: 'SPORT',
-    ClimbingStyle.trad: 'TRAD',
-    ClimbingStyle.boulder: 'BOULDER',
-    ClimbingStyle.all: 'ALL STYLES',
-  };
+  void _openEditSheet(BuildContext context, WidgetRef ref, AppUser user) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _EditProfileSheet(user: user),
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -121,27 +125,51 @@ class ProfileScreen extends ConsumerWidget {
             child: Column(
               children: [
                 const SizedBox(height: AppSpacing.md),
-                // Avatar — large circle, orange fill, white initial
-                Container(
-                  width: 96,
-                  height: 96,
-                  decoration: BoxDecoration(
-                    color: AppColors.dullOrange,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.darkNavy, width: 3),
-                  ),
-                  child: Center(
-                    child: Text(
-                      user.displayName.isNotEmpty
-                          ? user.displayName[0].toUpperCase()
-                          : '?',
-                      style: GoogleFonts.spaceMono(
-                        fontSize: 40,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                // Avatar with edit badge
+                Stack(
+                  children: [
+                    Container(
+                      width: 96,
+                      height: 96,
+                      decoration: BoxDecoration(
+                        color: AppColors.dullOrange,
+                        shape: BoxShape.circle,
+                        border:
+                            Border.all(color: AppColors.darkNavy, width: 3),
+                      ),
+                      child: Center(
+                        child: Text(
+                          user.displayName.isNotEmpty
+                              ? user.displayName[0].toUpperCase()
+                              : '?',
+                          style: GoogleFonts.spaceMono(
+                            fontSize: 40,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: GestureDetector(
+                        onTap: () => _openEditSheet(context, ref, user),
+                        child: Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: AppColors.accentBlue,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                                color: AppColors.darkNavy, width: 2),
+                          ),
+                          child: const Icon(Icons.edit,
+                              size: 14, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: AppSpacing.md),
                 Text(
@@ -177,74 +205,20 @@ class ProfileScreen extends ConsumerWidget {
               _StatLine(
                   label: 'EMAIL',
                   value: user.email),
-              _StatLine(
-                  label: 'DISCIPLINE',
-                  value: user.climbingStyles
-                      .map((s) =>
-                          _styleLabels[s] ?? s.name.toUpperCase())
-                      .join(', ')),
               if (user.bio != null)
                 _StatLine(label: 'BIO', value: user.bio!),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
 
-          // Discipline — green header
-          _ProfileCard(
-            title: 'DISCIPLINE',
-            stripColor: AppColors.oliveGreen,
-            titleColor: Colors.white,
-            children: [
-              Wrap(
-                spacing: AppSpacing.sm,
-                runSpacing: AppSpacing.sm,
-                children: user.climbingStyles.map((s) {
-                  return Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sm + 2,
-                      vertical: AppSpacing.xs + 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: _disciplineColor(s).withAlpha(25),
-                      border:
-                          Border.all(color: _disciplineColor(s), width: 2),
-                      borderRadius: BorderRadius.circular(AppRadius.sm),
-                    ),
-                    child: Text(
-                      _styleLabels[s] ?? s.name.toUpperCase(),
-                      style: GoogleFonts.spaceMono(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: _disciplineColor(s),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
+          // Sticker tags
+          if (user.climbingTags.isNotEmpty) ...[
+            _StickerTagsCard(tags: user.climbingTags),
+            const SizedBox(height: AppSpacing.md),
+          ],
 
-          // Favorite crags — orange header
-          _ProfileCard(
-            title: 'FAVORITE CRAGS',
-            stripColor: AppColors.dullOrange,
-            titleColor: Colors.white,
-            children: [
-              if (user.favoriteCragIds.isEmpty)
-                const _StatLine(label: 'STATUS', value: 'None saved')
-              else
-                ...user.favoriteCragIds.map(
-                  (id) => _StatLine(
-                    label: '',
-                    value: id
-                        .replaceAll('crag_', '')
-                        .toUpperCase()
-                        .replaceAll('_', ' '),
-                  ),
-                ),
-            ],
-          ),
+          // Favorites — orange header
+          _FavoritesCard(ref: ref),
           const SizedBox(height: AppSpacing.md),
 
           // Connections — blue header
@@ -309,18 +283,6 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Color _disciplineColor(ClimbingStyle style) {
-    switch (style) {
-      case ClimbingStyle.sport:
-        return AppColors.accentBlue;
-      case ClimbingStyle.trad:
-        return AppColors.dullOrange;
-      case ClimbingStyle.boulder:
-        return AppColors.oliveGreen;
-      case ClimbingStyle.all:
-        return AppColors.amber;
-    }
-  }
 }
 
 class _ProfileCard extends StatelessWidget {
@@ -565,56 +527,584 @@ class _ConnectionRow extends StatelessWidget {
         ? user.climbingStyles.first
         : ClimbingStyle.all;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-      decoration: const BoxDecoration(
-        border:
-            Border(bottom: BorderSide(color: AppColors.darkGrey, width: 1)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: _disciplineColors[primaryStyle] ?? AppColors.darkNavy,
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-              border: Border.all(color: AppColors.darkNavy, width: 2),
-            ),
-            child: Center(
-              child: Text(
-                user.displayName.isNotEmpty
-                    ? user.displayName[0].toUpperCase()
-                    : '?',
-                style: GoogleFonts.spaceMono(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
+    return GestureDetector(
+      onTap: () => context.push('/profile/${user.uid}'),
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+        decoration: const BoxDecoration(
+          border:
+              Border(bottom: BorderSide(color: AppColors.darkGrey, width: 1)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: _disciplineColors[primaryStyle] ?? AppColors.darkNavy,
+                borderRadius: BorderRadius.circular(AppRadius.sm),
+                border: Border.all(color: AppColors.darkNavy, width: 2),
+              ),
+              child: Center(
+                child: Text(
+                  user.displayName.isNotEmpty
+                      ? user.displayName[0].toUpperCase()
+                      : '?',
+                  style: GoogleFonts.spaceMono(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Text(
+                user.displayName,
+                style: GoogleFonts.cabin(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.darkNavy,
+                ),
+              ),
+            ),
+            Text(
+              user.climbingStyles
+                  .take(2)
+                  .map((s) => s.name.toUpperCase())
+                  .join(' · '),
+              style: GoogleFonts.spaceMono(
+                  fontSize: 9, color: AppColors.textSecondary),
+            ),
+            const SizedBox(width: AppSpacing.xs),
+            const Icon(Icons.chevron_right,
+                size: 16, color: AppColors.textDisabled),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ============ STICKER TAGS ============
+
+class _StickerTagsCard extends StatelessWidget {
+  final List<String> tags;
+  const _StickerTagsCard({required this.tags});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        border: Border.all(color: AppColors.darkNavy, width: 2.5),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        boxShadow: const [
+          BoxShadow(
+            color: AppColors.darkNavy,
+            offset: Offset(4, 4),
+            blurRadius: 0,
           ),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.sm + 4, vertical: 10),
+            color: AppColors.oliveGreen,
             child: Text(
-              user.displayName,
-              style: GoogleFonts.cabin(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: AppColors.darkNavy,
+              'VIBE CHECK',
+              style: GoogleFonts.spaceMono(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
               ),
             ),
           ),
-          Text(
-            user.climbingStyles
-                .take(2)
-                .map((s) => s.name.toUpperCase())
-                .join(' · '),
-            style: GoogleFonts.spaceMono(
-                fontSize: 9, color: AppColors.textSecondary),
+          Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Wrap(
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm + 2,
+              children: tags.map((tagId) {
+                final tag = ClimbingTags.getById(tagId);
+                if (tag == null) return const SizedBox.shrink();
+                final rotation = ClimbingTags.rotationFor(tagId);
+                return Transform.rotate(
+                  angle: rotation * 3.14159 / 180,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm + 4,
+                      vertical: AppSpacing.xs + 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: tag.color,
+                      border: Border.all(color: AppColors.darkNavy, width: 2),
+                      borderRadius: BorderRadius.circular(AppRadius.xs),
+                      boxShadow: [
+                        BoxShadow(
+                          color: tag.color.withAlpha(80),
+                          offset: const Offset(2, 2),
+                          blurRadius: 0,
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      tag.label,
+                      style: GoogleFonts.spaceMono(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ============ FAVORITES CARD ============
+
+class _FavoritesCard extends StatelessWidget {
+  final WidgetRef ref;
+  const _FavoritesCard({required this.ref});
+
+  @override
+  Widget build(BuildContext context) {
+    final favoritesAsync = ref.watch(favoriteCragsProvider);
+    final venues = favoritesAsync.valueOrNull ?? [];
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        border: Border.all(color: AppColors.darkNavy, width: 2.5),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        boxShadow: const [
+          BoxShadow(
+            color: AppColors.darkNavy,
+            offset: Offset(4, 4),
+            blurRadius: 0,
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Header
+          Container(
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.sm + 4, vertical: 10),
+            color: AppColors.dullOrange,
+            child: Row(
+              children: [
+                Text(
+                  'FAVORITES',
+                  style: GoogleFonts.spaceMono(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+                const Spacer(),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
+                    border: Border.all(color: AppColors.darkNavy, width: 1.5),
+                  ),
+                  child: Text(
+                    '${venues.length}',
+                    style: GoogleFonts.spaceMono(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.dullOrange,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          if (venues.isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: Row(
+                children: [
+                  const Icon(Icons.explore_outlined,
+                      size: 16, color: AppColors.textDisabled),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: Text(
+                      'Star crags & gyms from the map to see them here.',
+                      style: GoogleFonts.cabin(
+                          fontSize: 13, color: AppColors.textSecondary),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            ...venues.map((venue) => _FavoriteRow(venue: venue, ref: ref)),
+        ],
+      ),
+    );
+  }
+}
+
+class _FavoriteRow extends StatelessWidget {
+  final Crag venue;
+  final WidgetRef ref;
+  const _FavoriteRow({required this.venue, required this.ref});
+
+  static const _cragTypeLabels = {
+    CragType.sport: 'SPORT',
+    CragType.trad: 'TRAD',
+    CragType.boulder: 'BOULDER',
+    CragType.mixed: 'MIXED',
+  };
+
+  static const _cragTypeColors = {
+    CragType.sport: AppColors.accentBlue,
+    CragType.trad: AppColors.dullOrange,
+    CragType.boulder: AppColors.oliveGreen,
+    CragType.mixed: AppColors.amber,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.push('/crag/${venue.id}'),
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md, vertical: AppSpacing.sm + 2),
+        decoration: const BoxDecoration(
+          border: Border(
+              bottom: BorderSide(color: AppColors.darkGrey, width: 1)),
+        ),
+        child: Row(
+          children: [
+            // Venue type icon
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: venue.isGym
+                    ? AppColors.accentBlue.withAlpha(25)
+                    : AppColors.oliveGreen.withAlpha(25),
+                borderRadius: BorderRadius.circular(AppRadius.sm),
+                border: Border.all(
+                  color: venue.isGym
+                      ? AppColors.accentBlue
+                      : AppColors.oliveGreen,
+                  width: 2,
+                ),
+              ),
+              child: Icon(
+                venue.isGym ? Icons.fitness_center : Icons.terrain,
+                size: 16,
+                color: venue.isGym
+                    ? AppColors.accentBlue
+                    : AppColors.oliveGreen,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+
+            // Name + type tags
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    venue.name,
+                    style: GoogleFonts.cabin(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.darkNavy,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (venue.types.isNotEmpty) ...[
+                    const SizedBox(height: 3),
+                    Wrap(
+                      spacing: 4,
+                      children: venue.types.map((t) {
+                        final color =
+                            _cragTypeColors[t] ?? AppColors.textDisabled;
+                        return Text(
+                          _cragTypeLabels[t] ?? t.name.toUpperCase(),
+                          style: GoogleFonts.spaceMono(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                            color: color,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+
+            // Unfavorite star
+            GestureDetector(
+              onTap: () =>
+                  ref.read(favoritesProvider.notifier).toggleFavorite(venue.id),
+              child: const Padding(
+                padding: EdgeInsets.all(4),
+                child: Icon(Icons.star, size: 20, color: AppColors.dullOrange),
+              ),
+            ),
+
+            // Nav arrow
+            const SizedBox(width: AppSpacing.xs),
+            const Icon(Icons.chevron_right,
+                size: 18, color: AppColors.textDisabled),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ============ EDIT PROFILE SHEET ============
+
+class _EditProfileSheet extends ConsumerStatefulWidget {
+  final AppUser user;
+  const _EditProfileSheet({required this.user});
+
+  @override
+  ConsumerState<_EditProfileSheet> createState() => _EditProfileSheetState();
+}
+
+class _EditProfileSheetState extends ConsumerState<_EditProfileSheet> {
+  late final TextEditingController _nameCtrl;
+  late final TextEditingController _bioCtrl;
+  late Set<String> _selectedTags;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameCtrl = TextEditingController(text: widget.user.displayName);
+    _bioCtrl = TextEditingController(text: widget.user.bio ?? '');
+    _selectedTags = Set.from(widget.user.climbingTags);
+  }
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    _bioCtrl.dispose();
+    super.dispose();
+  }
+
+  void _toggleTag(String tagId) {
+    setState(() {
+      if (_selectedTags.contains(tagId)) {
+        _selectedTags.remove(tagId);
+      } else {
+        _selectedTags.add(tagId);
+      }
+    });
+  }
+
+  void _save() {
+    final name = _nameCtrl.text.trim();
+    if (name.isEmpty) return;
+
+    final bio = _bioCtrl.text.trim();
+    ref.read(currentUserNotifierProvider.notifier).updateProfile(
+          displayName: name,
+          bio: bio.isEmpty ? null : bio,
+          climbingTags: _selectedTags.toList(),
+        );
+    Navigator.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
+    return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
+      decoration: const BoxDecoration(
+        color: AppColors.background,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+        border: Border(
+          top: BorderSide(color: AppColors.darkNavy, width: 3),
+          left: BorderSide(color: AppColors.darkNavy, width: 3),
+          right: BorderSide(color: AppColors.darkNavy, width: 3),
+        ),
+      ),
+      padding: EdgeInsets.only(bottom: bottomInset),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Drag handle
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.darkGrey,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+
+            // Title
+            Text(
+              'EDIT PROFILE',
+              style: GoogleFonts.spaceMono(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: AppColors.darkNavy,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+
+            // Name field
+            Text(
+              'DISPLAY NAME',
+              style: GoogleFonts.spaceMono(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            TextField(
+              controller: _nameCtrl,
+              style: GoogleFonts.cabin(fontSize: 15, color: AppColors.darkNavy),
+              decoration: const InputDecoration(hintText: 'Your name'),
+            ),
+            const SizedBox(height: AppSpacing.md),
+
+            // Bio field
+            Text(
+              'BIO',
+              style: GoogleFonts.spaceMono(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            TextField(
+              controller: _bioCtrl,
+              style: GoogleFonts.cabin(fontSize: 15, color: AppColors.darkNavy),
+              maxLines: 3,
+              decoration: const InputDecoration(
+                hintText: 'Tell others about your climbing...',
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+
+            // Tag sticker picker
+            Row(
+              children: [
+                Text(
+                  'VIBE CHECK',
+                  style: GoogleFonts.spaceMono(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                if (_selectedTags.isNotEmpty)
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                    decoration: BoxDecoration(
+                      color: AppColors.oliveGreen,
+                      borderRadius: BorderRadius.circular(AppRadius.xs),
+                    ),
+                    child: Text(
+                      '${_selectedTags.length}',
+                      style: GoogleFonts.spaceMono(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: ClimbingTags.all.map((tag) {
+                final selected = _selectedTags.contains(tag.id);
+                return GestureDetector(
+                  onTap: () => _toggleTag(tag.id),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 100),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm + 2,
+                      vertical: AppSpacing.xs + 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: selected ? tag.color : AppColors.chipBg,
+                      border: Border.all(
+                        color: selected ? tag.color : AppColors.darkGrey,
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(AppRadius.xs),
+                      boxShadow: selected
+                          ? [
+                              BoxShadow(
+                                color: tag.color.withAlpha(80),
+                                offset: const Offset(2, 2),
+                                blurRadius: 0,
+                              ),
+                            ]
+                          : [],
+                    ),
+                    child: Text(
+                      tag.label,
+                      style: GoogleFonts.spaceMono(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                        color: selected ? Colors.white : AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+
+            // Save button
+            RetroButton(
+              label: 'Save',
+              icon: Icons.check,
+              color: AppColors.oliveGreen,
+              shadowColor: AppColors.darkNavy,
+              textColor: Colors.white,
+              onPressed: _save,
+            ),
+            const SizedBox(height: AppSpacing.md),
+          ],
+        ),
       ),
     );
   }

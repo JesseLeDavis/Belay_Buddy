@@ -6,6 +6,7 @@ import 'package:belay_buddy/providers/firestore_providers.dart';
 import 'package:belay_buddy/screens/crag/crag_schedule_screen.dart';
 import 'package:belay_buddy/screens/crag/lost_found_screen.dart';
 import 'package:belay_buddy/theme/app_theme.dart';
+import 'package:belay_buddy/utils/climbing_tags.dart';
 import 'package:belay_buddy/widgets/collage_header.dart';
 import 'package:belay_buddy/widgets/heatmap_strip.dart';
 import 'package:flutter/material.dart';
@@ -42,7 +43,12 @@ class CragDetailScreen extends ConsumerWidget {
             );
           }
           return _buildBody(
-            context, ref, crag, postsAsync, lostFoundAsync, countsByDate,
+            context,
+            ref,
+            crag,
+            postsAsync,
+            lostFoundAsync,
+            countsByDate,
           );
         },
         loading: () => Center(
@@ -110,8 +116,7 @@ class CragDetailScreen extends ConsumerWidget {
       backgroundColor: headerColor,
       leading: BackButton(
         color: Colors.white,
-        onPressed: () =>
-            context.canPop() ? context.pop() : context.go('/'),
+        onPressed: () => context.canPop() ? context.pop() : context.go('/'),
       ),
       shape: const Border(
         bottom: BorderSide(color: AppColors.darkNavy, width: 3),
@@ -195,8 +200,8 @@ class CragDetailScreen extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: AppSpacing.sm, vertical: 3),
                       decoration: BoxDecoration(
-                          border: Border.all(
-                              color: AppColors.darkNavy, width: 2),
+                          border:
+                              Border.all(color: AppColors.darkNavy, width: 2),
                           borderRadius: BorderRadius.circular(AppRadius.sm)),
                       child: Text(
                         t.name.toUpperCase(),
@@ -215,9 +220,7 @@ class CragDetailScreen extends ConsumerWidget {
             Text(
               crag.description!,
               style: GoogleFonts.cabin(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                  height: 1.4),
+                  fontSize: 14, color: AppColors.textSecondary, height: 1.4),
             ),
           ],
           const SizedBox(height: AppSpacing.sm),
@@ -271,13 +274,12 @@ class CragDetailScreen extends ConsumerWidget {
                   ),
                   const Spacer(),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 6, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: AppColors.darkNavy,
                       borderRadius: BorderRadius.circular(AppRadius.sm),
-                      border:
-                          Border.all(color: AppColors.darkNavy, width: 1.5),
+                      border: Border.all(color: AppColors.darkNavy, width: 1.5),
                     ),
                     child: Text(
                       '$memberCount ${memberCount == 1 ? 'MEMBER' : 'MEMBERS'}',
@@ -298,6 +300,11 @@ class CragDetailScreen extends ConsumerWidget {
 
           const SizedBox(height: AppSpacing.sm),
 
+          // Members preview row
+          _MembersPreviewRow(cragId: crag.id, crag: crag),
+
+          const SizedBox(height: AppSpacing.sm),
+
           // Favorite + notification row
           _FavoriteNotifyRow(crag: crag),
 
@@ -313,7 +320,9 @@ class CragDetailScreen extends ConsumerWidget {
       context: context,
       backgroundColor: AppColors.surface,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg))),
+      shape: const RoundedRectangleBorder(
+          borderRadius:
+              BorderRadius.vertical(top: Radius.circular(AppRadius.lg))),
       builder: (_) => _HomeBaseSheet(crag: crag),
     );
   }
@@ -369,8 +378,7 @@ class CragDetailScreen extends ConsumerWidget {
                 const Spacer(),
                 if (foundCount > 0) ...[
                   _CountBadge(
-                      label: '$foundCount FOUND',
-                      color: AppColors.oliveGreen),
+                      label: '$foundCount FOUND', color: AppColors.oliveGreen),
                   const SizedBox(width: 6),
                 ],
                 if (lostCount > 0)
@@ -444,8 +452,7 @@ class CragDetailScreen extends ConsumerWidget {
             ),
             child: Row(
               children: [
-                const Icon(Icons.group_outlined,
-                    size: 16, color: Colors.white),
+                const Icon(Icons.group_outlined, size: 16, color: Colors.white),
                 const SizedBox(width: AppSpacing.sm),
                 Text(
                   'COMMUNITY BOARD',
@@ -486,9 +493,7 @@ class CragDetailScreen extends ConsumerWidget {
 
           // Footer
           _PanelFooter(
-            label: posts.isEmpty
-                ? 'POST A SESSION'
-                : 'VIEW FULL SCHEDULE →',
+            label: posts.isEmpty ? 'POST A SESSION' : 'VIEW FULL SCHEDULE →',
             onTap: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => CragScheduleScreen(cragId: crag.id),
             )),
@@ -521,8 +526,8 @@ class CragDetailScreen extends ConsumerWidget {
         icon: const Icon(Icons.add),
         label: Text(
           'POST',
-          style: GoogleFonts.spaceMono(
-              fontSize: 14, fontWeight: FontWeight.w700),
+          style:
+              GoogleFonts.spaceMono(fontSize: 14, fontWeight: FontWeight.w700),
         ),
       ),
     );
@@ -532,20 +537,23 @@ class CragDetailScreen extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg))),
+      shape: const RoundedRectangleBorder(
+          borderRadius:
+              BorderRadius.vertical(top: Radius.circular(AppRadius.lg))),
       builder: (_) => _PostTypeSheet(crag: crag),
     );
   }
 
   // ── Post detail ────────────────────────────────────────────────────────────
 
-  void _showPostDetail(
-      BuildContext context, WidgetRef ref, ClimbingPost post) {
+  void _showPostDetail(BuildContext context, WidgetRef ref, ClimbingPost post) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg))),
+      shape: const RoundedRectangleBorder(
+          borderRadius:
+              BorderRadius.vertical(top: Radius.circular(AppRadius.lg))),
       builder: (_) => PostDetailSheet(post: post),
     );
   }
@@ -623,8 +631,7 @@ class _PanelFooter extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: const BoxDecoration(
           color: AppColors.chipBg,
-          border:
-              Border(top: BorderSide(color: AppColors.darkNavy, width: 1)),
+          border: Border(top: BorderSide(color: AppColors.darkNavy, width: 1)),
         ),
         alignment: Alignment.center,
         child: Text(
@@ -649,11 +656,10 @@ class _LostFoundPreviewRow extends StatelessWidget {
     final isFound = item.status == LostFoundStatus.found;
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md, vertical: 10),
+      padding:
+          const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 10),
       decoration: const BoxDecoration(
-        border: Border(
-            bottom: BorderSide(color: AppColors.darkGrey, width: 1)),
+        border: Border(bottom: BorderSide(color: AppColors.darkGrey, width: 1)),
       ),
       child: Row(
         children: [
@@ -714,11 +720,16 @@ class _LostFoundPreviewRow extends StatelessWidget {
 
   String _categoryName(LostFoundCategory cat) {
     switch (cat) {
-      case LostFoundCategory.gear: return 'Gear';
-      case LostFoundCategory.clothing: return 'Clothing';
-      case LostFoundCategory.personalItem: return 'Personal Item';
-      case LostFoundCategory.rope: return 'Rope';
-      case LostFoundCategory.other: return 'Other';
+      case LostFoundCategory.gear:
+        return 'Gear';
+      case LostFoundCategory.clothing:
+        return 'Clothing';
+      case LostFoundCategory.personalItem:
+        return 'Personal Item';
+      case LostFoundCategory.rope:
+        return 'Rope';
+      case LostFoundCategory.other:
+        return 'Other';
     }
   }
 }
@@ -739,8 +750,8 @@ class _PostPreviewRow extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.md, vertical: AppSpacing.sm + 2),
         decoration: const BoxDecoration(
-          border: Border(
-              bottom: BorderSide(color: AppColors.darkGrey, width: 1)),
+          border:
+              Border(bottom: BorderSide(color: AppColors.darkGrey, width: 1)),
         ),
         child: Row(
           children: [
@@ -837,14 +848,11 @@ class _PostTypeSheet extends StatelessWidget {
           const SizedBox(height: 12),
           Center(
             child: Container(
-                width: 40,
-                height: 4,
-                color: AppColors.darkNavy.withAlpha(80)),
+                width: 40, height: 4, color: AppColors.darkNavy.withAlpha(80)),
           ),
           const SizedBox(height: AppSpacing.md),
           Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
             child: Text(
               'WHAT DO YOU WANT TO POST?',
               style: GoogleFonts.spaceMono(
@@ -996,8 +1004,8 @@ class PostDetailSheet extends ConsumerWidget {
                               ? AppColors.dullOrange
                               : AppColors.oliveGreen,
                           borderRadius: BorderRadius.circular(AppRadius.sm),
-                          border: Border.all(
-                              color: AppColors.darkNavy, width: 2),
+                          border:
+                              Border.all(color: AppColors.darkNavy, width: 2),
                         ),
                         child: Text(
                           post.type == PostType.immediate
@@ -1062,52 +1070,62 @@ class PostDetailSheet extends ConsumerWidget {
                   const Divider(color: AppColors.darkNavy, thickness: 1),
                   const SizedBox(height: AppSpacing.sm),
                   userAsync.when(
-                    data: (user) => Row(
-                      children: [
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: const BoxDecoration(
-                            color: AppColors.darkNavy,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Center(
-                            child: Text(
-                              user?.displayName.isNotEmpty == true
-                                  ? user!.displayName[0].toUpperCase()
-                                  : '?',
-                              style: GoogleFonts.spaceMono(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
+                    data: (user) => GestureDetector(
+                      onTap: user != null
+                          ? () {
+                              Navigator.of(context).pop();
+                              context.push('/profile/${user.uid}');
+                            }
+                          : null,
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: const BoxDecoration(
+                              color: AppColors.darkNavy,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(
+                              child: Text(
+                                user?.displayName.isNotEmpty == true
+                                    ? user!.displayName[0].toUpperCase()
+                                    : '?',
+                                style: GoogleFonts.spaceMono(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: AppSpacing.sm),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                user?.displayName ?? 'Unknown Climber',
-                                style: GoogleFonts.cabin(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.darkNavy,
-                                ),
-                              ),
-                              if (user != null)
+                          const SizedBox(width: AppSpacing.sm),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 Text(
-                                  user.climbingStyles.map(_styleName).join(' · '),
-                                  style: GoogleFonts.spaceMono(
-                                      fontSize: 11,
-                                      color: AppColors.textSecondary),
+                                  user?.displayName ?? 'Unknown Climber',
+                                  style: GoogleFonts.cabin(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.darkNavy,
+                                  ),
                                 ),
-                            ],
+                                if (user != null)
+                                  Text(
+                                    user.climbingStyles
+                                        .map(_styleName)
+                                        .join(' · '),
+                                    style: GoogleFonts.spaceMono(
+                                        fontSize: 11,
+                                        color: AppColors.textSecondary),
+                                  ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     loading: () => const SizedBox(height: 40),
                     error: (_, __) => Text('Unknown Climber',
@@ -1135,9 +1153,7 @@ class PostDetailSheet extends ConsumerWidget {
           color: color),
       child: Text(label,
           style: GoogleFonts.spaceMono(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: Colors.white)),
+              fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white)),
     );
   }
 
@@ -1158,8 +1174,10 @@ class PostDetailSheet extends ConsumerWidget {
 
   String _styleName(dynamic style) {
     const names = {
-      'sport': 'Sport', 'trad': 'Trad',
-      'boulder': 'Boulder', 'all': 'All Styles',
+      'sport': 'Sport',
+      'trad': 'Trad',
+      'boulder': 'Boulder',
+      'all': 'All Styles',
     };
     return names[style.toString().split('.').last] ?? style.toString();
   }
@@ -1185,8 +1203,7 @@ class _PostActionButtonsState extends ConsumerState<_PostActionButtons> {
     final currentUserId = ref.watch(currentUserIdSyncProvider);
     final isOwnPost = widget.post.userId == currentUserId;
     final isConnected = ref.watch(isConnectedProvider(widget.post.userId));
-    final posterName =
-        widget.userAsync.asData?.value?.displayName ?? 'CLIMBER';
+    final posterName = widget.userAsync.asData?.value?.displayName ?? 'CLIMBER';
 
     if (isOwnPost) return const SizedBox.shrink();
 
@@ -1213,8 +1230,8 @@ class _PostActionButtonsState extends ConsumerState<_PostActionButtons> {
           icon: const Icon(Icons.chat_bubble_outline),
           label: Text(
             'MESSAGE ${posterName.toUpperCase()}',
-            style:
-                GoogleFonts.spaceMono(fontSize: 13, fontWeight: FontWeight.w700),
+            style: GoogleFonts.spaceMono(
+                fontSize: 13, fontWeight: FontWeight.w700),
           ),
         ),
         const SizedBox(height: AppSpacing.sm),
@@ -1229,8 +1246,8 @@ class _PostActionButtonsState extends ConsumerState<_PostActionButtons> {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       content: Text(
                         'Connection request sent to $posterName',
-                        style:
-                            GoogleFonts.cabin(color: Colors.white, fontSize: 14),
+                        style: GoogleFonts.cabin(
+                            color: Colors.white, fontSize: 14),
                       ),
                       backgroundColor: AppColors.accentBlue,
                     ));
@@ -1242,8 +1259,7 @@ class _PostActionButtonsState extends ConsumerState<_PostActionButtons> {
                     ? AppColors.chipBg
                     : AppColors.accentBlue,
                 borderRadius: BorderRadius.circular(AppRadius.sm),
-                border:
-                    Border.all(color: AppColors.darkNavy, width: 2.5),
+                border: Border.all(color: AppColors.darkNavy, width: 2.5),
                 boxShadow: _connectRequestSent
                     ? null
                     : const [
@@ -1337,7 +1353,9 @@ class _FavoriteNotifyRow extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.sm, vertical: 8),
               decoration: BoxDecoration(
-                color: isFav ? AppColors.accentBlue.withAlpha(25) : AppColors.chipBg,
+                color: isFav
+                    ? AppColors.accentBlue.withAlpha(25)
+                    : AppColors.chipBg,
                 borderRadius: BorderRadius.circular(AppRadius.sm),
                 border: Border.all(
                   color: isFav ? AppColors.accentBlue : AppColors.darkGrey,
@@ -1350,7 +1368,8 @@ class _FavoriteNotifyRow extends ConsumerWidget {
                   Icon(
                     isFav ? Icons.star : Icons.star_outline,
                     size: 16,
-                    color: isFav ? AppColors.accentBlue : AppColors.textSecondary,
+                    color:
+                        isFav ? AppColors.accentBlue : AppColors.textSecondary,
                   ),
                   const SizedBox(width: AppSpacing.xs),
                   Text(
@@ -1358,8 +1377,9 @@ class _FavoriteNotifyRow extends ConsumerWidget {
                     style: GoogleFonts.spaceMono(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
-                      color:
-                          isFav ? AppColors.accentBlue : AppColors.textSecondary,
+                      color: isFav
+                          ? AppColors.accentBlue
+                          : AppColors.textSecondary,
                     ),
                   ),
                 ],
@@ -1403,8 +1423,7 @@ class _FavoriteNotifyRow extends ConsumerWidget {
       backgroundColor: AppColors.surface,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
       ),
       builder: (_) => _VenueNotifySheet(crag: crag),
     );
@@ -1501,8 +1520,8 @@ class _VenueNotifySheet extends ConsumerWidget {
                         decoration: BoxDecoration(
                           color: AppColors.amber,
                           borderRadius: BorderRadius.circular(AppRadius.sm),
-                          border: Border.all(
-                              color: AppColors.darkNavy, width: 2),
+                          border:
+                              Border.all(color: AppColors.darkNavy, width: 2),
                         ),
                         child: Text(
                           'FAVORITE',
@@ -1543,9 +1562,8 @@ class _VenueNotifySheet extends ConsumerWidget {
             trailing: Switch(
               value: notifyPrefs.notifyCatch,
               activeColor: AppColors.dullOrange,
-              onChanged: isFav
-                  ? (_) => favNotifier.toggleNotifyCatch(crag.id)
-                  : null,
+              onChanged:
+                  isFav ? (_) => favNotifier.toggleNotifyCatch(crag.id) : null,
             ),
           ),
 
@@ -1570,6 +1588,356 @@ class _VenueNotifySheet extends ConsumerWidget {
         ],
       ),
     );
+  }
+}
+
+// ── Home base sheet ───────────────────────────────────────────────────────────
+
+// ── Members preview row ──────────────────────────────────────────────────────
+
+class _MembersPreviewRow extends ConsumerWidget {
+  final String cragId;
+  final Crag crag;
+  const _MembersPreviewRow({required this.cragId, required this.crag});
+
+  static const _avatarColors = [
+    AppColors.dullOrange,
+    AppColors.accentBlue,
+    AppColors.oliveGreen,
+    AppColors.amber,
+  ];
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final visible = ref.watch(visibleHomeMembersProvider(cragId));
+    final memberCount = ref.watch(homeMemberCountProvider(cragId));
+
+    if (memberCount == 0) return const SizedBox.shrink();
+
+    // Show up to 4 random-ish avatars
+    final preview = List<AppUser>.from(visible)..shuffle();
+    final shown = preview.take(4).toList();
+    final extra = memberCount - shown.length;
+
+    return GestureDetector(
+      onTap: () => _showMembersCarousel(context, cragId, crag),
+      child: Container(
+        padding:
+            const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 8),
+        decoration: BoxDecoration(
+          color: AppColors.chipBg,
+          borderRadius: BorderRadius.circular(AppRadius.sm),
+          border: Border.all(color: AppColors.darkGrey, width: 2),
+        ),
+        child: Row(
+          children: [
+            // Stacked avatars
+            SizedBox(
+              width: shown.length * 24.0 + 8,
+              height: 32,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  for (var i = 0; i < shown.length; i++)
+                    Positioned(
+                      left: i * 22.0,
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: _avatarColors[
+                              shown[i].uid.hashCode % _avatarColors.length],
+                          shape: BoxShape.circle,
+                          border:
+                              Border.all(color: AppColors.surface, width: 2.5),
+                        ),
+                        child: Center(
+                          child: Text(
+                            shown[i].displayName.isNotEmpty
+                                ? shown[i].displayName[0].toUpperCase()
+                                : '?',
+                            style: GoogleFonts.spaceMono(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(width: AppSpacing.xs),
+            Expanded(
+              child: Text(
+                '$memberCount ${memberCount == 1 ? 'MEMBER' : 'MEMBERS'}',
+                style: GoogleFonts.spaceMono(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.darkNavy,
+                ),
+              ),
+            ),
+            if (extra > 0)
+              Text(
+                '+$extra more',
+                style: GoogleFonts.cabin(
+                    fontSize: 12, color: AppColors.textSecondary),
+              ),
+            const SizedBox(width: AppSpacing.xs),
+            Text(
+              'SEE ALL',
+              style: GoogleFonts.spaceMono(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: AppColors.accentBlue,
+              ),
+            ),
+            const SizedBox(width: 2),
+            const Icon(Icons.chevron_right,
+                size: 14, color: AppColors.accentBlue),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showMembersCarousel(BuildContext context, String cragId, Crag crag) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => _MembersCarouselSheet(cragId: cragId, crag: crag),
+    );
+  }
+}
+
+// ── Members carousel sheet ──────────────────────────────────────────────────
+
+class _MembersCarouselSheet extends ConsumerStatefulWidget {
+  final String cragId;
+  final Crag crag;
+  const _MembersCarouselSheet({required this.cragId, required this.crag});
+
+  @override
+  ConsumerState<_MembersCarouselSheet> createState() =>
+      _MembersCarouselSheetState();
+}
+
+class _MembersCarouselSheetState extends ConsumerState<_MembersCarouselSheet> {
+  late final ScrollController _scrollCtrl;
+  final _itemWidth = 90.0;
+  final _itemGap = 12.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollCtrl = ScrollController()..addListener(() => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    _scrollCtrl.dispose();
+    super.dispose();
+  }
+
+  static const _avatarColors = [
+    AppColors.dullOrange,
+    AppColors.accentBlue,
+    AppColors.oliveGreen,
+    AppColors.amber,
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final visible = ref.watch(visibleHomeMembersProvider(widget.cragId));
+    final memberCount = ref.watch(homeMemberCountProvider(widget.cragId));
+    final hiddenCount = memberCount - visible.length;
+    final accentColor =
+        widget.crag.isGym ? AppColors.accentBlue : AppColors.oliveGreen;
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    return Container(
+      decoration: const BoxDecoration(
+        color: AppColors.background,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+        border: Border(
+          top: BorderSide(color: AppColors.darkNavy, width: 3),
+          left: BorderSide(color: AppColors.darkNavy, width: 3),
+          right: BorderSide(color: AppColors.darkNavy, width: 3),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Drag handle
+          const SizedBox(height: AppSpacing.sm),
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.darkGrey,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+
+          // Header
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+            child: Row(
+              children: [
+                Text(
+                  'LOCALS',
+                  style: GoogleFonts.spaceMono(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.darkNavy,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: accentColor,
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
+                    border: Border.all(color: AppColors.darkNavy, width: 1.5),
+                  ),
+                  child: Text(
+                    '$memberCount',
+                    style: GoogleFonts.spaceMono(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                if (hiddenCount > 0) ...[
+                  const Spacer(),
+                  Text(
+                    '$hiddenCount private',
+                    style: GoogleFonts.cabin(
+                        fontSize: 12, color: AppColors.textDisabled),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+
+          // Carousel
+          SizedBox(
+            height: 140,
+            child: ListView.builder(
+              controller: _scrollCtrl,
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              // padding: EdgeInsets.symmetric(
+              //     horizontal: (screenWidth - _itemWidth) / 4),
+              itemCount: visible.length,
+              itemBuilder: (context, i) {
+                final user = visible[i];
+                final scale = _scaleFor(i, screenWidth);
+                final color =
+                    _avatarColors[user.uid.hashCode % _avatarColors.length];
+
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    context.push('/profile/${user.uid}');
+                  },
+                  child: Container(
+                    width: _itemWidth + _itemGap,
+                    alignment: Alignment.center,
+                    child: Transform.scale(
+                      scale: scale,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 64,
+                            height: 64,
+                            decoration: BoxDecoration(
+                              color: color,
+                              borderRadius: BorderRadius.circular(AppRadius.sm),
+                              border: Border.all(
+                                  color: AppColors.darkNavy, width: 2.5),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: color.withAlpha(
+                                      (80 * scale).round().clamp(0, 255)),
+                                  offset: Offset(3 * scale, 3 * scale),
+                                  blurRadius: 0,
+                                ),
+                              ],
+                            ),
+                            child: Center(
+                              child: Text(
+                                user.displayName.isNotEmpty
+                                    ? user.displayName[0].toUpperCase()
+                                    : '?',
+                                style: GoogleFonts.spaceMono(
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          Text(
+                            user.displayName.split(' ').first,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.spaceMono(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.darkNavy,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          if (user.climbingTags.isNotEmpty)
+                            Text(
+                              _firstTagLabel(user.climbingTags.first),
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.spaceMono(
+                                fontSize: 8,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          SizedBox(
+              height: MediaQuery.of(context).padding.bottom + AppSpacing.lg),
+        ],
+      ),
+    );
+  }
+
+  double _scaleFor(int index, double screenWidth) {
+    if (!_scrollCtrl.hasClients) return index == 0 ? 1.0 : 0.75;
+    final scrollOffset = _scrollCtrl.offset;
+    final itemCenter = index * (_itemWidth + _itemGap) + _itemWidth / 2;
+    final viewCenter = scrollOffset + screenWidth / 2;
+    final dist = (itemCenter - viewCenter).abs();
+    // Items within ~half an item width of center are full scale
+    final t = (dist / (_itemWidth + _itemGap)).clamp(0.0, 2.0);
+    return 1.0 - (t * 0.25); // scale from 1.0 down to 0.5
+  }
+
+  String _firstTagLabel(String tagId) {
+    final tag = ClimbingTags.getById(tagId);
+    return tag?.label ?? tagId.toUpperCase();
   }
 }
 
@@ -1646,19 +2014,10 @@ class _HomeBaseSheet extends ConsumerWidget {
             ),
           ),
 
-          // Member count explainer
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-                AppSpacing.md, AppSpacing.md, AppSpacing.md, 0),
-            child: Text(
-              'Members count everyone who has set this as their home $label, '
-              'including those with private visibility.',
-              style: GoogleFonts.cabin(
-                  fontSize: 13, color: AppColors.textSecondary, height: 1.4),
-            ),
-          ),
+          // Member list
+          _HomeMembersList(cragId: crag.id, memberCount: memberCount),
 
-          const SizedBox(height: AppSpacing.md),
+          const Divider(height: 1, thickness: 1, color: AppColors.darkGrey),
 
           // Set / unset home
           _SheetTile(
@@ -1708,7 +2067,8 @@ class _HomeBaseSheet extends ConsumerWidget {
             icon: Icons.pan_tool_outlined,
             iconColor: AppColors.dullOrange,
             title: 'NOTIFY: CATCH NEEDED',
-            subtitle: 'Alert when someone at this ${label.toLowerCase()} needs a belay',
+            subtitle:
+                'Alert when someone at this ${label.toLowerCase()} needs a belay',
             enabled: isHome,
             trailing: Switch(
               value: settings.notifyHomeCatch,
@@ -1731,10 +2091,156 @@ class _HomeBaseSheet extends ConsumerWidget {
             trailing: Switch(
               value: settings.notifyHomeConnections,
               activeColor: AppColors.accentBlue,
-              onChanged: isHome
-                  ? (_) => notifier.toggleNotifyHomeConnections()
-                  : null,
+              onChanged:
+                  isHome ? (_) => notifier.toggleNotifyHomeConnections() : null,
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HomeMembersList extends ConsumerWidget {
+  final String cragId;
+  final int memberCount;
+  const _HomeMembersList({required this.cragId, required this.memberCount});
+
+  static const _avatarColors = [
+    AppColors.dullOrange,
+    AppColors.accentBlue,
+    AppColors.oliveGreen,
+    AppColors.amber,
+  ];
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final visible = ref.watch(visibleHomeMembersProvider(cragId));
+    final hiddenCount = memberCount - visible.length;
+
+    if (memberCount == 0) {
+      return Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Text(
+          'No members yet. Be the first!',
+          style:
+              GoogleFonts.cabin(fontSize: 13, color: AppColors.textSecondary),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'LOCALS',
+            style: GoogleFonts.spaceMono(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [
+              ...visible.map((user) {
+                final color =
+                    _avatarColors[user.uid.hashCode % _avatarColors.length];
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    context.push('/profile/${user.uid}');
+                  },
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: color,
+                          borderRadius: BorderRadius.circular(AppRadius.sm),
+                          border:
+                              Border.all(color: AppColors.darkNavy, width: 2),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: AppColors.darkNavy,
+                              offset: Offset(2, 2),
+                              blurRadius: 0,
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Text(
+                            user.displayName.isNotEmpty
+                                ? user.displayName[0].toUpperCase()
+                                : '?',
+                            style: GoogleFonts.spaceMono(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      SizedBox(
+                        width: 52,
+                        child: Text(
+                          user.displayName.split(' ').first,
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.cabin(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.darkNavy,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+              if (hiddenCount > 0)
+                Column(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: AppColors.chipBg,
+                        borderRadius: BorderRadius.circular(AppRadius.sm),
+                        border: Border.all(color: AppColors.darkGrey, width: 2),
+                      ),
+                      child: Center(
+                        child: Text(
+                          '+$hiddenCount',
+                          style: GoogleFonts.spaceMono(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    SizedBox(
+                      width: 52,
+                      child: Text(
+                        'private',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.cabin(
+                          fontSize: 10,
+                          color: AppColors.textDisabled,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+            ],
           ),
         ],
       ),

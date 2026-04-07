@@ -20,6 +20,10 @@ _$AppUserImpl _$$AppUserImplFromJson(Map<String, dynamic> json) =>
               ?.map((e) => $enumDecode(_$ClimbingStyleEnumMap, e))
               .toList() ??
           const [ClimbingStyle.all],
+      climbingTags: (json['climbingTags'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
       favoriteCragIds: (json['favoriteCragIds'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
@@ -60,6 +64,7 @@ Map<String, dynamic> _$$AppUserImplToJson(_$AppUserImpl instance) =>
       'climbingStyles': instance.climbingStyles
           .map((e) => _$ClimbingStyleEnumMap[e]!)
           .toList(),
+      'climbingTags': instance.climbingTags,
       'favoriteCragIds': instance.favoriteCragIds,
       'favoriteGymIds': instance.favoriteGymIds,
       'connectionIds': instance.connectionIds,
