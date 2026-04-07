@@ -1727,17 +1727,21 @@ class _MembersCarouselSheet extends ConsumerStatefulWidget {
 
 class _MembersCarouselSheetState extends ConsumerState<_MembersCarouselSheet> {
   late final ScrollController _scrollCtrl;
-  final _itemWidth = 90.0;
-  final _itemGap = 12.0;
+  static const _slotWidth = 110.0;
 
   @override
   void initState() {
     super.initState();
-    _scrollCtrl = ScrollController()..addListener(() => setState(() {}));
+    _scrollCtrl = ScrollController()..addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
+    _scrollCtrl.removeListener(_onScroll);
     _scrollCtrl.dispose();
     super.dispose();
   }
@@ -1757,6 +1761,7 @@ class _MembersCarouselSheetState extends ConsumerState<_MembersCarouselSheet> {
     final accentColor =
         widget.crag.isGym ? AppColors.accentBlue : AppColors.oliveGreen;
     final screenWidth = MediaQuery.of(context).size.width;
+    final edgeInset = (screenWidth - _slotWidth) / 2;
 
     return Container(
       decoration: const BoxDecoration(
@@ -1831,46 +1836,52 @@ class _MembersCarouselSheetState extends ConsumerState<_MembersCarouselSheet> {
 
           // Carousel
           SizedBox(
-            height: 140,
+            height: 160,
             child: ListView.builder(
               controller: _scrollCtrl,
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),
-              // padding: EdgeInsets.symmetric(
-              //     horizontal: (screenWidth - _itemWidth) / 4),
+              padding: EdgeInsets.symmetric(horizontal: edgeInset),
               itemCount: visible.length,
               itemBuilder: (context, i) {
                 final user = visible[i];
-                final scale = _scaleFor(i, screenWidth);
+                final scale = _scaleFor(i, screenWidth, edgeInset);
+                final opacity = (0.4 + 0.6 * scale).clamp(0.0, 1.0);
                 final color =
                     _avatarColors[user.uid.hashCode % _avatarColors.length];
+
+                // Avatar grows from 48 at edges → 80 at center
+                final t = ((scale - 0.6) / 0.4).clamp(0.0, 1.0);
+                final avatarSize = 48.0 + 32.0 * t;
+                final fontSize = 16.0 + 14.0 * t;
 
                 return GestureDetector(
                   onTap: () {
                     Navigator.of(context).pop();
                     context.push('/profile/${user.uid}');
                   },
-                  child: Container(
-                    width: _itemWidth + _itemGap,
-                    alignment: Alignment.center,
-                    child: Transform.scale(
-                      scale: scale,
+                  child: SizedBox(
+                    width: _slotWidth,
+                    child: Opacity(
+                      opacity: opacity,
                       child: Column(
-                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Container(
-                            width: 64,
-                            height: 64,
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 80),
+                            width: avatarSize,
+                            height: avatarSize,
                             decoration: BoxDecoration(
                               color: color,
-                              borderRadius: BorderRadius.circular(AppRadius.sm),
+                              borderRadius:
+                                  BorderRadius.circular(AppRadius.sm),
                               border: Border.all(
                                   color: AppColors.darkNavy, width: 2.5),
                               boxShadow: [
                                 BoxShadow(
                                   color: color.withAlpha(
-                                      (80 * scale).round().clamp(0, 255)),
-                                  offset: Offset(3 * scale, 3 * scale),
+                                      (120 * scale).round().clamp(0, 255)),
+                                  offset: Offset(4 * scale, 4 * scale),
                                   blurRadius: 0,
                                 ),
                               ],
@@ -1881,7 +1892,7 @@ class _MembersCarouselSheetState extends ConsumerState<_MembersCarouselSheet> {
                                     ? user.displayName[0].toUpperCase()
                                     : '?',
                                 style: GoogleFonts.spaceMono(
-                                  fontSize: 26,
+                                  fontSize: fontSize,
                                   fontWeight: FontWeight.w700,
                                   color: Colors.white,
                                 ),
@@ -1893,7 +1904,7 @@ class _MembersCarouselSheetState extends ConsumerState<_MembersCarouselSheet> {
                             user.displayName.split(' ').first,
                             overflow: TextOverflow.ellipsis,
                             style: GoogleFonts.spaceMono(
-                              fontSize: 11,
+                              fontSize: scale > 0.85 ? 12 : 10,
                               fontWeight: FontWeight.w700,
                               color: AppColors.darkNavy,
                             ),
@@ -1906,7 +1917,9 @@ class _MembersCarouselSheetState extends ConsumerState<_MembersCarouselSheet> {
                               style: GoogleFonts.spaceMono(
                                 fontSize: 8,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.textSecondary,
+                                color: scale > 0.85
+                                    ? AppColors.textSecondary
+                                    : AppColors.textDisabled,
                               ),
                             ),
                         ],
@@ -1924,15 +1937,17 @@ class _MembersCarouselSheetState extends ConsumerState<_MembersCarouselSheet> {
     );
   }
 
-  double _scaleFor(int index, double screenWidth) {
-    if (!_scrollCtrl.hasClients) return index == 0 ? 1.0 : 0.75;
+  /// 1.0 at viewport center → 0.6 at edges.
+  double _scaleFor(int index, double screenWidth, double edgeInset) {
+    if (!_scrollCtrl.hasClients) {
+      return index == 0 ? 1.0 : (1.0 - index * 0.15).clamp(0.6, 1.0);
+    }
     final scrollOffset = _scrollCtrl.offset;
-    final itemCenter = index * (_itemWidth + _itemGap) + _itemWidth / 2;
+    final itemCenter = edgeInset + index * _slotWidth + _slotWidth / 2;
     final viewCenter = scrollOffset + screenWidth / 2;
     final dist = (itemCenter - viewCenter).abs();
-    // Items within ~half an item width of center are full scale
-    final t = (dist / (_itemWidth + _itemGap)).clamp(0.0, 2.0);
-    return 1.0 - (t * 0.25); // scale from 1.0 down to 0.5
+    final normalized = (dist / _slotWidth).clamp(0.0, 2.0);
+    return 1.0 - (normalized * 0.2); // 1.0 → 0.6
   }
 
   String _firstTagLabel(String tagId) {
