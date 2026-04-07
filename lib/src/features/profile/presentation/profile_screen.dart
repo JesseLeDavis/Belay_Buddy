@@ -1,0 +1,1116 @@
+import 'package:belay_buddy/src/features/auth/domain/app_user.dart';
+import 'package:belay_buddy/src/features/venues/domain/crag.dart';
+import 'package:belay_buddy/src/features/auth/data/auth_repository.dart';
+import 'package:belay_buddy/src/features/connections/data/connections_repository.dart';
+import 'package:belay_buddy/src/features/favorites/data/favorites_repository.dart';
+import 'package:belay_buddy/src/features/notifications/data/notifications_repository.dart';
+import 'package:belay_buddy/src/common/utils/climbing_tags.dart';
+import 'package:belay_buddy/src/features/connections/presentation/find_climbers_screen.dart';
+import 'package:belay_buddy/src/features/notifications/presentation/notifications_screen.dart';
+import 'package:belay_buddy/src/common/theme/app_theme.dart';
+import 'package:belay_buddy/src/common/widgets/retro_button.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+class ProfileScreen extends ConsumerWidget {
+  const ProfileScreen({super.key});
+
+  void _openEditSheet(BuildContext context, WidgetRef ref, AppUser user) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _EditProfileSheet(user: user),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userAsync = ref.watch(currentUserProvider);
+    final unreadCount = ref.watch(unreadNotificationCountProvider);
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: Text(
+          'PROFILE',
+          style: GoogleFonts.spaceMono(
+            fontSize: 22,
+            fontWeight: FontWeight.w700,
+            color: AppColors.darkNavy,
+          ),
+        ),
+        actions: [
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.notifications_outlined,
+                    color: AppColors.darkNavy),
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => const NotificationsScreen(),
+                )),
+              ),
+              if (unreadCount > 0)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    width: 16,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: AppColors.dullOrange,
+                      border:
+                          Border.all(color: AppColors.darkNavy, width: 1.5),
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '$unreadCount',
+                        style: GoogleFonts.spaceMono(
+                            fontSize: 8,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(width: AppSpacing.xs),
+        ],
+      ),
+      body: userAsync.when(
+        data: (user) {
+          if (user == null) {
+            return Center(
+              child: Text(
+                'USER NOT FOUND',
+                style: GoogleFonts.spaceMono(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.error),
+              ),
+            );
+          }
+          return _buildProfile(context, ref, user);
+        },
+        loading: () => Center(
+          child: Text(
+            'LOADING...',
+            style: GoogleFonts.spaceMono(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ),
+        error: (e, _) => Center(
+          child: Text(
+            'Error: $e',
+            style: GoogleFonts.cabin(fontSize: 16, color: AppColors.error),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfile(BuildContext context, WidgetRef ref, AppUser user) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Profile header
+          Center(
+            child: Column(
+              children: [
+                const SizedBox(height: AppSpacing.md),
+                // Avatar with edit badge
+                Stack(
+                  children: [
+                    Container(
+                      width: 96,
+                      height: 96,
+                      decoration: BoxDecoration(
+                        color: AppColors.dullOrange,
+                        shape: BoxShape.circle,
+                        border:
+                            Border.all(color: AppColors.darkNavy, width: 3),
+                      ),
+                      child: Center(
+                        child: Text(
+                          user.displayName.isNotEmpty
+                              ? user.displayName[0].toUpperCase()
+                              : '?',
+                          style: GoogleFonts.spaceMono(
+                            fontSize: 40,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: GestureDetector(
+                        onTap: () => _openEditSheet(context, ref, user),
+                        child: Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: AppColors.accentBlue,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                                color: AppColors.darkNavy, width: 2),
+                          ),
+                          child: const Icon(Icons.edit,
+                              size: 14, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Text(
+                  user.displayName,
+                  style: GoogleFonts.spaceMono(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.darkNavy,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  user.email,
+                  style: GoogleFonts.spaceMono(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+
+          // Stats card — yellow header
+          _ProfileCard(
+            title: 'USER INFO',
+            stripColor: AppColors.amber,
+            titleColor: AppColors.darkNavy,
+            children: [
+              _StatLine(
+                  label: 'NAME',
+                  value: user.displayName),
+              _StatLine(
+                  label: 'EMAIL',
+                  value: user.email),
+              if (user.bio != null)
+                _StatLine(label: 'BIO', value: user.bio!),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+
+          // Sticker tags
+          if (user.climbingTags.isNotEmpty) ...[
+            _StickerTagsCard(tags: user.climbingTags),
+            const SizedBox(height: AppSpacing.md),
+          ],
+
+          // Favorites — orange header
+          _FavoritesCard(ref: ref),
+          const SizedBox(height: AppSpacing.md),
+
+          // Connections — blue header
+          _ConnectionsCard(user: user, ref: ref),
+          const SizedBox(height: AppSpacing.lg),
+
+          // Find climbers button
+          GestureDetector(
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => const FindClimbersScreen(),
+            )),
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              decoration: BoxDecoration(
+                color: AppColors.accentBlue,
+                border: const Border.fromBorderSide(
+                    BorderSide(color: AppColors.darkNavy, width: 2.5)),
+                borderRadius: BorderRadius.circular(AppRadius.sm),
+                boxShadow: const [
+                  BoxShadow(
+                      color: AppColors.darkNavy,
+                      offset: Offset(4, 4),
+                      blurRadius: 0)
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.group_add_outlined,
+                      color: Colors.white, size: 18),
+                  const SizedBox(width: AppSpacing.sm),
+                  Text(
+                    'FIND CLIMBERS',
+                    style: GoogleFonts.spaceMono(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+
+          // Sign out — ink fill, orange shadow
+          Center(
+            child: RetroButton(
+              label: 'Sign Out',
+              icon: Icons.logout,
+              color: AppColors.darkNavy,
+              shadowColor: AppColors.dullOrange,
+              textColor: Colors.white,
+              onPressed: () {
+                context.go('/login');
+              },
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xl),
+        ],
+      ),
+    );
+  }
+
+}
+
+class _ProfileCard extends StatelessWidget {
+  final String title;
+  final Color stripColor;
+  final Color titleColor;
+  final List<Widget> children;
+
+  const _ProfileCard({
+    required this.title,
+    required this.stripColor,
+    required this.titleColor,
+    required this.children,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          border: Border.all(color: AppColors.darkNavy, width: 2.5),
+          borderRadius: BorderRadius.circular(AppRadius.sm),
+          boxShadow: const [
+            BoxShadow(
+              color: AppColors.darkNavy,
+              offset: Offset(4, 4),
+              blurRadius: 0,
+            ),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Colored top strip — bold fill
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.sm + 4,
+                vertical: 10,
+              ),
+              color: stripColor,
+              child: Text(
+                title,
+                style: GoogleFonts.spaceMono(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: titleColor,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: children,
+              ),
+            ),
+          ],
+        ),
+    );
+  }
+}
+
+class _StatLine extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _StatLine({
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (label.isNotEmpty)
+            SizedBox(
+              width: 70,
+              child: Text(
+                label,
+                style: GoogleFonts.spaceMono(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textDisabled,
+                ),
+              ),
+            ),
+          if (label.isNotEmpty) const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              value,
+              style: GoogleFonts.cabin(
+                fontSize: 14,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ConnectionsCard extends StatelessWidget {
+  final AppUser user;
+  final WidgetRef ref;
+  const _ConnectionsCard({required this.user, required this.ref});
+
+  @override
+  Widget build(BuildContext context) {
+    final connectionsAsync = ref.watch(connectionsProvider);
+    final pendingAsync = ref.watch(pendingConnectionRequestsProvider);
+    final connections = connectionsAsync.valueOrNull ?? [];
+    final pending = pendingAsync.valueOrNull ?? [];
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        border: Border.all(color: AppColors.darkNavy, width: 2.5),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        boxShadow: const [
+          BoxShadow(
+              color: AppColors.darkNavy, offset: Offset(4, 4), blurRadius: 0)
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Header
+          Container(
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.sm + 4, vertical: 10),
+            color: AppColors.accentBlue,
+            child: Row(
+              children: [
+                Text(
+                  'CONNECTIONS',
+                  style: GoogleFonts.spaceMono(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+                const Spacer(),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
+                    border: Border.all(color: AppColors.darkNavy, width: 1.5),
+                  ),
+                  child: Text(
+                    '${connections.length}',
+                    style: GoogleFonts.spaceMono(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.accentBlue,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Pending requests
+          if (pending.isNotEmpty) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+              color: AppColors.chipBg,
+              child: Row(
+                children: [
+                  const Icon(Icons.person_add_outlined,
+                      size: 14, color: AppColors.accentBlue),
+                  const SizedBox(width: AppSpacing.xs),
+                  Text(
+                    '${pending.length} PENDING REQUEST${pending.length > 1 ? 'S' : ''}',
+                    style: GoogleFonts.spaceMono(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.accentBlue,
+                    ),
+                  ),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const NotificationsScreen(),
+                    )),
+                    child: Text(
+                      'REVIEW →',
+                      style: GoogleFonts.spaceMono(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.accentBlue,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1, thickness: 1, color: AppColors.darkNavy),
+          ],
+
+          // Connection list
+          if (connections.isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: Text(
+                'No connections yet. Find climbers to connect with!',
+                style: GoogleFonts.cabin(
+                    fontSize: 13, color: AppColors.textSecondary),
+              ),
+            )
+          else
+            ...connections.map((c) => _ConnectionRow(user: c)),
+        ],
+      ),
+    );
+  }
+}
+
+class _ConnectionRow extends StatelessWidget {
+  final AppUser user;
+  const _ConnectionRow({required this.user});
+
+  static const _disciplineColors = {
+    ClimbingStyle.sport: AppColors.accentBlue,
+    ClimbingStyle.trad: AppColors.dullOrange,
+    ClimbingStyle.boulder: AppColors.oliveGreen,
+    ClimbingStyle.all: AppColors.amber,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final primaryStyle = user.climbingStyles.isNotEmpty
+        ? user.climbingStyles.first
+        : ClimbingStyle.all;
+
+    return GestureDetector(
+      onTap: () => context.push('/profile/${user.uid}'),
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+        decoration: const BoxDecoration(
+          border:
+              Border(bottom: BorderSide(color: AppColors.darkGrey, width: 1)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: _disciplineColors[primaryStyle] ?? AppColors.darkNavy,
+                borderRadius: BorderRadius.circular(AppRadius.sm),
+                border: Border.all(color: AppColors.darkNavy, width: 2),
+              ),
+              child: Center(
+                child: Text(
+                  user.displayName.isNotEmpty
+                      ? user.displayName[0].toUpperCase()
+                      : '?',
+                  style: GoogleFonts.spaceMono(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Text(
+                user.displayName,
+                style: GoogleFonts.cabin(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.darkNavy,
+                ),
+              ),
+            ),
+            Text(
+              user.climbingStyles
+                  .take(2)
+                  .map((s) => s.name.toUpperCase())
+                  .join(' · '),
+              style: GoogleFonts.spaceMono(
+                  fontSize: 9, color: AppColors.textSecondary),
+            ),
+            const SizedBox(width: AppSpacing.xs),
+            const Icon(Icons.chevron_right,
+                size: 16, color: AppColors.textDisabled),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ============ STICKER TAGS ============
+
+class _StickerTagsCard extends StatelessWidget {
+  final List<String> tags;
+  const _StickerTagsCard({required this.tags});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        border: Border.all(color: AppColors.darkNavy, width: 2.5),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        boxShadow: const [
+          BoxShadow(
+            color: AppColors.darkNavy,
+            offset: Offset(4, 4),
+            blurRadius: 0,
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.sm + 4, vertical: 10),
+            color: AppColors.oliveGreen,
+            child: Text(
+              'VIBE CHECK',
+              style: GoogleFonts.spaceMono(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Wrap(
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm + 2,
+              children: tags.map((tagId) {
+                final tag = ClimbingTags.getById(tagId);
+                if (tag == null) return const SizedBox.shrink();
+                final rotation = ClimbingTags.rotationFor(tagId);
+                return Transform.rotate(
+                  angle: rotation * 3.14159 / 180,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm + 4,
+                      vertical: AppSpacing.xs + 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: tag.color,
+                      border: Border.all(color: AppColors.darkNavy, width: 2),
+                      borderRadius: BorderRadius.circular(AppRadius.xs),
+                      boxShadow: [
+                        BoxShadow(
+                          color: tag.color.withAlpha(80),
+                          offset: const Offset(2, 2),
+                          blurRadius: 0,
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      tag.label,
+                      style: GoogleFonts.spaceMono(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ============ FAVORITES CARD ============
+
+class _FavoritesCard extends StatelessWidget {
+  final WidgetRef ref;
+  const _FavoritesCard({required this.ref});
+
+  @override
+  Widget build(BuildContext context) {
+    final favoritesAsync = ref.watch(favoriteCragsProvider);
+    final venues = favoritesAsync.valueOrNull ?? [];
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        border: Border.all(color: AppColors.darkNavy, width: 2.5),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        boxShadow: const [
+          BoxShadow(
+            color: AppColors.darkNavy,
+            offset: Offset(4, 4),
+            blurRadius: 0,
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Header
+          Container(
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.sm + 4, vertical: 10),
+            color: AppColors.dullOrange,
+            child: Row(
+              children: [
+                Text(
+                  'FAVORITES',
+                  style: GoogleFonts.spaceMono(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+                const Spacer(),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
+                    border: Border.all(color: AppColors.darkNavy, width: 1.5),
+                  ),
+                  child: Text(
+                    '${venues.length}',
+                    style: GoogleFonts.spaceMono(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.dullOrange,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          if (venues.isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: Row(
+                children: [
+                  const Icon(Icons.explore_outlined,
+                      size: 16, color: AppColors.textDisabled),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: Text(
+                      'Star crags & gyms from the map to see them here.',
+                      style: GoogleFonts.cabin(
+                          fontSize: 13, color: AppColors.textSecondary),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            ...venues.map((venue) => _FavoriteRow(venue: venue, ref: ref)),
+        ],
+      ),
+    );
+  }
+}
+
+class _FavoriteRow extends StatelessWidget {
+  final Crag venue;
+  final WidgetRef ref;
+  const _FavoriteRow({required this.venue, required this.ref});
+
+  static const _cragTypeLabels = {
+    CragType.sport: 'SPORT',
+    CragType.trad: 'TRAD',
+    CragType.boulder: 'BOULDER',
+    CragType.mixed: 'MIXED',
+  };
+
+  static const _cragTypeColors = {
+    CragType.sport: AppColors.accentBlue,
+    CragType.trad: AppColors.dullOrange,
+    CragType.boulder: AppColors.oliveGreen,
+    CragType.mixed: AppColors.amber,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.push('/crag/${venue.id}'),
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md, vertical: AppSpacing.sm + 2),
+        decoration: const BoxDecoration(
+          border: Border(
+              bottom: BorderSide(color: AppColors.darkGrey, width: 1)),
+        ),
+        child: Row(
+          children: [
+            // Venue type icon
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: venue.isGym
+                    ? AppColors.accentBlue.withAlpha(25)
+                    : AppColors.oliveGreen.withAlpha(25),
+                borderRadius: BorderRadius.circular(AppRadius.sm),
+                border: Border.all(
+                  color: venue.isGym
+                      ? AppColors.accentBlue
+                      : AppColors.oliveGreen,
+                  width: 2,
+                ),
+              ),
+              child: Icon(
+                venue.isGym ? Icons.fitness_center : Icons.terrain,
+                size: 16,
+                color: venue.isGym
+                    ? AppColors.accentBlue
+                    : AppColors.oliveGreen,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+
+            // Name + type tags
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    venue.name,
+                    style: GoogleFonts.cabin(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.darkNavy,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (venue.types.isNotEmpty) ...[
+                    const SizedBox(height: 3),
+                    Wrap(
+                      spacing: 4,
+                      children: venue.types.map((t) {
+                        final color =
+                            _cragTypeColors[t] ?? AppColors.textDisabled;
+                        return Text(
+                          _cragTypeLabels[t] ?? t.name.toUpperCase(),
+                          style: GoogleFonts.spaceMono(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                            color: color,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+
+            // Unfavorite star
+            GestureDetector(
+              onTap: () =>
+                  ref.read(favoritesProvider.notifier).toggleFavorite(venue.id),
+              child: const Padding(
+                padding: EdgeInsets.all(4),
+                child: Icon(Icons.star, size: 20, color: AppColors.dullOrange),
+              ),
+            ),
+
+            // Nav arrow
+            const SizedBox(width: AppSpacing.xs),
+            const Icon(Icons.chevron_right,
+                size: 18, color: AppColors.textDisabled),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ============ EDIT PROFILE SHEET ============
+
+class _EditProfileSheet extends ConsumerStatefulWidget {
+  final AppUser user;
+  const _EditProfileSheet({required this.user});
+
+  @override
+  ConsumerState<_EditProfileSheet> createState() => _EditProfileSheetState();
+}
+
+class _EditProfileSheetState extends ConsumerState<_EditProfileSheet> {
+  late final TextEditingController _nameCtrl;
+  late final TextEditingController _bioCtrl;
+  late Set<String> _selectedTags;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameCtrl = TextEditingController(text: widget.user.displayName);
+    _bioCtrl = TextEditingController(text: widget.user.bio ?? '');
+    _selectedTags = Set.from(widget.user.climbingTags);
+  }
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    _bioCtrl.dispose();
+    super.dispose();
+  }
+
+  void _toggleTag(String tagId) {
+    setState(() {
+      if (_selectedTags.contains(tagId)) {
+        _selectedTags.remove(tagId);
+      } else {
+        _selectedTags.add(tagId);
+      }
+    });
+  }
+
+  void _save() {
+    final name = _nameCtrl.text.trim();
+    if (name.isEmpty) return;
+
+    final bio = _bioCtrl.text.trim();
+    ref.read(currentUserNotifierProvider.notifier).updateProfile(
+          displayName: name,
+          bio: bio.isEmpty ? null : bio,
+          climbingTags: _selectedTags.toList(),
+        );
+    Navigator.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
+    return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
+      decoration: const BoxDecoration(
+        color: AppColors.background,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+        border: Border(
+          top: BorderSide(color: AppColors.darkNavy, width: 3),
+          left: BorderSide(color: AppColors.darkNavy, width: 3),
+          right: BorderSide(color: AppColors.darkNavy, width: 3),
+        ),
+      ),
+      padding: EdgeInsets.only(bottom: bottomInset),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Drag handle
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.darkGrey,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+
+            // Title
+            Text(
+              'EDIT PROFILE',
+              style: GoogleFonts.spaceMono(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: AppColors.darkNavy,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+
+            // Name field
+            Text(
+              'DISPLAY NAME',
+              style: GoogleFonts.spaceMono(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            TextField(
+              controller: _nameCtrl,
+              style: GoogleFonts.cabin(fontSize: 15, color: AppColors.darkNavy),
+              decoration: const InputDecoration(hintText: 'Your name'),
+            ),
+            const SizedBox(height: AppSpacing.md),
+
+            // Bio field
+            Text(
+              'BIO',
+              style: GoogleFonts.spaceMono(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            TextField(
+              controller: _bioCtrl,
+              style: GoogleFonts.cabin(fontSize: 15, color: AppColors.darkNavy),
+              maxLines: 3,
+              decoration: const InputDecoration(
+                hintText: 'Tell others about your climbing...',
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+
+            // Tag sticker picker
+            Row(
+              children: [
+                Text(
+                  'VIBE CHECK',
+                  style: GoogleFonts.spaceMono(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                if (_selectedTags.isNotEmpty)
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                    decoration: BoxDecoration(
+                      color: AppColors.oliveGreen,
+                      borderRadius: BorderRadius.circular(AppRadius.xs),
+                    ),
+                    child: Text(
+                      '${_selectedTags.length}',
+                      style: GoogleFonts.spaceMono(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: ClimbingTags.all.map((tag) {
+                final selected = _selectedTags.contains(tag.id);
+                return GestureDetector(
+                  onTap: () => _toggleTag(tag.id),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 100),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm + 2,
+                      vertical: AppSpacing.xs + 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: selected ? tag.color : AppColors.chipBg,
+                      border: Border.all(
+                        color: selected ? tag.color : AppColors.darkGrey,
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(AppRadius.xs),
+                      boxShadow: selected
+                          ? [
+                              BoxShadow(
+                                color: tag.color.withAlpha(80),
+                                offset: const Offset(2, 2),
+                                blurRadius: 0,
+                              ),
+                            ]
+                          : [],
+                    ),
+                    child: Text(
+                      tag.label,
+                      style: GoogleFonts.spaceMono(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                        color: selected ? Colors.white : AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+
+            // Save button
+            RetroButton(
+              label: 'Save',
+              icon: Icons.check,
+              color: AppColors.oliveGreen,
+              shadowColor: AppColors.darkNavy,
+              textColor: Colors.white,
+              onPressed: _save,
+            ),
+            const SizedBox(height: AppSpacing.md),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Experience progress bar with diagonal hatching pattern.

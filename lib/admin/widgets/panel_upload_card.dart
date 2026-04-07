@@ -1,5 +1,5 @@
-import 'package:belay_buddy/models/header_config.dart';
-import 'package:belay_buddy/theme/app_theme.dart';
+import 'package:belay_buddy/src/features/venues/domain/header_config.dart';
+import 'package:belay_buddy/src/common/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';

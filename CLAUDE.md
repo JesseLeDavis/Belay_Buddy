@@ -24,45 +24,62 @@ fvm flutter test                                              # Run tests
 ## Project Structure
 ```
 lib/
-├── models/           # Freezed data models
-│   ├── app_user.dart               # connectionIds, pendingConnectionIds, homeGymId,
-│   │                               #   homeCragId, isHomeVisible, notifyHomeCatch,
-│   │                               #   notifyHomeConnections, favoriteGymIds, favoriteCragIds
-│   ├── crag.dart                   # isGym flag distinguishes gyms from crags
-│   ├── climbing_post.dart          # isExpired, PostType (immediate/scheduled)
-│   ├── climbing_notification.dart  # catchNeeded, connectionRequest, connectionAccepted
-│   └── lost_found_item.dart        # LostFoundStatus, LostFoundCategory
-├── mock/
-│   ├── mock_data.dart    # 5 users, 9 venues (5 crags + 4 gyms), 13 posts, notifications,
-│   │                     #   lost & found items, conversations, messages
-│   └── mock_providers.dart  # All Riverpod providers; HomeSettingsNotifier lives here
-├── providers/
-│   └── firestore_providers.dart  # Re-exports mock_providers — swap here for Firestore
-├── screens/
-│   ├── auth/        # login_screen.dart
-│   ├── home/        # map_screen.dart
-│   ├── crag/        # crag_detail_screen.dart, create_post_screen.dart,
-│   │                #   crag_schedule_screen.dart (stub), lost_found_screen.dart (stub)
-│   ├── messages/    # messages_screen.dart, chat_screen.dart
-│   └── profile/     # profile_screen.dart, notifications_screen.dart,
-│                    #   find_climbers_screen.dart
-├── widgets/
-│   ├── heatmap_strip.dart   # 7-day partner demand visualization
-│   ├── post_card.dart
-│   └── retro_button.dart
-├── utils/
-│   ├── map_markers.dart     # Custom neo-brutalist map pins drawn via Canvas
-│   └── seed_data.dart       # Firestore seed helper (not used while on mock data)
-├── theme/
-│   └── app_theme.dart       # AppColors, AppSpacing constants
-└── main.dart                # Entry point + go_router config
+├── main.dart                       # Entry point: ProviderScope + MaterialApp.router
+├── admin/                          # Admin dashboard (separate web entry point)
+└── src/
+    ├── routing/
+    │   └── app_router.dart         # GoRouter config + ScaffoldWithNavBar
+    ├── common/
+    │   ├── data/
+    │   │   ├── mock_data.dart      # 5 users, 9 venues, 13 posts, notifications, etc.
+    │   │   └── firestore_service.dart  # Firestore CRUD (not yet active)
+    │   ├── theme/
+    │   │   └── app_theme.dart      # AppColors, AppSpacing constants
+    │   ├── utils/                  # climbing_tags, map_markers, seed_data
+    │   └── widgets/                # retro_button, heatmap_strip, post_card, collage_header
+    └── features/
+        ├── auth/
+        │   ├── domain/             # app_user.dart (Freezed)
+        │   ├── data/               # auth_repository.dart (current user providers)
+        │   └── presentation/       # login_screen.dart
+        ├── venues/
+        │   ├── domain/             # crag.dart, header_config.dart (Freezed)
+        │   ├── data/               # venues_repository.dart (crag + header providers)
+        │   └── presentation/       # map_screen, crag_detail_screen, crag_schedule_screen
+        ├── posts/
+        │   ├── domain/             # climbing_post.dart (Freezed)
+        │   ├── data/               # posts_repository.dart (post + heatmap providers)
+        │   └── presentation/       # create_post_screen.dart
+        ├── messages/
+        │   ├── domain/             # message.dart (Message + Conversation, Freezed)
+        │   ├── data/               # messages_repository.dart
+        │   └── presentation/       # messages_screen, chat_screen
+        ├── notifications/
+        │   ├── domain/             # climbing_notification.dart (Freezed)
+        │   ├── data/               # notifications_repository.dart
+        │   └── presentation/       # notifications_screen.dart
+        ├── connections/
+        │   ├── data/               # connections_repository.dart
+        │   └── presentation/       # find_climbers_screen.dart
+        ├── favorites/
+        │   └── data/               # favorites_repository.dart (FavoritesNotifier)
+        ├── home_settings/
+        │   └── data/               # home_settings_repository.dart (HomeSettingsNotifier)
+        ├── lost_found/
+        │   ├── domain/             # lost_found_item.dart (Freezed)
+        │   ├── data/               # lost_found_repository.dart
+        │   └── presentation/       # lost_found_screen.dart (stub)
+        └── profile/
+            └── presentation/       # profile_screen, user_profile_screen
 ```
 
 ## Key Conventions
+- **Feature-first architecture** (Andrea Bizzotto style): each feature has `domain/`, `data/`, `presentation/` sub-folders
 - Models use Freezed; always run `build_runner build --delete-conflicting-outputs` after changing model files
-- All providers live in `mock/mock_providers.dart`, re-exported by `providers/firestore_providers.dart`
-- All screens import from `providers/firestore_providers.dart`, never directly from `mock/`
-- `HomeSettingsNotifier` (StateNotifier) is the mutable state layer for home base toggles
+- Each feature's providers live in its own `data/*_repository.dart`; screens import directly from feature repos
+- `HomeSettingsNotifier` (StateNotifier) lives in `features/home_settings/data/`
+- `FavoritesNotifier` (StateNotifier) lives in `features/favorites/data/`
+- Cross-feature deps flow: auth ← notifications, messages, connections, posts, favorites, home_settings; venues ← posts, favorites
 - Color palette: dullOrange `#FF6B2B`, oliveGreen `#2D9B4E`, amber `#FFD000`, accentBlue `#1D63D4`, darkNavy `#0F0F0F`, background cream `#F7EDD8`
 - Design system: zero border radius, 2-3px darkNavy borders, 4-5px hard offset shadows, Space Mono (labels/headers), Cabin (body)
 

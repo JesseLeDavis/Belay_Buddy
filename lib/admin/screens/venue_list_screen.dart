@@ -1,6 +1,6 @@
-import 'package:belay_buddy/mock/mock_data.dart';
-import 'package:belay_buddy/models/crag.dart';
-import 'package:belay_buddy/theme/app_theme.dart';
+import 'package:belay_buddy/src/common/data/mock_data.dart';
+import 'package:belay_buddy/src/features/venues/domain/crag.dart';
+import 'package:belay_buddy/src/common/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';

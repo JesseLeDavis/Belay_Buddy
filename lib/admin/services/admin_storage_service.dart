@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:belay_buddy/models/header_config.dart';
+import 'package:belay_buddy/src/features/venues/domain/header_config.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
