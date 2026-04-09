@@ -12,15 +12,10 @@ class MembersPreviewRow extends ConsumerWidget {
   final Crag crag;
   const MembersPreviewRow({super.key, required this.cragId, required this.crag});
 
-  static const _avatarColors = [
-    AppColors.dullOrange,
-    AppColors.accentBlue,
-    AppColors.oliveGreen,
-    AppColors.amber,
-  ];
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.appColors;
+    final avatarColors = [c.dullOrange, c.accentBlue, c.oliveGreen, c.amber];
     final visible = ref.watch(visibleHomeMembersProvider(cragId));
     final memberCount = ref.watch(homeMemberCountProvider(cragId));
 
@@ -36,9 +31,9 @@ class MembersPreviewRow extends ConsumerWidget {
         padding:
             const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 8),
         decoration: BoxDecoration(
-          color: AppColors.chipBg,
+          color: c.chipBg,
           borderRadius: BorderRadius.circular(AppRadius.sm),
-          border: Border.all(color: AppColors.darkGrey, width: 2),
+          border: Border.all(color: c.darkGrey, width: 2),
         ),
         child: Row(
           children: [
@@ -55,11 +50,11 @@ class MembersPreviewRow extends ConsumerWidget {
                         width: 32,
                         height: 32,
                         decoration: BoxDecoration(
-                          color: _avatarColors[
-                              shown[i].uid.hashCode % _avatarColors.length],
+                          color: avatarColors[
+                              shown[i].uid.hashCode % avatarColors.length],
                           shape: BoxShape.circle,
                           border:
-                              Border.all(color: AppColors.surface, width: 2.5),
+                              Border.all(color: c.surface, width: 2.5),
                         ),
                         child: Center(
                           child: Text(
@@ -85,7 +80,7 @@ class MembersPreviewRow extends ConsumerWidget {
                 style: GoogleFonts.spaceMono(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.darkNavy,
+                  color: c.borderColor,
                 ),
               ),
             ),
@@ -93,7 +88,7 @@ class MembersPreviewRow extends ConsumerWidget {
               Text(
                 '+$extra more',
                 style: GoogleFonts.cabin(
-                    fontSize: 12, color: AppColors.textSecondary),
+                    fontSize: 12, color: c.textSecondary),
               ),
             const SizedBox(width: AppSpacing.xs),
             Text(
@@ -101,12 +96,12 @@ class MembersPreviewRow extends ConsumerWidget {
               style: GoogleFonts.spaceMono(
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
-                color: AppColors.accentBlue,
+                color: c.accentBlue,
               ),
             ),
             const SizedBox(width: 2),
-            const Icon(Icons.chevron_right,
-                size: 14, color: AppColors.accentBlue),
+            Icon(Icons.chevron_right,
+                size: 14, color: c.accentBlue),
           ],
         ),
       ),

@@ -6,40 +6,35 @@ import 'package:google_fonts/google_fonts.dart';
 class RetroButton extends StatefulWidget {
   final String label;
   final VoidCallback? onPressed;
-  final Color color;
-  final Color shadowColor;
-  final Color textColor;
+  final Color? color;
+  final Color? shadowColor;
+  final Color? textColor;
   final double shadowOffset;
   final IconData? icon;
+  final bool _isOutlined;
 
   const RetroButton({
     super.key,
     required this.label,
     this.onPressed,
-    this.color = AppColors.darkNavy,
-    this.shadowColor = AppColors.darkNavy,
-    this.textColor = Colors.white,
+    this.color,
+    this.shadowColor,
+    this.textColor,
     this.shadowOffset = 5.0,
     this.icon,
-  });
+  }) : _isOutlined = false;
 
   /// Outlined variant constructor
-  factory RetroButton.outlined({
-    Key? key,
-    required String label,
-    VoidCallback? onPressed,
-    IconData? icon,
-  }) {
-    return RetroButton(
-      key: key,
-      label: label,
-      onPressed: onPressed,
-      color: AppColors.surface,
-      shadowColor: AppColors.darkNavy,
-      textColor: AppColors.darkNavy,
-      icon: icon,
-    );
-  }
+  const RetroButton.outlined({
+    super.key,
+    required this.label,
+    this.onPressed,
+    this.icon,
+  })  : color = null,
+        shadowColor = null,
+        textColor = null,
+        shadowOffset = 5.0,
+        _isOutlined = true;
 
   @override
   State<RetroButton> createState() => _RetroButtonState();
@@ -50,6 +45,15 @@ class _RetroButtonState extends State<RetroButton> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
+    final effectiveColor = widget._isOutlined
+        ? c.surface
+        : (widget.color ?? c.borderColor);
+    final effectiveShadow = widget.shadowColor ?? c.shadowColor;
+    final effectiveText = widget._isOutlined
+        ? c.borderColor
+        : (widget.textColor ?? c.textOnPrimary);
+
     final isEnabled = widget.onPressed != null;
     final offset = _isPressed ? 2.0 : widget.shadowOffset;
 
@@ -74,17 +78,17 @@ class _RetroButtonState extends State<RetroButton> {
         ),
         decoration: BoxDecoration(
           color: isEnabled
-              ? widget.color
-              : widget.color.withAlpha(100),
+              ? effectiveColor
+              : effectiveColor.withAlpha(100),
           border: Border.all(
-            color: AppColors.darkNavy,
+            color: c.borderColor,
             width: 2.5,
           ),
           borderRadius: BorderRadius.circular(AppRadius.sm),
           boxShadow: isEnabled
               ? [
                   BoxShadow(
-                    color: widget.shadowColor,
+                    color: effectiveShadow,
                     offset: Offset(offset, offset),
                     blurRadius: 0,
                   ),
@@ -96,7 +100,7 @@ class _RetroButtonState extends State<RetroButton> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (widget.icon != null) ...[
-              Icon(widget.icon, color: widget.textColor, size: 20),
+              Icon(widget.icon, color: effectiveText, size: 20),
               const SizedBox(width: AppSpacing.sm),
             ],
             Text(
@@ -104,7 +108,7 @@ class _RetroButtonState extends State<RetroButton> {
               style: GoogleFonts.spaceMono(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
-                color: widget.textColor,
+                color: effectiveText,
               ),
             ),
           ],

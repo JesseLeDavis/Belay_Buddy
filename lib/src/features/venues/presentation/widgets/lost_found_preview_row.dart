@@ -9,22 +9,23 @@ class LostFoundPreviewRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
     final isFound = item.status == LostFoundStatus.found;
 
     return Container(
       padding:
           const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 10),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: AppColors.darkGrey, width: 1)),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: c.darkGrey, width: 1)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: isFound ? AppColors.oliveGreen : AppColors.dullOrange,
+              color: isFound ? c.oliveGreen : c.dullOrange,
               borderRadius: BorderRadius.circular(AppRadius.sm),
-              border: Border.all(color: AppColors.darkNavy, width: 1.5),
+              border: Border.all(color: c.borderColor, width: 1.5),
             ),
             child: Text(
               isFound ? 'FOUND' : 'LOST',
@@ -45,13 +46,13 @@ class LostFoundPreviewRow extends StatelessWidget {
                   style: GoogleFonts.cabin(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.darkNavy,
+                    color: c.textPrimary,
                   ),
                 ),
                 Text(
                   _categoryName(item.category),
                   style: GoogleFonts.spaceMono(
-                      fontSize: 10, color: AppColors.textSecondary),
+                      fontSize: 10, color: c.textSecondary),
                 ),
               ],
             ),
@@ -59,7 +60,7 @@ class LostFoundPreviewRow extends StatelessWidget {
           Text(
             _timeAgo(item.createdAt),
             style: GoogleFonts.spaceMono(
-                fontSize: 10, color: AppColors.textDisabled),
+                fontSize: 10, color: c.textDisabled),
           ),
         ],
       ),

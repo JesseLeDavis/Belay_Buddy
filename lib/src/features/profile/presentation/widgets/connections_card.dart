@@ -14,6 +14,7 @@ class ConnectionsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
     final connectionsAsync = ref.watch(connectionsProvider);
     final pendingAsync = ref.watch(pendingConnectionRequestsProvider);
     final connections = connectionsAsync.valueOrNull ?? [];
@@ -21,23 +22,22 @@ class ConnectionsCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border.all(color: AppColors.darkNavy, width: 2.5),
+        color: c.surface,
+        border: Border.all(color: c.borderColor, width: 2.5),
         borderRadius: BorderRadius.circular(AppRadius.sm),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-              color: AppColors.darkNavy, offset: Offset(4, 4), blurRadius: 0)
+              color: c.shadowColor, offset: const Offset(4, 4), blurRadius: 0)
         ],
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Header
           Container(
             padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.sm + 4, vertical: 10),
-            color: AppColors.accentBlue,
+            color: c.accentBlue,
             child: Row(
               children: [
                 Text(
@@ -55,38 +55,36 @@ class ConnectionsCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(AppRadius.sm),
-                    border: Border.all(color: AppColors.darkNavy, width: 1.5),
+                    border: Border.all(color: c.borderColor, width: 1.5),
                   ),
                   child: Text(
                     '${connections.length}',
                     style: GoogleFonts.spaceMono(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.accentBlue,
+                      color: c.accentBlue,
                     ),
                   ),
                 ),
               ],
             ),
           ),
-
-          // Pending requests
           if (pending.isNotEmpty) ...[
             Container(
               padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-              color: AppColors.chipBg,
+              color: c.chipBg,
               child: Row(
                 children: [
-                  const Icon(Icons.person_add_outlined,
-                      size: 14, color: AppColors.accentBlue),
+                  Icon(Icons.person_add_outlined,
+                      size: 14, color: c.accentBlue),
                   const SizedBox(width: AppSpacing.xs),
                   Text(
                     '${pending.length} PENDING REQUEST${pending.length > 1 ? 'S' : ''}',
                     style: GoogleFonts.spaceMono(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.accentBlue,
+                      color: c.accentBlue,
                     ),
                   ),
                   const Spacer(),
@@ -99,28 +97,26 @@ class ConnectionsCard extends StatelessWidget {
                       style: GoogleFonts.spaceMono(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.accentBlue,
+                        color: c.accentBlue,
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-            const Divider(height: 1, thickness: 1, color: AppColors.darkNavy),
+            Divider(height: 1, thickness: 1, color: c.borderColor),
           ],
-
-          // Connection list
           if (connections.isEmpty)
             Padding(
               padding: const EdgeInsets.all(AppSpacing.md),
               child: Text(
                 'No connections yet. Find climbers to connect with!',
                 style: GoogleFonts.cabin(
-                    fontSize: 13, color: AppColors.textSecondary),
+                    fontSize: 13, color: c.textSecondary),
               ),
             )
           else
-            ...connections.map((c) => ConnectionRow(user: c)),
+            ...connections.map((conn) => ConnectionRow(user: conn)),
         ],
       ),
     );
@@ -131,15 +127,15 @@ class ConnectionRow extends StatelessWidget {
   final AppUser user;
   const ConnectionRow({super.key, required this.user});
 
-  static const _disciplineColors = {
-    ClimbingStyle.sport: AppColors.accentBlue,
-    ClimbingStyle.trad: AppColors.dullOrange,
-    ClimbingStyle.boulder: AppColors.oliveGreen,
-    ClimbingStyle.all: AppColors.amber,
-  };
-
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
+    final disciplineColors = {
+      ClimbingStyle.sport: c.accentBlue,
+      ClimbingStyle.trad: c.dullOrange,
+      ClimbingStyle.boulder: c.oliveGreen,
+      ClimbingStyle.all: c.amber,
+    };
     final primaryStyle = user.climbingStyles.isNotEmpty
         ? user.climbingStyles.first
         : ClimbingStyle.all;
@@ -149,9 +145,9 @@ class ConnectionRow extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           border:
-              Border(bottom: BorderSide(color: AppColors.darkGrey, width: 1)),
+              Border(bottom: BorderSide(color: c.darkGrey, width: 1)),
         ),
         child: Row(
           children: [
@@ -159,9 +155,9 @@ class ConnectionRow extends StatelessWidget {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: _disciplineColors[primaryStyle] ?? AppColors.darkNavy,
+                color: disciplineColors[primaryStyle] ?? c.borderColor,
                 borderRadius: BorderRadius.circular(AppRadius.sm),
-                border: Border.all(color: AppColors.darkNavy, width: 2),
+                border: Border.all(color: c.borderColor, width: 2),
               ),
               child: Center(
                 child: Text(
@@ -183,7 +179,7 @@ class ConnectionRow extends StatelessWidget {
                 style: GoogleFonts.cabin(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.darkNavy,
+                  color: c.textPrimary,
                 ),
               ),
             ),
@@ -193,11 +189,11 @@ class ConnectionRow extends StatelessWidget {
                   .map((s) => s.name.toUpperCase())
                   .join(' · '),
               style: GoogleFonts.spaceMono(
-                  fontSize: 9, color: AppColors.textSecondary),
+                  fontSize: 9, color: c.textSecondary),
             ),
             const SizedBox(width: AppSpacing.xs),
-            const Icon(Icons.chevron_right,
-                size: 16, color: AppColors.textDisabled),
+            Icon(Icons.chevron_right,
+                size: 16, color: c.textDisabled),
           ],
         ),
       ),

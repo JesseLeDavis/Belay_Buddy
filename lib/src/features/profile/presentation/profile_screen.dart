@@ -9,6 +9,7 @@ import 'package:belay_buddy/src/features/profile/presentation/widgets/favorites_
 import 'package:belay_buddy/src/features/profile/presentation/widgets/connections_card.dart';
 import 'package:belay_buddy/src/features/profile/presentation/widgets/edit_profile_sheet.dart';
 import 'package:belay_buddy/src/common/theme/app_theme.dart';
+import 'package:belay_buddy/src/common/theme/theme_mode_provider.dart';
 import 'package:belay_buddy/src/common/widgets/retro_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,18 +30,19 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.appColors;
     final userAsync = ref.watch(currentUserProvider);
     final unreadCount = ref.watch(unreadNotificationCountProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       appBar: AppBar(
         title: Text(
           'PROFILE',
           style: GoogleFonts.spaceMono(
             fontSize: 22,
             fontWeight: FontWeight.w700,
-            color: AppColors.darkNavy,
+            color: c.borderColor,
           ),
         ),
         actions: [
@@ -48,8 +50,8 @@ class ProfileScreen extends ConsumerWidget {
             clipBehavior: Clip.none,
             children: [
               IconButton(
-                icon: const Icon(Icons.notifications_outlined,
-                    color: AppColors.darkNavy),
+                icon: Icon(Icons.notifications_outlined,
+                    color: c.borderColor),
                 onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) => const NotificationsScreen(),
                 )),
@@ -62,9 +64,9 @@ class ProfileScreen extends ConsumerWidget {
                     width: 16,
                     height: 16,
                     decoration: BoxDecoration(
-                      color: AppColors.dullOrange,
+                      color: c.dullOrange,
                       border:
-                          Border.all(color: AppColors.darkNavy, width: 1.5),
+                          Border.all(color: c.borderColor, width: 1.5),
                       borderRadius: BorderRadius.circular(AppRadius.sm),
                     ),
                     child: Center(
@@ -92,7 +94,7 @@ class ProfileScreen extends ConsumerWidget {
                 style: GoogleFonts.spaceMono(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.error),
+                    color: c.error),
               ),
             );
           }
@@ -104,14 +106,14 @@ class ProfileScreen extends ConsumerWidget {
             style: GoogleFonts.spaceMono(
               fontSize: 13,
               fontWeight: FontWeight.w700,
-              color: AppColors.textSecondary,
+              color: c.textSecondary,
             ),
           ),
         ),
         error: (e, _) => Center(
           child: Text(
             'Error: $e',
-            style: GoogleFonts.cabin(fontSize: 16, color: AppColors.error),
+            style: GoogleFonts.cabin(fontSize: 16, color: c.error),
           ),
         ),
       ),
@@ -119,6 +121,7 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   Widget _buildProfile(BuildContext context, WidgetRef ref, AppUser user) {
+    final c = context.appColors;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
@@ -136,10 +139,10 @@ class ProfileScreen extends ConsumerWidget {
                       width: 96,
                       height: 96,
                       decoration: BoxDecoration(
-                        color: AppColors.dullOrange,
+                        color: c.dullOrange,
                         shape: BoxShape.circle,
                         border:
-                            Border.all(color: AppColors.darkNavy, width: 3),
+                            Border.all(color: c.borderColor, width: 3),
                       ),
                       child: Center(
                         child: Text(
@@ -163,10 +166,10 @@ class ProfileScreen extends ConsumerWidget {
                           width: 32,
                           height: 32,
                           decoration: BoxDecoration(
-                            color: AppColors.accentBlue,
+                            color: c.accentBlue,
                             shape: BoxShape.circle,
                             border: Border.all(
-                                color: AppColors.darkNavy, width: 2),
+                                color: c.borderColor, width: 2),
                           ),
                           child: const Icon(Icons.edit,
                               size: 14, color: Colors.white),
@@ -181,7 +184,7 @@ class ProfileScreen extends ConsumerWidget {
                   style: GoogleFonts.spaceMono(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.darkNavy,
+                    color: c.textPrimary,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xs),
@@ -189,7 +192,7 @@ class ProfileScreen extends ConsumerWidget {
                   user.email,
                   style: GoogleFonts.spaceMono(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: c.textSecondary,
                   ),
                 ),
               ],
@@ -200,8 +203,8 @@ class ProfileScreen extends ConsumerWidget {
           // Stats card — yellow header
           ProfileCard(
             title: 'USER INFO',
-            stripColor: AppColors.amber,
-            titleColor: AppColors.darkNavy,
+            stripColor: c.amber,
+            titleColor: const Color(0xFF0F0F0F),
             children: [
               StatLine(
                   label: 'NAME',
@@ -237,14 +240,14 @@ class ProfileScreen extends ConsumerWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 14),
               decoration: BoxDecoration(
-                color: AppColors.accentBlue,
-                border: const Border.fromBorderSide(
-                    BorderSide(color: AppColors.darkNavy, width: 2.5)),
+                color: c.accentBlue,
+                border: Border.fromBorderSide(
+                    BorderSide(color: c.borderColor, width: 2.5)),
                 borderRadius: BorderRadius.circular(AppRadius.sm),
-                boxShadow: const [
+                boxShadow: [
                   BoxShadow(
-                      color: AppColors.darkNavy,
-                      offset: Offset(4, 4),
+                      color: c.shadowColor,
+                      offset: const Offset(4, 4),
                       blurRadius: 0)
                 ],
               ),
@@ -266,6 +269,10 @@ class ProfileScreen extends ConsumerWidget {
               ),
             ),
           ),
+          const SizedBox(height: AppSpacing.md),
+
+          // Theme mode toggle
+          _ThemeModeToggle(),
           const SizedBox(height: AppSpacing.lg),
 
           // Sign out — ink fill, orange shadow
@@ -273,15 +280,128 @@ class ProfileScreen extends ConsumerWidget {
             child: RetroButton(
               label: 'Sign Out',
               icon: Icons.logout,
-              color: AppColors.darkNavy,
-              shadowColor: AppColors.dullOrange,
-              textColor: Colors.white,
+              color: c.borderColor,
+              shadowColor: c.dullOrange,
+              textColor: c.background,
               onPressed: () {
                 context.go('/login');
               },
             ),
           ),
           const SizedBox(height: AppSpacing.xl),
+        ],
+      ),
+    );
+  }
+}
+
+class _ThemeModeToggle extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.appColors;
+    final mode = ref.watch(themeModeProvider);
+
+    const modes = [
+      (ThemeMode.light, Icons.light_mode, 'LIGHT'),
+      (ThemeMode.dark, Icons.dark_mode, 'DARK'),
+      (ThemeMode.system, Icons.settings_brightness, 'AUTO'),
+    ];
+
+    return Container(
+      decoration: BoxDecoration(
+        color: c.surface,
+        border: Border.all(color: c.borderColor, width: 2.5),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        boxShadow: [
+          BoxShadow(
+            color: c.shadowColor,
+            offset: const Offset(4, 4),
+            blurRadius: 0,
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.sm + 4, vertical: 10),
+            color: c.borderColor,
+            child: Text(
+              'APPEARANCE',
+              style: GoogleFonts.spaceMono(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: c.background,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(AppSpacing.sm),
+            child: Row(
+              children: modes.map((entry) {
+                final (value, icon, label) = entry;
+                final isSelected = mode == value;
+                return Expanded(
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+                    child: GestureDetector(
+                      onTap: () {
+                        final notifier =
+                            ref.read(themeModeProvider.notifier);
+                        switch (value) {
+                          case ThemeMode.light:
+                            notifier.setLight();
+                          case ThemeMode.dark:
+                            notifier.setDark();
+                          case ThemeMode.system:
+                            notifier.setSystem();
+                        }
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 150),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        decoration: BoxDecoration(
+                          color:
+                              isSelected ? c.dullOrange : c.chipBg,
+                          borderRadius:
+                              BorderRadius.circular(AppRadius.sm),
+                          border: Border.all(
+                            color: isSelected
+                                ? c.borderColor
+                                : c.darkGrey,
+                            width: 2,
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            Icon(icon,
+                                size: 20,
+                                color: isSelected
+                                    ? Colors.white
+                                    : c.textSecondary),
+                            const SizedBox(height: 4),
+                            Text(
+                              label,
+                              style: GoogleFonts.spaceMono(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: isSelected
+                                    ? Colors.white
+                                    : c.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
         ],
       ),
     );

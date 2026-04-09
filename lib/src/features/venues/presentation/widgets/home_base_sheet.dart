@@ -13,19 +13,20 @@ class HomeBaseSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.appColors;
     final settings = ref.watch(homeSettingsProvider);
     final notifier = ref.read(homeSettingsProvider.notifier);
     final memberCount = ref.watch(homeMemberCountProvider(crag.id));
     final isHome =
         settings.homeCragId == crag.id || settings.homeGymId == crag.id;
     final accentColor =
-        crag.isGym ? AppColors.accentBlue : AppColors.oliveGreen;
+        crag.isGym ? c.accentBlue : c.oliveGreen;
     final label = crag.isGym ? 'GYM' : 'CRAG';
 
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(top: BorderSide(color: AppColors.darkNavy, width: 3)),
+      decoration: BoxDecoration(
+        color: c.surface,
+        border: Border(top: BorderSide(color: c.borderColor, width: 3)),
       ),
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).padding.bottom + AppSpacing.lg,
@@ -39,8 +40,8 @@ class HomeBaseSheet extends ConsumerWidget {
                 horizontal: AppSpacing.md, vertical: 14),
             decoration: BoxDecoration(
               color: accentColor,
-              border: const Border(
-                  bottom: BorderSide(color: AppColors.darkNavy, width: 2)),
+              border: Border(
+                  bottom: BorderSide(color: c.borderColor, width: 2)),
             ),
             child: Row(
               children: [
@@ -62,7 +63,7 @@ class HomeBaseSheet extends ConsumerWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(AppRadius.sm),
-                    border: Border.all(color: AppColors.darkNavy, width: 1.5),
+                    border: Border.all(color: c.borderColor, width: 1.5),
                   ),
                   child: Text(
                     '$memberCount ${memberCount == 1 ? 'MEMBER' : 'MEMBERS'}',
@@ -77,10 +78,10 @@ class HomeBaseSheet extends ConsumerWidget {
             ),
           ),
           HomeMembersList(cragId: crag.id, memberCount: memberCount),
-          const Divider(height: 1, thickness: 1, color: AppColors.darkGrey),
+          Divider(height: 1, thickness: 1, color: c.darkGrey),
           SheetTile(
             icon: isHome ? Icons.home : Icons.home_outlined,
-            iconColor: isHome ? accentColor : AppColors.textSecondary,
+            iconColor: isHome ? accentColor : c.textSecondary,
             title: isHome ? 'THIS IS YOUR HOME $label' : 'SET AS HOME $label',
             subtitle: isHome
                 ? 'Tap to remove this as your home $label'
@@ -97,12 +98,12 @@ class HomeBaseSheet extends ConsumerWidget {
               },
             ),
           ),
-          const Divider(height: 1, thickness: 1, color: AppColors.darkGrey),
+          Divider(height: 1, thickness: 1, color: c.darkGrey),
           SheetTile(
             icon: settings.isHomeVisible
                 ? Icons.visibility_outlined
                 : Icons.visibility_off_outlined,
-            iconColor: AppColors.darkNavy,
+            iconColor: c.textPrimary,
             title: settings.isHomeVisible ? 'VISIBLE TO OTHERS' : 'PRIVATE',
             subtitle: settings.isHomeVisible
                 ? 'Your name appears in the member list'
@@ -110,36 +111,36 @@ class HomeBaseSheet extends ConsumerWidget {
             enabled: isHome,
             trailing: Switch(
               value: settings.isHomeVisible,
-              activeColor: AppColors.darkNavy,
+              activeColor: c.textPrimary,
               onChanged: isHome ? (_) => notifier.toggleVisibility() : null,
             ),
           ),
-          const Divider(height: 1, thickness: 1, color: AppColors.darkGrey),
+          Divider(height: 1, thickness: 1, color: c.darkGrey),
           SheetTile(
             icon: Icons.pan_tool_outlined,
-            iconColor: AppColors.dullOrange,
+            iconColor: c.dullOrange,
             title: 'NOTIFY: CATCH NEEDED',
             subtitle:
                 'Alert when someone at this ${label.toLowerCase()} needs a belay',
             enabled: isHome,
             trailing: Switch(
               value: settings.notifyHomeCatch,
-              activeColor: AppColors.dullOrange,
+              activeColor: c.dullOrange,
               onChanged:
                   isHome ? (_) => notifier.toggleNotifyHomeCatch() : null,
             ),
           ),
-          const Divider(height: 1, thickness: 1, color: AppColors.darkGrey),
+          Divider(height: 1, thickness: 1, color: c.darkGrey),
           SheetTile(
             icon: Icons.person_add_outlined,
-            iconColor: AppColors.accentBlue,
+            iconColor: c.accentBlue,
             title: 'NOTIFY: NEW CONNECTIONS',
             subtitle:
                 'Alert when someone new sets this as their home ${label.toLowerCase()}',
             enabled: isHome,
             trailing: Switch(
               value: settings.notifyHomeConnections,
-              activeColor: AppColors.accentBlue,
+              activeColor: c.accentBlue,
               onChanged:
                   isHome ? (_) => notifier.toggleNotifyHomeConnections() : null,
             ),
@@ -155,17 +156,18 @@ class HomeMembersList extends ConsumerWidget {
   final int memberCount;
   const HomeMembersList({super.key, required this.cragId, required this.memberCount});
 
-  static const _avatarColors = [
-    AppColors.dullOrange,
-    AppColors.accentBlue,
-    AppColors.oliveGreen,
-    AppColors.amber,
-  ];
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.appColors;
     final visible = ref.watch(visibleHomeMembersProvider(cragId));
     final hiddenCount = memberCount - visible.length;
+
+    final avatarColors = [
+      c.dullOrange,
+      c.accentBlue,
+      c.oliveGreen,
+      c.amber,
+    ];
 
     if (memberCount == 0) {
       return Padding(
@@ -173,7 +175,7 @@ class HomeMembersList extends ConsumerWidget {
         child: Text(
           'No members yet. Be the first!',
           style:
-              GoogleFonts.cabin(fontSize: 13, color: AppColors.textSecondary),
+              GoogleFonts.cabin(fontSize: 13, color: c.textSecondary),
         ),
       );
     }
@@ -188,7 +190,7 @@ class HomeMembersList extends ConsumerWidget {
             style: GoogleFonts.spaceMono(
               fontSize: 10,
               fontWeight: FontWeight.w700,
-              color: AppColors.textSecondary,
+              color: c.textSecondary,
             ),
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -198,7 +200,7 @@ class HomeMembersList extends ConsumerWidget {
             children: [
               ...visible.map((user) {
                 final color =
-                    _avatarColors[user.uid.hashCode % _avatarColors.length];
+                    avatarColors[user.uid.hashCode % avatarColors.length];
                 return GestureDetector(
                   onTap: () {
                     Navigator.of(context).pop();
@@ -213,11 +215,11 @@ class HomeMembersList extends ConsumerWidget {
                           color: color,
                           borderRadius: BorderRadius.circular(AppRadius.sm),
                           border:
-                              Border.all(color: AppColors.darkNavy, width: 2),
-                          boxShadow: const [
+                              Border.all(color: c.borderColor, width: 2),
+                          boxShadow: [
                             BoxShadow(
-                              color: AppColors.darkNavy,
-                              offset: Offset(2, 2),
+                              color: c.shadowColor,
+                              offset: const Offset(2, 2),
                               blurRadius: 0,
                             ),
                           ],
@@ -245,7 +247,7 @@ class HomeMembersList extends ConsumerWidget {
                           style: GoogleFonts.cabin(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.darkNavy,
+                            color: c.textPrimary,
                           ),
                         ),
                       ),
@@ -260,9 +262,9 @@ class HomeMembersList extends ConsumerWidget {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: AppColors.chipBg,
+                        color: c.chipBg,
                         borderRadius: BorderRadius.circular(AppRadius.sm),
-                        border: Border.all(color: AppColors.darkGrey, width: 2),
+                        border: Border.all(color: c.darkGrey, width: 2),
                       ),
                       child: Center(
                         child: Text(
@@ -270,7 +272,7 @@ class HomeMembersList extends ConsumerWidget {
                           style: GoogleFonts.spaceMono(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.textSecondary,
+                            color: c.textSecondary,
                           ),
                         ),
                       ),
@@ -283,7 +285,7 @@ class HomeMembersList extends ConsumerWidget {
                         textAlign: TextAlign.center,
                         style: GoogleFonts.cabin(
                           fontSize: 10,
-                          color: AppColors.textDisabled,
+                          color: c.textDisabled,
                         ),
                       ),
                     ),

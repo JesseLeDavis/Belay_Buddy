@@ -13,6 +13,7 @@ class PostPreviewRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.appColors;
     final userAsync = ref.watch(userByIdProvider(post.userId));
     final isNow = post.type == PostType.immediate;
 
@@ -21,16 +22,16 @@ class PostPreviewRow extends ConsumerWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.md, vertical: AppSpacing.sm + 2),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           border:
-              Border(bottom: BorderSide(color: AppColors.darkGrey, width: 1)),
+              Border(bottom: BorderSide(color: c.darkGrey, width: 1)),
         ),
         child: Row(
           children: [
             Container(
               width: 4,
               height: 44,
-              color: isNow ? AppColors.dullOrange : AppColors.oliveGreen,
+              color: isNow ? c.dullOrange : c.oliveGreen,
             ),
             const SizedBox(width: AppSpacing.sm),
             Expanded(
@@ -42,7 +43,7 @@ class PostPreviewRow extends ConsumerWidget {
                     style: GoogleFonts.cabin(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.darkNavy,
+                      color: c.textPrimary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -52,7 +53,7 @@ class PostPreviewRow extends ConsumerWidget {
                     data: (user) => Text(
                       user?.displayName ?? 'Unknown',
                       style: GoogleFonts.spaceMono(
-                          fontSize: 10, color: AppColors.textSecondary),
+                          fontSize: 10, color: c.textSecondary),
                     ),
                     loading: () => const SizedBox.shrink(),
                     error: (_, __) => const SizedBox.shrink(),
@@ -67,20 +68,20 @@ class PostPreviewRow extends ConsumerWidget {
                 Text(
                   _formatDate(post.dateTime),
                   style: GoogleFonts.spaceMono(
-                      fontSize: 10, color: AppColors.textSecondary),
+                      fontSize: 10, color: c.textSecondary),
                 ),
                 if (post.needsBelay)
                   Text('NEED BELAY',
                       style: GoogleFonts.spaceMono(
                           fontSize: 9,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.accentBlue)),
+                          color: c.accentBlue)),
                 if (post.offeringBelay)
                   Text('CAN BELAY',
                       style: GoogleFonts.spaceMono(
                           fontSize: 9,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.oliveGreen)),
+                          color: c.oliveGreen)),
               ],
             ),
           ],

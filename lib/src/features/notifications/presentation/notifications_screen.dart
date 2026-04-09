@@ -12,23 +12,24 @@ class NotificationsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.appColors;
     final notifAsync = ref.watch(notificationsProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       appBar: AppBar(
-        backgroundColor: AppColors.darkNavy,
+        backgroundColor: c.borderColor,
         title: Text(
           'NOTIFICATIONS',
           style: GoogleFonts.spaceMono(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Colors.white,
+            color: c.background,
           ),
         ),
-        iconTheme: const IconThemeData(color: Colors.white),
-        shape: const Border(
-          bottom: BorderSide(color: AppColors.dullOrange, width: 3),
+        iconTheme: IconThemeData(color: c.background),
+        shape: Border(
+          bottom: BorderSide(color: c.dullOrange, width: 3),
         ),
       ),
       body: notifAsync.when(
@@ -38,15 +39,15 @@ class NotificationsScreen extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.notifications_none,
-                      size: 64, color: AppColors.textDisabled),
+                  Icon(Icons.notifications_none,
+                      size: 64, color: c.textDisabled),
                   const SizedBox(height: AppSpacing.md),
                   Text(
                     'NO NOTIFICATIONS',
                     style: GoogleFonts.spaceMono(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textDisabled,
+                      color: c.textDisabled,
                     ),
                   ),
                 ],
@@ -66,7 +67,7 @@ class NotificationsScreen extends ConsumerWidget {
                 ...unread.map((n) => _NotifTile(notif: n)),
               ],
               if (read.isNotEmpty) ...[
-                _SectionHeader(label: 'EARLIER'),
+                const _SectionHeader(label: 'EARLIER'),
                 ...read.map((n) => _NotifTile(notif: n)),
               ],
               const SizedBox(height: AppSpacing.xl),
@@ -79,12 +80,12 @@ class NotificationsScreen extends ConsumerWidget {
             style: GoogleFonts.spaceMono(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textSecondary),
+                color: c.textSecondary),
           ),
         ),
         error: (e, _) => Center(
           child: Text('Error: $e',
-              style: GoogleFonts.cabin(fontSize: 16, color: AppColors.error)),
+              style: GoogleFonts.cabin(fontSize: 16, color: c.error)),
         ),
       ),
     );
@@ -97,13 +98,14 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
     return Container(
       padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-      decoration: const BoxDecoration(
-        color: AppColors.chipBg,
+      decoration: BoxDecoration(
+        color: c.chipBg,
         border: Border(
-          bottom: BorderSide(color: AppColors.darkNavy, width: 1),
+          bottom: BorderSide(color: c.borderColor, width: 1),
         ),
       ),
       child: Text(
@@ -111,7 +113,7 @@ class _SectionHeader extends StatelessWidget {
         style: GoogleFonts.spaceMono(
           fontSize: 10,
           fontWeight: FontWeight.w700,
-          color: AppColors.textDisabled,
+          color: c.textDisabled,
         ),
       ),
     );
@@ -124,13 +126,14 @@ class _NotifTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final (icon, accentColor, title, subtitle) = _content();
+    final c = context.appColors;
+    final (icon, accentColor, title, subtitle) = _content(c);
 
     return Container(
       decoration: BoxDecoration(
-        color: notif.isRead ? AppColors.surface : AppColors.surface,
-        border: const Border(
-          bottom: BorderSide(color: AppColors.darkGrey, width: 1),
+        color: c.surface,
+        border: Border(
+          bottom: BorderSide(color: c.darkGrey, width: 1),
         ),
       ),
       child: Row(
@@ -151,7 +154,7 @@ class _NotifTile extends ConsumerWidget {
               height: 36,
               decoration: BoxDecoration(
                 color: accentColor,
-                border: Border.all(color: AppColors.darkNavy, width: 2),
+                border: Border.all(color: c.borderColor, width: 2),
                 borderRadius: BorderRadius.circular(AppRadius.sm),
               ),
               child: Icon(icon, size: 18, color: Colors.white),
@@ -170,20 +173,20 @@ class _NotifTile extends ConsumerWidget {
                     style: GoogleFonts.spaceMono(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.darkNavy,
+                      color: c.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
                     style: GoogleFonts.cabin(
-                        fontSize: 13, color: AppColors.textSecondary),
+                        fontSize: 13, color: c.textSecondary),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     _timeAgo(notif.createdAt),
                     style: GoogleFonts.spaceMono(
-                        fontSize: 10, color: AppColors.textDisabled),
+                        fontSize: 10, color: c.textDisabled),
                   ),
                 ],
               ),
@@ -208,14 +211,14 @@ class _NotifTile extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(
                       horizontal: AppSpacing.sm, vertical: 6),
                   decoration: BoxDecoration(
-                    color: AppColors.dullOrange,
+                    color: c.dullOrange,
                     border:
-                        Border.all(color: AppColors.darkNavy, width: 2),
+                        Border.all(color: c.borderColor, width: 2),
                     borderRadius: BorderRadius.circular(AppRadius.sm),
-                    boxShadow: const [
+                    boxShadow: [
                       BoxShadow(
-                          color: AppColors.darkNavy,
-                          offset: Offset(2, 2),
+                          color: c.shadowColor,
+                          offset: const Offset(2, 2),
                           blurRadius: 0)
                     ],
                   ),
@@ -235,12 +238,12 @@ class _NotifTile extends ConsumerWidget {
     );
   }
 
-  (IconData, Color, String, String) _content() {
+  (IconData, Color, String, String) _content(AppColorsExtension c) {
     switch (notif.type) {
       case NotificationType.catchNeeded:
         return (
           Icons.pan_tool_outlined,
-          AppColors.dullOrange,
+          c.dullOrange,
           '${notif.fromUserName} needs a catch',
           notif.cragName != null
               ? 'Posted at ${notif.cragName}'
@@ -249,14 +252,14 @@ class _NotifTile extends ConsumerWidget {
       case NotificationType.connectionRequest:
         return (
           Icons.person_add_outlined,
-          AppColors.accentBlue,
+          c.accentBlue,
           '${notif.fromUserName} wants to connect',
           'Tap to accept or view their profile',
         );
       case NotificationType.connectionAccepted:
         return (
           Icons.handshake_outlined,
-          AppColors.oliveGreen,
+          c.oliveGreen,
           '${notif.fromUserName} accepted your request',
           'You\'re now connected',
         );
@@ -286,13 +289,14 @@ class _AcceptButtonState extends State<_AcceptButton> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
     if (_accepted) {
       return Container(
         padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.sm, vertical: 6),
         decoration: BoxDecoration(
-          color: AppColors.oliveGreen,
-          border: Border.all(color: AppColors.darkNavy, width: 2),
+          color: c.oliveGreen,
+          border: Border.all(color: c.borderColor, width: 2),
           borderRadius: BorderRadius.circular(AppRadius.sm),
         ),
         child: Text(
@@ -312,13 +316,13 @@ class _AcceptButtonState extends State<_AcceptButton> {
         padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.sm, vertical: 6),
         decoration: BoxDecoration(
-          color: AppColors.accentBlue,
-          border: Border.all(color: AppColors.darkNavy, width: 2),
+          color: c.accentBlue,
+          border: Border.all(color: c.borderColor, width: 2),
           borderRadius: BorderRadius.circular(AppRadius.sm),
-          boxShadow: const [
+          boxShadow: [
             BoxShadow(
-                color: AppColors.darkNavy,
-                offset: Offset(2, 2),
+                color: c.shadowColor,
+                offset: const Offset(2, 2),
                 blurRadius: 0)
           ],
         ),

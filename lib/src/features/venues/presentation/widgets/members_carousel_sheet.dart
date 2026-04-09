@@ -38,31 +38,26 @@ class _MembersCarouselSheetState extends ConsumerState<MembersCarouselSheet> {
     super.dispose();
   }
 
-  static const _avatarColors = [
-    AppColors.dullOrange,
-    AppColors.accentBlue,
-    AppColors.oliveGreen,
-    AppColors.amber,
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
+    final avatarColors = [c.dullOrange, c.accentBlue, c.oliveGreen, c.amber];
     final visible = ref.watch(visibleHomeMembersProvider(widget.cragId));
     final memberCount = ref.watch(homeMemberCountProvider(widget.cragId));
     final hiddenCount = memberCount - visible.length;
     final accentColor =
-        widget.crag.isGym ? AppColors.accentBlue : AppColors.oliveGreen;
+        widget.crag.isGym ? c.accentBlue : c.oliveGreen;
     final screenWidth = MediaQuery.of(context).size.width;
     final edgeInset = (screenWidth - _slotWidth) / 2;
 
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+      decoration: BoxDecoration(
+        color: c.background,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
         border: Border(
-          top: BorderSide(color: AppColors.darkNavy, width: 3),
-          left: BorderSide(color: AppColors.darkNavy, width: 3),
-          right: BorderSide(color: AppColors.darkNavy, width: 3),
+          top: BorderSide(color: c.borderColor, width: 3),
+          left: BorderSide(color: c.borderColor, width: 3),
+          right: BorderSide(color: c.borderColor, width: 3),
         ),
       ),
       child: Column(
@@ -74,7 +69,7 @@ class _MembersCarouselSheetState extends ConsumerState<MembersCarouselSheet> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.darkGrey,
+                color: c.darkGrey,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -89,7 +84,7 @@ class _MembersCarouselSheetState extends ConsumerState<MembersCarouselSheet> {
                   style: GoogleFonts.spaceMono(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.darkNavy,
+                    color: c.borderColor,
                   ),
                 ),
                 const SizedBox(width: AppSpacing.sm),
@@ -99,7 +94,7 @@ class _MembersCarouselSheetState extends ConsumerState<MembersCarouselSheet> {
                   decoration: BoxDecoration(
                     color: accentColor,
                     borderRadius: BorderRadius.circular(AppRadius.sm),
-                    border: Border.all(color: AppColors.darkNavy, width: 1.5),
+                    border: Border.all(color: c.borderColor, width: 1.5),
                   ),
                   child: Text(
                     '$memberCount',
@@ -115,7 +110,7 @@ class _MembersCarouselSheetState extends ConsumerState<MembersCarouselSheet> {
                   Text(
                     '$hiddenCount private',
                     style: GoogleFonts.cabin(
-                        fontSize: 12, color: AppColors.textDisabled),
+                        fontSize: 12, color: c.textDisabled),
                   ),
                 ],
               ],
@@ -135,7 +130,7 @@ class _MembersCarouselSheetState extends ConsumerState<MembersCarouselSheet> {
                 final scale = _scaleFor(i, screenWidth, edgeInset);
                 final opacity = (0.4 + 0.6 * scale).clamp(0.0, 1.0);
                 final color =
-                    _avatarColors[user.uid.hashCode % _avatarColors.length];
+                    avatarColors[user.uid.hashCode % avatarColors.length];
 
                 final t = ((scale - 0.6) / 0.4).clamp(0.0, 1.0);
                 final avatarSize = 48.0 + 32.0 * t;
@@ -162,7 +157,7 @@ class _MembersCarouselSheetState extends ConsumerState<MembersCarouselSheet> {
                               borderRadius:
                                   BorderRadius.circular(AppRadius.sm),
                               border: Border.all(
-                                  color: AppColors.darkNavy, width: 2.5),
+                                  color: c.borderColor, width: 2.5),
                               boxShadow: [
                                 BoxShadow(
                                   color: color.withAlpha(
@@ -192,7 +187,7 @@ class _MembersCarouselSheetState extends ConsumerState<MembersCarouselSheet> {
                             style: GoogleFonts.spaceMono(
                               fontSize: scale > 0.85 ? 12 : 10,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.darkNavy,
+                              color: c.borderColor,
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -204,8 +199,8 @@ class _MembersCarouselSheetState extends ConsumerState<MembersCarouselSheet> {
                                 fontSize: 8,
                                 fontWeight: FontWeight.w700,
                                 color: scale > 0.85
-                                    ? AppColors.textSecondary
-                                    : AppColors.textDisabled,
+                                    ? c.textSecondary
+                                    : c.textDisabled,
                               ),
                             ),
                         ],

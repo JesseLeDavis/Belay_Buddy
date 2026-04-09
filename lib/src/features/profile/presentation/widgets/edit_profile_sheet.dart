@@ -60,19 +60,20 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return Container(
       constraints: BoxConstraints(
         maxHeight: MediaQuery.of(context).size.height * 0.85,
       ),
-      decoration: const BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+      decoration: BoxDecoration(
+        color: c.background,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
         border: Border(
-          top: BorderSide(color: AppColors.darkNavy, width: 3),
-          left: BorderSide(color: AppColors.darkNavy, width: 3),
-          right: BorderSide(color: AppColors.darkNavy, width: 3),
+          top: BorderSide(color: c.borderColor, width: 3),
+          left: BorderSide(color: c.borderColor, width: 3),
+          right: BorderSide(color: c.borderColor, width: 3),
         ),
       ),
       padding: EdgeInsets.only(bottom: bottomInset),
@@ -88,7 +89,7 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.darkGrey,
+                  color: c.darkGrey,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -101,7 +102,7 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
               style: GoogleFonts.spaceMono(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: AppColors.darkNavy,
+                color: c.borderColor,
               ),
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -112,13 +113,13 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
               style: GoogleFonts.spaceMono(
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textSecondary,
+                color: c.textSecondary,
               ),
             ),
             const SizedBox(height: AppSpacing.xs),
             TextField(
               controller: _nameCtrl,
-              style: GoogleFonts.cabin(fontSize: 15, color: AppColors.darkNavy),
+              style: GoogleFonts.cabin(fontSize: 15, color: c.textPrimary),
               decoration: const InputDecoration(hintText: 'Your name'),
             ),
             const SizedBox(height: AppSpacing.md),
@@ -129,13 +130,13 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
               style: GoogleFonts.spaceMono(
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textSecondary,
+                color: c.textSecondary,
               ),
             ),
             const SizedBox(height: AppSpacing.xs),
             TextField(
               controller: _bioCtrl,
-              style: GoogleFonts.cabin(fontSize: 15, color: AppColors.darkNavy),
+              style: GoogleFonts.cabin(fontSize: 15, color: c.textPrimary),
               maxLines: 3,
               decoration: const InputDecoration(
                 hintText: 'Tell others about your climbing...',
@@ -151,7 +152,7 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
                   style: GoogleFonts.spaceMono(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textSecondary,
+                    color: c.textSecondary,
                   ),
                 ),
                 const SizedBox(width: AppSpacing.sm),
@@ -160,7 +161,7 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                     decoration: BoxDecoration(
-                      color: AppColors.oliveGreen,
+                      color: c.oliveGreen,
                       borderRadius: BorderRadius.circular(AppRadius.xs),
                     ),
                     child: Text(
@@ -189,9 +190,9 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
                       vertical: AppSpacing.xs + 2,
                     ),
                     decoration: BoxDecoration(
-                      color: selected ? tag.color : AppColors.chipBg,
+                      color: selected ? tag.color : c.chipBg,
                       border: Border.all(
-                        color: selected ? tag.color : AppColors.darkGrey,
+                        color: selected ? tag.color : c.darkGrey,
                         width: 2,
                       ),
                       borderRadius: BorderRadius.circular(AppRadius.xs),
@@ -210,7 +211,11 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
                       style: GoogleFonts.spaceMono(
                         fontSize: 9,
                         fontWeight: FontWeight.w700,
-                        color: selected ? Colors.white : AppColors.textSecondary,
+                        color: selected
+                            ? (tag.color.computeLuminance() > 0.4
+                                ? const Color(0xFF0F0F0F)
+                                : Colors.white)
+                            : c.textSecondary,
                       ),
                     ),
                   ),
@@ -223,8 +228,8 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
             RetroButton(
               label: 'Save',
               icon: Icons.check,
-              color: AppColors.oliveGreen,
-              shadowColor: AppColors.darkNavy,
+              color: c.oliveGreen,
+              shadowColor: c.borderColor,
               textColor: Colors.white,
               onPressed: _save,
             ),

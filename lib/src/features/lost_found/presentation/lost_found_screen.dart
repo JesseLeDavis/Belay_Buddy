@@ -8,36 +8,37 @@ class LostFoundScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       appBar: AppBar(
-        backgroundColor: AppColors.amber,
+        backgroundColor: c.amber,
         title: Text(
           'LOST & FOUND BIN',
           style: GoogleFonts.spaceMono(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: AppColors.darkNavy,
+            color: const Color(0xFF0F0F0F),
           ),
         ),
-        iconTheme: const IconThemeData(color: AppColors.darkNavy),
-        shape: const Border(
-          bottom: BorderSide(color: AppColors.darkNavy, width: 3),
+        iconTheme: const IconThemeData(color: Color(0xFF0F0F0F)),
+        shape: Border(
+          bottom: BorderSide(color: c.borderColor, width: 3),
         ),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.inventory_2_outlined,
-                size: 64, color: AppColors.textDisabled),
+            Icon(Icons.inventory_2_outlined,
+                size: 64, color: c.textDisabled),
             const SizedBox(height: AppSpacing.md),
             Text(
               'COMING SOON',
               style: GoogleFonts.spaceMono(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textDisabled,
+                color: c.textDisabled,
               ),
             ),
           ],

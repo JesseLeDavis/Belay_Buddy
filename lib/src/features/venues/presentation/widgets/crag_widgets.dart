@@ -16,12 +16,13 @@ class CountBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(AppRadius.sm),
-        border: Border.all(color: AppColors.darkNavy, width: 2),
+        border: Border.all(color: c.borderColor, width: 2),
       ),
       child: Text(
         label,
@@ -43,13 +44,14 @@ class PanelFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: const BoxDecoration(
-          color: AppColors.chipBg,
-          border: Border(top: BorderSide(color: AppColors.darkNavy, width: 1)),
+        decoration: BoxDecoration(
+          color: c.chipBg,
+          border: Border(top: BorderSide(color: c.borderColor, width: 1)),
         ),
         alignment: Alignment.center,
         child: Text(
@@ -57,7 +59,7 @@ class PanelFooter extends StatelessWidget {
           style: GoogleFonts.spaceMono(
             fontSize: 11,
             fontWeight: FontWeight.w700,
-            color: AppColors.darkNavy,
+            color: c.borderColor,
           ),
         ),
       ),
@@ -85,6 +87,7 @@ class SheetTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
     return Opacity(
       opacity: enabled ? 1.0 : 0.4,
       child: Padding(
@@ -103,14 +106,14 @@ class SheetTile extends StatelessWidget {
                     style: GoogleFonts.spaceMono(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.darkNavy,
+                      color: c.borderColor,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
                     style: GoogleFonts.cabin(
-                        fontSize: 12, color: AppColors.textSecondary),
+                        fontSize: 12, color: c.textSecondary),
                   ),
                 ],
               ),

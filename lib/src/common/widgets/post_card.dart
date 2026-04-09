@@ -19,18 +19,15 @@ class PostCard extends ConsumerWidget {
 
   bool get _isImmediate => post.type == PostType.immediate;
 
-  Color _stripColor() {
-    return _isImmediate ? AppColors.dullOrange : AppColors.oliveGreen;
-  }
-
   String _typeLabel() {
     return _isImmediate ? '\u25CF CLIMBING NOW' : '\u25C6 SCHEDULED';
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.appColors;
     final userAsync = ref.watch(userByIdProvider(post.userId));
-    final stripColor = _stripColor();
+    final stripColor = _isImmediate ? c.dullOrange : c.oliveGreen;
 
     return GestureDetector(
       onTap: onTap,
@@ -40,13 +37,13 @@ class PostCard extends ConsumerWidget {
             vertical: AppSpacing.sm,
           ),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: c.surface,
             borderRadius: BorderRadius.circular(AppRadius.sm),
-            border: Border.all(color: AppColors.darkNavy, width: 2.5),
-            boxShadow: const [
+            border: Border.all(color: c.borderColor, width: 2.5),
+            boxShadow: [
               BoxShadow(
-                color: AppColors.darkNavy,
-                offset: Offset(5, 5),
+                color: c.shadowColor,
+                offset: const Offset(5, 5),
                 blurRadius: 0,
               ),
             ],
@@ -100,7 +97,7 @@ class PostCard extends ConsumerWidget {
                         style: GoogleFonts.cabin(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.darkNavy,
+                          color: c.textPrimary,
                           height: 1.2,
                         ),
                       ),
@@ -112,21 +109,21 @@ class PostCard extends ConsumerWidget {
                           user?.displayName ?? 'Unknown Climber',
                           style: GoogleFonts.spaceMono(
                             fontSize: 11,
-                            color: AppColors.textSecondary,
+                            color: c.textSecondary,
                           ),
                         ),
                         loading: () => Text(
                           '...',
                           style: GoogleFonts.spaceMono(
                             fontSize: 11,
-                            color: AppColors.textDisabled,
+                            color: c.textDisabled,
                           ),
                         ),
                         error: (_, __) => Text(
                           'Unknown Climber',
                           style: GoogleFonts.spaceMono(
                             fontSize: 11,
-                            color: AppColors.textSecondary,
+                            color: c.textSecondary,
                           ),
                         ),
                       ),
@@ -139,7 +136,7 @@ class PostCard extends ConsumerWidget {
                           post.description!,
                           style: GoogleFonts.cabin(
                             fontSize: 13,
-                            color: AppColors.darkNavy.withAlpha(179),
+                            color: c.textPrimary.withAlpha(179),
                             height: 1.4,
                           ),
                           maxLines: 2,
@@ -154,7 +151,7 @@ class PostCard extends ConsumerWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                   child: CustomPaint(
-                    painter: _DottedLinePainter(color: AppColors.darkNavy),
+                    painter: _DottedLinePainter(color: c.borderColor),
                     size: const Size(double.infinity, 1),
                   ),
                 ),
@@ -170,16 +167,18 @@ class PostCard extends ConsumerWidget {
                           runSpacing: AppSpacing.xs,
                           children: [
                             if (post.needsBelay)
-                              const _BrandChip(
+                              _BrandChip(
                                 label: 'NEED BELAY',
-                                fillColor: AppColors.accentBlue,
+                                fillColor: c.accentBlue,
                                 textColor: Colors.white,
+                                borderColor: c.borderColor,
                               ),
                             if (post.offeringBelay)
-                              const _BrandChip(
+                              _BrandChip(
                                 label: 'CAN BELAY',
-                                fillColor: AppColors.oliveGreen,
+                                fillColor: c.oliveGreen,
                                 textColor: Colors.white,
+                                borderColor: c.borderColor,
                               ),
                           ],
                         ),
@@ -189,7 +188,7 @@ class PostCard extends ConsumerWidget {
                         _formatDateTime(post.dateTime),
                         style: GoogleFonts.spaceMono(
                           fontSize: 10,
-                          color: AppColors.darkNavy.withAlpha(153),
+                          color: c.textPrimary.withAlpha(153),
                         ),
                       ),
                     ],
@@ -207,9 +206,9 @@ class PostCard extends ConsumerWidget {
                   width: 10,
                   height: 10,
                   decoration: BoxDecoration(
-                    color: AppColors.dullOrange,
+                    color: c.dullOrange,
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.darkNavy, width: 1.5),
+                    border: Border.all(color: c.borderColor, width: 1.5),
                   ),
                 ),
               ),
@@ -242,11 +241,13 @@ class _BrandChip extends StatelessWidget {
   final String label;
   final Color fillColor;
   final Color textColor;
+  final Color borderColor;
 
   const _BrandChip({
     required this.label,
     required this.fillColor,
     required this.textColor,
+    required this.borderColor,
   });
 
   @override
@@ -257,7 +258,7 @@ class _BrandChip extends StatelessWidget {
         vertical: 3,
       ),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.darkNavy, width: 2),
+        border: Border.all(color: borderColor, width: 2),
         borderRadius: BorderRadius.circular(AppRadius.sm),
         color: fillColor,
       ),

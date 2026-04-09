@@ -69,27 +69,28 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
     final cragsAsync = ref.watch(allCragsProvider);
     final favoritesAsync = ref.watch(favoriteCragsProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       appBar: AppBar(
-        backgroundColor: AppColors.amber,
+        backgroundColor: c.amber,
         title: Text(
           'BELAY BUDDY',
           style: GoogleFonts.spaceMono(
             fontSize: 22,
             fontWeight: FontWeight.w700,
-            color: AppColors.darkNavy,
+            color: const Color(0xFF0F0F0F),
           ),
         ),
-        shape: const Border(
-          bottom: BorderSide(color: AppColors.darkNavy, width: 3),
+        shape: Border(
+          bottom: BorderSide(color: c.borderColor, width: 3),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search, color: AppColors.darkNavy),
+            icon: const Icon(Icons.search, color: Color(0xFF0F0F0F)),
             tooltip: 'Search crags',
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -113,14 +114,14 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const CircularProgressIndicator(color: AppColors.dullOrange),
+              CircularProgressIndicator(color: c.dullOrange),
               const SizedBox(height: AppSpacing.md),
               Text(
                 'Loading crags...',
                 style: GoogleFonts.spaceMono(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textSecondary,
+                  color: c.textSecondary,
                 ),
               ),
             ],
@@ -129,7 +130,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         error: (error, stack) => Center(
           child: Text(
             'Error: $error',
-            style: GoogleFonts.cabin(fontSize: 16, color: AppColors.error),
+            style: GoogleFonts.cabin(fontSize: 16, color: c.error),
           ),
         ),
       ),
@@ -137,6 +138,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   }
 
   Widget _buildBody(List<Crag> crags, List<Crag> favorites) {
+    final c = context.appColors;
     final markers = crags.map((crag) => Marker(
       markerId: MarkerId(crag.id),
       position: LatLng(crag.location.latitude, crag.location.longitude),
@@ -169,16 +171,16 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   borderRadius: BorderRadius.circular(AppRadius.sm),
                   border: Border.fromBorderSide(
                     BorderSide(
-                      color: AppColors.darkNavy,
+                      color: c.borderColor,
                       width: _mapExpanded ? 0 : 2.5,
                     ),
                   ),
                   boxShadow: _mapExpanded
                       ? const []
-                      : const [
+                      : [
                           BoxShadow(
-                            color: AppColors.darkNavy,
-                            offset: Offset(5, 5),
+                            color: c.shadowColor,
+                            offset: const Offset(5, 5),
                             blurRadius: 0,
                           ),
                         ],
@@ -208,11 +210,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                         onTap: () =>
                             setState(() => _mapExpanded = !_mapExpanded),
                         child: Container(
-                          decoration: const BoxDecoration(
-                            color: AppColors.surface,
+                          decoration: BoxDecoration(
+                            color: c.surface,
                             border: Border(
                               top: BorderSide(
-                                  color: AppColors.darkNavy, width: 2),
+                                  color: c.borderColor, width: 2),
                             ),
                           ),
                           padding: const EdgeInsets.symmetric(
@@ -228,12 +230,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                                 style: GoogleFonts.spaceMono(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.darkNavy,
+                                  color: c.textPrimary,
                                 ),
                               ),
                               const Spacer(),
-                              const Icon(Icons.map,
-                                  size: 14, color: AppColors.darkNavy),
+                              Icon(Icons.map,
+                                  size: 14, color: c.textPrimary),
                             ],
                           ),
                         ),
@@ -252,25 +254,25 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     horizontal: AppSpacing.md,
                     vertical: AppSpacing.sm,
                   ),
-                  decoration: const BoxDecoration(
-                    color: AppColors.background,
+                  decoration: BoxDecoration(
+                    color: c.background,
                     border: Border(
-                      bottom: BorderSide(color: AppColors.darkNavy, width: 2),
+                      bottom: BorderSide(color: c.borderColor, width: 2),
                     ),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.star,
-                          color: AppColors.dullOrange, size: 16),
+                      Icon(Icons.star,
+                          color: c.dullOrange, size: 16),
                       const SizedBox(width: AppSpacing.sm),
                       Text(
                         favorites.isEmpty
                             ? 'NO FAVORITES YET'
-                            : '${favorites.where((c) => !c.isGym).length} CRAGS · ${favorites.where((c) => c.isGym).length} GYMS',
+                            : '${favorites.where((cr) => !cr.isGym).length} CRAGS · ${favorites.where((cr) => cr.isGym).length} GYMS',
                         style: GoogleFonts.spaceMono(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.textSecondary,
+                          color: c.textSecondary,
                         ),
                       ),
                       const Spacer(),
@@ -279,7 +281,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                         style: GoogleFonts.spaceMono(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.textDisabled,
+                          color: c.textDisabled,
                         ),
                       ),
                     ],
@@ -297,7 +299,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                         textAlign: TextAlign.center,
                         style: GoogleFonts.cabin(
                           fontSize: 14,
-                          color: AppColors.textDisabled,
+                          color: c.textDisabled,
                         ),
                       ),
                     ),
@@ -329,18 +331,19 @@ class _CragCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
     return GestureDetector(
       onTap: () => context.push('/crag/${crag.id}'),
       child: Container(
         margin: const EdgeInsets.only(bottom: AppSpacing.md),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppRadius.sm),
-          color: AppColors.surface,
-          border: Border.all(color: AppColors.darkNavy, width: 2.5),
-          boxShadow: const [
+          color: c.surface,
+          border: Border.all(color: c.borderColor, width: 2.5),
+          boxShadow: [
             BoxShadow(
-              color: AppColors.darkNavy,
-              offset: Offset(5, 5),
+              color: c.shadowColor,
+              offset: const Offset(5, 5),
               blurRadius: 0,
             ),
           ],
@@ -355,13 +358,13 @@ class _CragCard extends StatelessWidget {
                 horizontal: AppSpacing.sm + 4,
                 vertical: 10,
               ),
-              color: crag.isGym ? AppColors.darkNavy : AppColors.oliveGreen,
+              color: crag.isGym ? c.borderColor : c.oliveGreen,
               child: Text(
                 crag.isGym ? 'GYM' : 'CRAG',
                 style: GoogleFonts.spaceMono(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: crag.isGym ? c.background : Colors.white,
                 ),
               ),
             ),
@@ -377,21 +380,21 @@ class _CragCard extends StatelessWidget {
                     style: GoogleFonts.spaceMono(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.darkNavy,
+                      color: c.textPrimary,
                       height: 1.1,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   Row(
                     children: [
-                      const Icon(Icons.location_on,
-                          size: 12, color: AppColors.textSecondary),
+                      Icon(Icons.location_on,
+                          size: 12, color: c.textSecondary),
                       const SizedBox(width: 4),
                       Text(
                         crag.region ?? 'Unknown Region',
                         style: GoogleFonts.spaceMono(
                           fontSize: 11,
-                          color: AppColors.textSecondary,
+                          color: c.textSecondary,
                         ),
                       ),
                     ],
@@ -409,14 +412,14 @@ class _CragCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(AppRadius.sm),
                           border:
-                              Border.all(color: AppColors.darkNavy, width: 2),
+                              Border.all(color: c.borderColor, width: 2),
                         ),
                         child: Text(
                           t.name.toUpperCase(),
                           style: GoogleFonts.spaceMono(
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.darkNavy,
+                            color: c.textPrimary,
                           ),
                         ),
                       );
@@ -432,9 +435,9 @@ class _CragCard extends StatelessWidget {
                 horizontal: AppSpacing.md,
                 vertical: AppSpacing.sm,
               ),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 border: Border(
-                  top: BorderSide(color: AppColors.darkNavy, width: 2),
+                  top: BorderSide(color: c.borderColor, width: 2),
                 ),
               ),
               child: Text(
@@ -442,7 +445,7 @@ class _CragCard extends StatelessWidget {
                 style: GoogleFonts.spaceMono(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.darkNavy,
+                  color: c.textPrimary,
                 ),
               ),
             ),

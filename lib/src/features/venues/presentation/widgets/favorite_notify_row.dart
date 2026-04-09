@@ -12,12 +12,13 @@ class FavoriteNotifyRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.appColors;
     final isFav = ref.watch(isFavoriteProvider(crag.id));
     final notifyPrefs = ref.watch(venueNotifyPrefsProvider(crag.id));
     final hasNotifications =
         notifyPrefs.notifyCatch || notifyPrefs.notifyConnections;
     final accentColor =
-        crag.isGym ? AppColors.accentBlue : AppColors.oliveGreen;
+        crag.isGym ? c.accentBlue : c.oliveGreen;
 
     return Row(
       children: [
@@ -30,11 +31,11 @@ class FavoriteNotifyRow extends ConsumerWidget {
                   horizontal: AppSpacing.sm, vertical: 8),
               decoration: BoxDecoration(
                 color: isFav
-                    ? AppColors.accentBlue.withAlpha(25)
-                    : AppColors.chipBg,
+                    ? c.accentBlue.withAlpha(25)
+                    : c.chipBg,
                 borderRadius: BorderRadius.circular(AppRadius.sm),
                 border: Border.all(
-                  color: isFav ? AppColors.accentBlue : AppColors.darkGrey,
+                  color: isFav ? c.accentBlue : c.darkGrey,
                   width: 2,
                 ),
               ),
@@ -45,7 +46,7 @@ class FavoriteNotifyRow extends ConsumerWidget {
                     isFav ? Icons.star : Icons.star_outline,
                     size: 16,
                     color:
-                        isFav ? AppColors.accentBlue : AppColors.textSecondary,
+                        isFav ? c.accentBlue : c.textSecondary,
                   ),
                   const SizedBox(width: AppSpacing.xs),
                   Text(
@@ -54,8 +55,8 @@ class FavoriteNotifyRow extends ConsumerWidget {
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                       color: isFav
-                          ? AppColors.accentBlue
-                          : AppColors.textSecondary,
+                          ? c.accentBlue
+                          : c.textSecondary,
                     ),
                   ),
                 ],
@@ -71,10 +72,10 @@ class FavoriteNotifyRow extends ConsumerWidget {
             decoration: BoxDecoration(
               color: hasNotifications
                   ? accentColor.withAlpha(20)
-                  : AppColors.chipBg,
+                  : c.chipBg,
               borderRadius: BorderRadius.circular(AppRadius.sm),
               border: Border.all(
-                color: hasNotifications ? accentColor : AppColors.darkGrey,
+                color: hasNotifications ? accentColor : c.darkGrey,
                 width: 2,
               ),
             ),
@@ -83,7 +84,7 @@ class FavoriteNotifyRow extends ConsumerWidget {
                   ? Icons.notifications_active
                   : Icons.notifications_none,
               size: 18,
-              color: hasNotifications ? accentColor : AppColors.textSecondary,
+              color: hasNotifications ? accentColor : c.textSecondary,
             ),
           ),
         ),
@@ -92,9 +93,10 @@ class FavoriteNotifyRow extends ConsumerWidget {
   }
 
   void _showVenueNotifySheet(BuildContext context, Crag crag) {
+    final c = context.appColors;
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: c.surface,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
@@ -110,17 +112,18 @@ class VenueNotifySheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.appColors;
     final isFav = ref.watch(isFavoriteProvider(crag.id));
     final notifyPrefs = ref.watch(venueNotifyPrefsProvider(crag.id));
     final favNotifier = ref.read(favoritesProvider.notifier);
     final accentColor =
-        crag.isGym ? AppColors.accentBlue : AppColors.oliveGreen;
+        crag.isGym ? c.accentBlue : c.oliveGreen;
     final label = crag.isGym ? 'GYM' : 'CRAG';
 
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(top: BorderSide(color: AppColors.darkNavy, width: 3)),
+      decoration: BoxDecoration(
+        color: c.surface,
+        border: Border(top: BorderSide(color: c.borderColor, width: 3)),
       ),
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).padding.bottom + AppSpacing.lg,
@@ -134,8 +137,8 @@ class VenueNotifySheet extends ConsumerWidget {
                 horizontal: AppSpacing.md, vertical: 14),
             decoration: BoxDecoration(
               color: accentColor,
-              border: const Border(
-                  bottom: BorderSide(color: AppColors.darkNavy, width: 2)),
+              border: Border(
+                  bottom: BorderSide(color: c.borderColor, width: 2)),
             ),
             child: Row(
               children: [
@@ -161,21 +164,21 @@ class VenueNotifySheet extends ConsumerWidget {
               child: Container(
                 padding: const EdgeInsets.all(AppSpacing.md),
                 decoration: BoxDecoration(
-                  color: AppColors.amber.withAlpha(20),
+                  color: c.amber.withAlpha(20),
                   borderRadius: BorderRadius.circular(AppRadius.sm),
-                  border: Border.all(color: AppColors.amber, width: 2),
+                  border: Border.all(color: c.amber, width: 2),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.star_outline,
-                        size: 18, color: AppColors.amber),
+                    Icon(Icons.star_outline,
+                        size: 18, color: c.amber),
                     const SizedBox(width: AppSpacing.sm),
                     Expanded(
                       child: Text(
                         'Favorite this $label to enable notifications',
                         style: GoogleFonts.cabin(
                           fontSize: 13,
-                          color: AppColors.textSecondary,
+                          color: c.textSecondary,
                           height: 1.4,
                         ),
                       ),
@@ -187,10 +190,10 @@ class VenueNotifySheet extends ConsumerWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: AppSpacing.sm, vertical: 4),
                         decoration: BoxDecoration(
-                          color: AppColors.amber,
+                          color: c.amber,
                           borderRadius: BorderRadius.circular(AppRadius.sm),
                           border:
-                              Border.all(color: AppColors.darkNavy, width: 2),
+                              Border.all(color: c.borderColor, width: 2),
                         ),
                         child: Text(
                           'FAVORITE',
@@ -214,36 +217,36 @@ class VenueNotifySheet extends ConsumerWidget {
                 'Get notified about activity at this ${label.toLowerCase()}, '
                 'even if it\'s not your home ${label.toLowerCase()}.',
                 style: GoogleFonts.cabin(
-                    fontSize: 13, color: AppColors.textSecondary, height: 1.4),
+                    fontSize: 13, color: c.textSecondary, height: 1.4),
               ),
             ),
             const SizedBox(height: AppSpacing.sm),
           ],
           SheetTile(
             icon: Icons.pan_tool_outlined,
-            iconColor: AppColors.dullOrange,
+            iconColor: c.dullOrange,
             title: 'CATCH / BELAY NEEDED',
             subtitle:
                 'Alert when someone at this ${label.toLowerCase()} needs a partner',
             enabled: isFav,
             trailing: Switch(
               value: notifyPrefs.notifyCatch,
-              activeColor: AppColors.dullOrange,
+              activeColor: c.dullOrange,
               onChanged:
                   isFav ? (_) => favNotifier.toggleNotifyCatch(crag.id) : null,
             ),
           ),
-          const Divider(height: 1, thickness: 1, color: AppColors.darkGrey),
+          Divider(height: 1, thickness: 1, color: c.darkGrey),
           SheetTile(
             icon: Icons.person_add_outlined,
-            iconColor: AppColors.accentBlue,
+            iconColor: c.accentBlue,
             title: 'NEW MEMBERS',
             subtitle:
                 'Alert when someone new joins this ${label.toLowerCase()}',
             enabled: isFav,
             trailing: Switch(
               value: notifyPrefs.notifyConnections,
-              activeColor: AppColors.accentBlue,
+              activeColor: c.accentBlue,
               onChanged: isFav
                   ? (_) => favNotifier.toggleNotifyConnections(crag.id)
                   : null,

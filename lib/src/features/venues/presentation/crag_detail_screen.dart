@@ -28,13 +28,14 @@ class CragDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.appColors;
     final cragAsync = ref.watch(cragProvider(cragId));
     final postsAsync = ref.watch(postsAtCragProvider(cragId));
     final lostFoundAsync = ref.watch(lostFoundAtCragProvider(cragId));
     final countsByDate = ref.watch(postCountsByDateProvider(cragId));
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       body: cragAsync.when(
         data: (crag) {
           if (crag == null) {
@@ -44,7 +45,7 @@ class CragDetailScreen extends ConsumerWidget {
                 style: GoogleFonts.spaceMono(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.error,
+                  color: c.error,
                 ),
               ),
             );
@@ -64,13 +65,13 @@ class CragDetailScreen extends ConsumerWidget {
             style: GoogleFonts.spaceMono(
               fontSize: 13,
               fontWeight: FontWeight.w700,
-              color: AppColors.textSecondary,
+              color: c.textSecondary,
             ),
           ),
         ),
         error: (e, _) => Center(
           child: Text('Error: $e',
-              style: GoogleFonts.cabin(fontSize: 16, color: AppColors.error)),
+              style: GoogleFonts.cabin(fontSize: 16, color: c.error)),
         ),
       ),
       floatingActionButton: cragAsync.when(
@@ -113,8 +114,9 @@ class CragDetailScreen extends ConsumerWidget {
   // ── App bar ────────────────────────────────────────────────────────────────
 
   SliverAppBar _buildAppBar(BuildContext context, Crag crag) {
+    final c = context.appColors;
     final headerColor =
-        crag.isGym ? AppColors.accentBlue : AppColors.oliveGreen;
+        crag.isGym ? c.accentBlue : c.oliveGreen;
     const expandedHeight = 260.0;
 
     return SliverAppBar(
@@ -125,8 +127,8 @@ class CragDetailScreen extends ConsumerWidget {
         color: Colors.white,
         onPressed: () => context.canPop() ? context.pop() : context.go('/'),
       ),
-      shape: const Border(
-        bottom: BorderSide(color: AppColors.darkNavy, width: 3),
+      shape: Border(
+        bottom: BorderSide(color: c.borderColor, width: 3),
       ),
       flexibleSpace: LayoutBuilder(
         builder: (context, constraints) {
@@ -179,26 +181,27 @@ class CragDetailScreen extends ConsumerWidget {
   // ── Crag info ──────────────────────────────────────────────────────────────
 
   Widget _buildCragInfo(BuildContext context, WidgetRef ref, Crag crag) {
+    final c = context.appColors;
     final memberCount = ref.watch(homeMemberCountProvider(crag.id));
     final settings = ref.watch(homeSettingsProvider);
     final isHome =
         settings.homeCragId == crag.id || settings.homeGymId == crag.id;
 
     return Container(
-      color: AppColors.background,
+      color: c.background,
       padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.location_on,
-                  size: 14, color: AppColors.textSecondary),
+              Icon(Icons.location_on,
+                  size: 14, color: c.textSecondary),
               const SizedBox(width: AppSpacing.xs),
               Text(
                 crag.region ?? 'Unknown region',
                 style: GoogleFonts.spaceMono(
-                    fontSize: 12, color: AppColors.textSecondary),
+                    fontSize: 12, color: c.textSecondary),
               ),
               const Spacer(),
               ...crag.types.map((t) => Padding(
@@ -208,14 +211,14 @@ class CragDetailScreen extends ConsumerWidget {
                           horizontal: AppSpacing.sm, vertical: 3),
                       decoration: BoxDecoration(
                           border:
-                              Border.all(color: AppColors.darkNavy, width: 2),
+                              Border.all(color: c.borderColor, width: 2),
                           borderRadius: BorderRadius.circular(AppRadius.sm)),
                       child: Text(
                         t.name.toUpperCase(),
                         style: GoogleFonts.spaceMono(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.darkNavy,
+                          color: c.textPrimary,
                         ),
                       ),
                     ),
@@ -227,7 +230,7 @@ class CragDetailScreen extends ConsumerWidget {
             Text(
               crag.description!,
               style: GoogleFonts.cabin(
-                  fontSize: 14, color: AppColors.textSecondary, height: 1.4),
+                  fontSize: 14, color: c.textSecondary, height: 1.4),
             ),
           ],
           const SizedBox(height: AppSpacing.sm),
@@ -240,16 +243,16 @@ class CragDetailScreen extends ConsumerWidget {
                   horizontal: AppSpacing.sm, vertical: 8),
               decoration: BoxDecoration(
                 color: isHome
-                    ? (crag.isGym ? AppColors.accentBlue : AppColors.oliveGreen)
+                    ? (crag.isGym ? c.accentBlue : c.oliveGreen)
                         .withAlpha(20)
-                    : AppColors.chipBg,
+                    : c.chipBg,
                 borderRadius: BorderRadius.circular(AppRadius.sm),
                 border: Border.all(
                   color: isHome
                       ? (crag.isGym
-                          ? AppColors.accentBlue
-                          : AppColors.oliveGreen)
-                      : AppColors.darkGrey,
+                          ? c.accentBlue
+                          : c.oliveGreen)
+                      : c.darkGrey,
                   width: 2,
                 ),
               ),
@@ -260,9 +263,9 @@ class CragDetailScreen extends ConsumerWidget {
                     size: 16,
                     color: isHome
                         ? (crag.isGym
-                            ? AppColors.accentBlue
-                            : AppColors.oliveGreen)
-                        : AppColors.textSecondary,
+                            ? c.accentBlue
+                            : c.oliveGreen)
+                        : c.textSecondary,
                   ),
                   const SizedBox(width: AppSpacing.xs),
                   Text(
@@ -274,9 +277,9 @@ class CragDetailScreen extends ConsumerWidget {
                       fontWeight: FontWeight.w700,
                       color: isHome
                           ? (crag.isGym
-                              ? AppColors.accentBlue
-                              : AppColors.oliveGreen)
-                          : AppColors.textSecondary,
+                              ? c.accentBlue
+                              : c.oliveGreen)
+                          : c.textSecondary,
                     ),
                   ),
                   const Spacer(),
@@ -284,22 +287,22 @@ class CragDetailScreen extends ConsumerWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: AppColors.darkNavy,
+                      color: c.borderColor,
                       borderRadius: BorderRadius.circular(AppRadius.sm),
-                      border: Border.all(color: AppColors.darkNavy, width: 1.5),
+                      border: Border.all(color: c.borderColor, width: 1.5),
                     ),
                     child: Text(
                       '$memberCount ${memberCount == 1 ? 'MEMBER' : 'MEMBERS'}',
                       style: GoogleFonts.spaceMono(
                         fontSize: 9,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: c.background,
                       ),
                     ),
                   ),
                   const SizedBox(width: AppSpacing.xs),
-                  const Icon(Icons.chevron_right,
-                      size: 16, color: AppColors.textSecondary),
+                  Icon(Icons.chevron_right,
+                      size: 16, color: c.textSecondary),
                 ],
               ),
             ),
@@ -316,16 +319,17 @@ class CragDetailScreen extends ConsumerWidget {
           FavoriteNotifyRow(crag: crag),
 
           const SizedBox(height: AppSpacing.md),
-          const Divider(color: AppColors.darkNavy, thickness: 1),
+          Divider(color: c.borderColor, thickness: 1),
         ],
       ),
     );
   }
 
   void _showHomeBaseSheet(BuildContext context, WidgetRef ref, Crag crag) {
+    final c = context.appColors;
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: c.surface,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
           borderRadius:
@@ -338,6 +342,7 @@ class CragDetailScreen extends ConsumerWidget {
 
   Widget _buildLostFoundPanel(
       BuildContext context, Crag crag, List<LostFoundItem> items) {
+    final c = context.appColors;
     final foundCount =
         items.where((i) => i.status == LostFoundStatus.found).length;
     final lostCount =
@@ -348,12 +353,12 @@ class CragDetailScreen extends ConsumerWidget {
       margin: const EdgeInsets.fromLTRB(
           AppSpacing.md, AppSpacing.sm, AppSpacing.md, 0),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: c.surface,
         borderRadius: BorderRadius.circular(AppRadius.sm),
-        border: Border.all(color: AppColors.darkNavy, width: 2.5),
-        boxShadow: const [
+        border: Border.all(color: c.borderColor, width: 2.5),
+        boxShadow: [
           BoxShadow(
-              color: AppColors.darkNavy, offset: Offset(5, 5), blurRadius: 0)
+              color: c.shadowColor, offset: const Offset(5, 5), blurRadius: 0)
         ],
       ),
       clipBehavior: Clip.antiAlias,
@@ -364,40 +369,40 @@ class CragDetailScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.md, vertical: 12),
-            decoration: const BoxDecoration(
-              color: AppColors.amber,
+            decoration: BoxDecoration(
+              color: c.amber,
               border: Border(
-                  bottom: BorderSide(color: AppColors.darkNavy, width: 2)),
+                  bottom: BorderSide(color: c.borderColor, width: 2)),
             ),
             child: Row(
               children: [
                 const Icon(Icons.inventory_2_outlined,
-                    size: 16, color: AppColors.darkNavy),
+                    size: 16, color: Color(0xFF0F0F0F)),
                 const SizedBox(width: AppSpacing.sm),
                 Text(
                   'LOST & FOUND BIN',
                   style: GoogleFonts.spaceMono(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.darkNavy,
+                    color: const Color(0xFF0F0F0F),
                   ),
                 ),
                 const Spacer(),
                 if (foundCount > 0) ...[
                   CountBadge(
-                      label: '$foundCount FOUND', color: AppColors.oliveGreen),
+                      label: '$foundCount FOUND', color: c.oliveGreen),
                   const SizedBox(width: 6),
                 ],
                 if (lostCount > 0)
                   CountBadge(
-                      label: '$lostCount LOST', color: AppColors.dullOrange),
+                      label: '$lostCount LOST', color: c.dullOrange),
               ],
             ),
           ),
 
           // Content
           if (preview.isEmpty)
-            _emptyPanelRow('NOTHING POSTED YET', Icons.backpack_outlined)
+            _emptyPanelRow(context, 'NOTHING POSTED YET', Icons.backpack_outlined)
           else
             ...preview.map((item) => LostFoundPreviewRow(item: item)),
 
@@ -424,6 +429,7 @@ class CragDetailScreen extends ConsumerWidget {
     List<ClimbingPost> posts,
     Map<DateTime, int> countsByDate,
   ) {
+    final c = context.appColors;
     final upcoming = posts
         .where((p) =>
             !p.isExpired &&
@@ -436,12 +442,12 @@ class CragDetailScreen extends ConsumerWidget {
     return Container(
       margin: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: c.surface,
         borderRadius: BorderRadius.circular(AppRadius.sm),
-        border: Border.all(color: AppColors.darkNavy, width: 2.5),
-        boxShadow: const [
+        border: Border.all(color: c.borderColor, width: 2.5),
+        boxShadow: [
           BoxShadow(
-              color: AppColors.darkNavy, offset: Offset(5, 5), blurRadius: 0)
+              color: c.shadowColor, offset: const Offset(5, 5), blurRadius: 0)
         ],
       ),
       clipBehavior: Clip.antiAlias,
@@ -452,10 +458,10 @@ class CragDetailScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.md, vertical: 12),
-            decoration: const BoxDecoration(
-              color: AppColors.dullOrange,
+            decoration: BoxDecoration(
+              color: c.dullOrange,
               border: Border(
-                  bottom: BorderSide(color: AppColors.darkNavy, width: 2)),
+                  bottom: BorderSide(color: c.borderColor, width: 2)),
             ),
             child: Row(
               children: [
@@ -472,8 +478,8 @@ class CragDetailScreen extends ConsumerWidget {
                 const Spacer(),
                 CountBadge(
                   label: '${upcoming.length} THIS WEEK',
-                  color: AppColors.surface,
-                  textColor: AppColors.darkNavy,
+                  color: c.surface,
+                  textColor: c.textPrimary,
                 ),
               ],
             ),
@@ -487,11 +493,11 @@ class CragDetailScreen extends ConsumerWidget {
             )),
           ),
 
-          const Divider(height: 1, thickness: 1, color: AppColors.darkNavy),
+          Divider(height: 1, thickness: 1, color: c.borderColor),
 
           // Post previews
           if (preview.isEmpty)
-            _emptyPanelRow('NO SESSIONS POSTED', Icons.event_available_outlined)
+            _emptyPanelRow(context, 'NO SESSIONS POSTED', Icons.event_available_outlined)
           else
             ...preview.map((post) => PostPreviewRow(
                   post: post,
@@ -513,21 +519,22 @@ class CragDetailScreen extends ConsumerWidget {
   // ── FAB ────────────────────────────────────────────────────────────────────
 
   Widget _buildFab(BuildContext context, Crag crag) {
+    final c = context.appColors;
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppRadius.sm),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-              color: AppColors.darkNavy, offset: Offset(4, 4), blurRadius: 0)
+              color: c.shadowColor, offset: const Offset(4, 4), blurRadius: 0)
         ],
       ),
       child: FloatingActionButton.extended(
         heroTag: 'create_post_fab',
-        backgroundColor: AppColors.dullOrange,
+        backgroundColor: c.dullOrange,
         foregroundColor: Colors.white,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(AppRadius.sm)),
-          side: BorderSide(color: AppColors.darkNavy, width: 2.5),
+        shape: RoundedRectangleBorder(
+          borderRadius: const BorderRadius.all(Radius.circular(AppRadius.sm)),
+          side: BorderSide(color: c.borderColor, width: 2.5),
         ),
         onPressed: () => _showPostTypeSheet(context, crag),
         icon: const Icon(Icons.add),
@@ -541,9 +548,10 @@ class CragDetailScreen extends ConsumerWidget {
   }
 
   void _showPostTypeSheet(BuildContext context, Crag crag) {
+    final c = context.appColors;
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: c.surface,
       shape: const RoundedRectangleBorder(
           borderRadius:
               BorderRadius.vertical(top: Radius.circular(AppRadius.lg))),
@@ -554,10 +562,11 @@ class CragDetailScreen extends ConsumerWidget {
   // ── Post detail ────────────────────────────────────────────────────────────
 
   void _showPostDetail(BuildContext context, WidgetRef ref, ClimbingPost post) {
+    final c = context.appColors;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.surface,
+      backgroundColor: c.surface,
       shape: const RoundedRectangleBorder(
           borderRadius:
               BorderRadius.vertical(top: Radius.circular(AppRadius.lg))),
@@ -567,21 +576,22 @@ class CragDetailScreen extends ConsumerWidget {
 
   // ── Shared helpers ─────────────────────────────────────────────────────────
 
-  Widget _emptyPanelRow(String message, IconData icon) {
+  Widget _emptyPanelRow(BuildContext context, String message, IconData icon) {
+    final c = context.appColors;
     return Padding(
       padding: const EdgeInsets.symmetric(
           vertical: AppSpacing.lg, horizontal: AppSpacing.md),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 18, color: AppColors.textDisabled),
+          Icon(icon, size: 18, color: c.textDisabled),
           const SizedBox(width: AppSpacing.sm),
           Text(
             message,
             style: GoogleFonts.spaceMono(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: AppColors.textDisabled,
+              color: c.textDisabled,
             ),
           ),
         ],

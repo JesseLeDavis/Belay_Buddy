@@ -8,10 +8,11 @@ class CragScheduleScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       appBar: AppBar(
-        backgroundColor: AppColors.dullOrange,
+        backgroundColor: c.dullOrange,
         title: Text(
           'COMMUNITY BOARD',
           style: GoogleFonts.spaceMono(
@@ -21,23 +22,23 @@ class CragScheduleScreen extends StatelessWidget {
           ),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
-        shape: const Border(
-          bottom: BorderSide(color: AppColors.darkNavy, width: 3),
+        shape: Border(
+          bottom: BorderSide(color: c.borderColor, width: 3),
         ),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.calendar_month_outlined,
-                size: 64, color: AppColors.textDisabled),
+            Icon(Icons.calendar_month_outlined,
+                size: 64, color: c.textDisabled),
             const SizedBox(height: AppSpacing.md),
             Text(
               'COMING SOON',
               style: GoogleFonts.spaceMono(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textDisabled,
+                color: c.textDisabled,
               ),
             ),
           ],

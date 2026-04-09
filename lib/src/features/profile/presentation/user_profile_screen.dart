@@ -13,17 +13,18 @@ class UserProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.appColors;
     final userAsync = ref.watch(userByIdProvider(userId));
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       appBar: AppBar(
         title: Text(
           'PROFILE',
           style: GoogleFonts.spaceMono(
             fontSize: 22,
             fontWeight: FontWeight.w700,
-            color: AppColors.darkNavy,
+            color: c.borderColor,
           ),
         ),
       ),
@@ -36,7 +37,7 @@ class UserProfileScreen extends ConsumerWidget {
                 style: GoogleFonts.spaceMono(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.error),
+                    color: c.error),
               ),
             );
           }
@@ -48,14 +49,14 @@ class UserProfileScreen extends ConsumerWidget {
             style: GoogleFonts.spaceMono(
               fontSize: 13,
               fontWeight: FontWeight.w700,
-              color: AppColors.textSecondary,
+              color: c.textSecondary,
             ),
           ),
         ),
         error: (e, _) => Center(
           child: Text(
             'Error: $e',
-            style: GoogleFonts.cabin(fontSize: 16, color: AppColors.error),
+            style: GoogleFonts.cabin(fontSize: 16, color: c.error),
           ),
         ),
       ),
@@ -76,6 +77,7 @@ class _UserProfileBodyState extends ConsumerState<_UserProfileBody> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
     final user = widget.user;
     final isConnected = ref.watch(isConnectedProvider(user.uid));
     final hasPending = ref.watch(hasPendingRequestFromProvider(user.uid));
@@ -94,9 +96,9 @@ class _UserProfileBodyState extends ConsumerState<_UserProfileBody> {
                   width: 96,
                   height: 96,
                   decoration: BoxDecoration(
-                    color: _avatarColor(user.uid),
+                    color: _avatarColor(c, user.uid),
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.darkNavy, width: 3),
+                    border: Border.all(color: c.borderColor, width: 3),
                   ),
                   child: Center(
                     child: Text(
@@ -117,7 +119,7 @@ class _UserProfileBodyState extends ConsumerState<_UserProfileBody> {
                   style: GoogleFonts.spaceMono(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.darkNavy,
+                    color: c.textPrimary,
                   ),
                 ),
                 if (user.bio != null) ...[
@@ -127,7 +129,7 @@ class _UserProfileBodyState extends ConsumerState<_UserProfileBody> {
                     textAlign: TextAlign.center,
                     style: GoogleFonts.cabin(
                       fontSize: 14,
-                      color: AppColors.textSecondary,
+                      color: c.textSecondary,
                       height: 1.4,
                     ),
                   ),
@@ -142,7 +144,7 @@ class _UserProfileBodyState extends ConsumerState<_UserProfileBody> {
             children: [
               Expanded(
                 child: _buildConnectionButton(
-                    context, user, isConnected, hasPending),
+                    context, c, user, isConnected, hasPending),
               ),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
@@ -159,13 +161,13 @@ class _UserProfileBodyState extends ConsumerState<_UserProfileBody> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      border: Border.all(color: AppColors.darkNavy, width: 2.5),
+                      color: c.surface,
+                      border: Border.all(color: c.borderColor, width: 2.5),
                       borderRadius: BorderRadius.circular(AppRadius.sm),
-                      boxShadow: const [
+                      boxShadow: [
                         BoxShadow(
-                          color: AppColors.darkNavy,
-                          offset: Offset(3, 3),
+                          color: c.shadowColor,
+                          offset: const Offset(3, 3),
                           blurRadius: 0,
                         ),
                       ],
@@ -173,15 +175,15 @@ class _UserProfileBodyState extends ConsumerState<_UserProfileBody> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.chat_bubble_outline,
-                            size: 16, color: AppColors.darkNavy),
+                        Icon(Icons.chat_bubble_outline,
+                            size: 16, color: c.textPrimary),
                         const SizedBox(width: AppSpacing.sm),
                         Text(
                           'MESSAGE',
                           style: GoogleFonts.spaceMono(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.darkNavy,
+                            color: c.textPrimary,
                           ),
                         ),
                       ],
@@ -207,7 +209,7 @@ class _UserProfileBodyState extends ConsumerState<_UserProfileBody> {
   }
 
   Widget _buildConnectionButton(
-      BuildContext context, AppUser user, bool isConnected, bool hasPending) {
+      BuildContext context, AppColorsExtension c, AppUser user, bool isConnected, bool hasPending) {
     Color bgColor;
     Color textColor;
     String label;
@@ -215,19 +217,19 @@ class _UserProfileBodyState extends ConsumerState<_UserProfileBody> {
     VoidCallback? onTap;
 
     if (isConnected) {
-      bgColor = AppColors.oliveGreen;
+      bgColor = c.oliveGreen;
       textColor = Colors.white;
       label = 'CONNECTED';
       icon = Icons.check;
       onTap = null;
     } else if (hasPending || _requestSent) {
-      bgColor = AppColors.chipBg;
-      textColor = AppColors.textSecondary;
+      bgColor = c.chipBg;
+      textColor = c.textSecondary;
       label = 'PENDING';
       icon = Icons.schedule;
       onTap = null;
     } else {
-      bgColor = AppColors.accentBlue;
+      bgColor = c.accentBlue;
       textColor = Colors.white;
       label = 'CONNECT';
       icon = Icons.person_add_outlined;
@@ -238,7 +240,7 @@ class _UserProfileBodyState extends ConsumerState<_UserProfileBody> {
             'Connection request sent to ${user.displayName}',
             style: GoogleFonts.cabin(color: Colors.white, fontSize: 14),
           ),
-          backgroundColor: AppColors.accentBlue,
+          backgroundColor: c.accentBlue,
         ));
       };
     }
@@ -249,13 +251,13 @@ class _UserProfileBodyState extends ConsumerState<_UserProfileBody> {
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
           color: bgColor,
-          border: Border.all(color: AppColors.darkNavy, width: 2.5),
+          border: Border.all(color: c.borderColor, width: 2.5),
           borderRadius: BorderRadius.circular(AppRadius.sm),
           boxShadow: onTap != null
-              ? const [
+              ? [
                   BoxShadow(
-                    color: AppColors.darkNavy,
-                    offset: Offset(3, 3),
+                    color: c.shadowColor,
+                    offset: const Offset(3, 3),
                     blurRadius: 0,
                   ),
                 ]
@@ -280,12 +282,12 @@ class _UserProfileBodyState extends ConsumerState<_UserProfileBody> {
     );
   }
 
-  Color _avatarColor(String uid) {
-    const colors = [
-      AppColors.dullOrange,
-      AppColors.accentBlue,
-      AppColors.oliveGreen,
-      AppColors.amber,
+  Color _avatarColor(AppColorsExtension c, String uid) {
+    final colors = [
+      c.dullOrange,
+      c.accentBlue,
+      c.oliveGreen,
+      c.amber,
     ];
     return colors[uid.hashCode % colors.length];
   }
@@ -299,15 +301,16 @@ class _StickerTagsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border.all(color: AppColors.darkNavy, width: 2.5),
+        color: c.surface,
+        border: Border.all(color: c.borderColor, width: 2.5),
         borderRadius: BorderRadius.circular(AppRadius.sm),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: AppColors.darkNavy,
-            offset: Offset(4, 4),
+            color: c.shadowColor,
+            offset: const Offset(4, 4),
             blurRadius: 0,
           ),
         ],
@@ -319,7 +322,7 @@ class _StickerTagsSection extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.sm + 4, vertical: 10),
-            color: AppColors.oliveGreen,
+            color: c.oliveGreen,
             child: Text(
               'VIBE CHECK',
               style: GoogleFonts.spaceMono(
@@ -347,7 +350,7 @@ class _StickerTagsSection extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: tag.color,
-                      border: Border.all(color: AppColors.darkNavy, width: 2),
+                      border: Border.all(color: c.borderColor, width: 2),
                       borderRadius: BorderRadius.circular(AppRadius.xs),
                       boxShadow: [
                         BoxShadow(
@@ -362,7 +365,9 @@ class _StickerTagsSection extends StatelessWidget {
                       style: GoogleFonts.spaceMono(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: tag.color.computeLuminance() > 0.4
+                            ? const Color(0xFF0F0F0F)
+                            : Colors.white,
                       ),
                     ),
                   ),
@@ -384,6 +389,7 @@ class _MutualConnectionsSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.appColors;
     final myConnections =
         ref.watch(connectionsProvider).valueOrNull ?? [];
     final targetUserAsync = ref.watch(userByIdProvider(userId));
@@ -391,7 +397,7 @@ class _MutualConnectionsSection extends ConsumerWidget {
     if (targetUser == null) return const SizedBox.shrink();
 
     final mutual = myConnections
-        .where((c) => targetUser.connectionIds.contains(c.uid))
+        .where((conn) => targetUser.connectionIds.contains(conn.uid))
         .toList();
 
     if (mutual.isEmpty) return const SizedBox.shrink();
@@ -404,7 +410,7 @@ class _MutualConnectionsSection extends ConsumerWidget {
           style: GoogleFonts.spaceMono(
             fontSize: 10,
             fontWeight: FontWeight.w700,
-            color: AppColors.textSecondary,
+            color: c.textSecondary,
           ),
         ),
         const SizedBox(height: AppSpacing.sm),
@@ -416,8 +422,8 @@ class _MutualConnectionsSection extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.sm + 2, vertical: AppSpacing.xs + 2),
               decoration: BoxDecoration(
-                color: AppColors.chipBg,
-                border: Border.all(color: AppColors.darkNavy, width: 2),
+                color: c.chipBg,
+                border: Border.all(color: c.borderColor, width: 2),
                 borderRadius: BorderRadius.circular(AppRadius.sm),
               ),
               child: Row(
@@ -427,9 +433,9 @@ class _MutualConnectionsSection extends ConsumerWidget {
                     width: 20,
                     height: 20,
                     decoration: BoxDecoration(
-                      color: AppColors.accentBlue,
+                      color: c.accentBlue,
                       borderRadius: BorderRadius.circular(AppRadius.xs),
-                      border: Border.all(color: AppColors.darkNavy, width: 1.5),
+                      border: Border.all(color: c.borderColor, width: 1.5),
                     ),
                     child: Center(
                       child: Text(
@@ -450,7 +456,7 @@ class _MutualConnectionsSection extends ConsumerWidget {
                     style: GoogleFonts.cabin(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.darkNavy,
+                      color: c.textPrimary,
                     ),
                   ),
                 ],

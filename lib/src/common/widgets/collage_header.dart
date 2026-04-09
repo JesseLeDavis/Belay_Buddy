@@ -134,9 +134,10 @@ class _CollageHeaderState extends ConsumerState<CollageHeader>
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final panels = ref.watch(resolvedHeaderPanelsProvider(widget.cragId));
     final bgColor =
-        widget.isGym ? AppColors.accentBlue : AppColors.oliveGreen;
+        widget.isGym ? colors.accentBlue : colors.oliveGreen;
 
     // Sort panels by zIndex so back layers paint first
     final sortedIndices = List.generate(_panelCount, (i) => i)
@@ -155,7 +156,7 @@ class _CollageHeaderState extends ConsumerState<CollageHeader>
               children: [
                 // Panels in z-order
                 for (final i in sortedIndices)
-                  _buildPositionedPanel(i, panels[i], w, h),
+                  _buildPositionedPanel(i, panels[i], w, h, colors),
 
                 // Title readability gradient
                 Positioned(
@@ -171,7 +172,7 @@ class _CollageHeaderState extends ConsumerState<CollageHeader>
                           end: Alignment.bottomCenter,
                           colors: [
                             Colors.transparent,
-                            AppColors.darkNavy.withAlpha(180),
+                            colors.shadowColor.withAlpha(180),
                           ],
                         ),
                       ),
@@ -191,6 +192,7 @@ class _CollageHeaderState extends ConsumerState<CollageHeader>
     HeaderPanel panel,
     double parentW,
     double parentH,
+    AppColorsExtension colors,
   ) {
     final layout = _layouts[index];
     final parallaxOffset = widget.scrollFraction * parentH * _parallaxSpeeds[index];
@@ -207,12 +209,12 @@ class _CollageHeaderState extends ConsumerState<CollageHeader>
           child: Container(
             decoration: BoxDecoration(
               border: Border.all(
-                color: AppColors.darkNavy,
+                color: colors.borderColor,
                 width: 2.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.darkNavy.withAlpha(80),
+                  color: colors.shadowColor.withAlpha(80),
                   offset: const Offset(3, 3),
                   blurRadius: 0,
                 ),

@@ -80,16 +80,17 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
+        backgroundColor: c.surface,
         title: Text(
           'NEW POST',
           style: GoogleFonts.spaceMono(
             fontSize: 22,
             fontWeight: FontWeight.w700,
-            color: AppColors.darkNavy,
+            color: c.borderColor,
           ),
         ),
       ),
@@ -104,22 +105,22 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
               Container(
                 padding: const EdgeInsets.all(AppSpacing.md),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: c.surface,
                   borderRadius: BorderRadius.circular(AppRadius.sm),
                   border: Border.fromBorderSide(
-                    BorderSide(color: AppColors.darkNavy, width: 2.5),
+                    BorderSide(color: c.borderColor, width: 2.5),
                   ),
-                  boxShadow: const [
+                  boxShadow: [
                     BoxShadow(
-                      color: AppColors.darkNavy,
-                      offset: Offset(5, 5),
+                      color: c.shadowColor,
+                      offset: const Offset(5, 5),
                       blurRadius: 0,
                     ),
                   ],
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.terrain, color: AppColors.darkNavy),
+                    Icon(Icons.terrain, color: c.textPrimary),
                     const SizedBox(width: AppSpacing.sm),
                     Expanded(
                       child: Column(
@@ -130,7 +131,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                             style: GoogleFonts.spaceMono(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.darkNavy,
+                              color: c.textPrimary,
                             ),
                           ),
                           if (widget.crag.region != null)
@@ -138,7 +139,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                               widget.crag.region!,
                               style: GoogleFonts.spaceMono(
                                 fontSize: 11,
-                                color: AppColors.textSecondary,
+                                color: c.textSecondary,
                               ),
                             ),
                         ],
@@ -155,7 +156,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                 style: GoogleFonts.spaceMono(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.darkNavy,
+                  color: c.textPrimary,
                 ),
               ),
               const SizedBox(height: AppSpacing.sm),
@@ -173,11 +174,11 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                         height: 52,
                         decoration: BoxDecoration(
                           color: _postType == PostType.immediate
-                              ? AppColors.dullOrange
-                              : AppColors.surface,
+                              ? c.dullOrange
+                              : c.surface,
                           borderRadius: BorderRadius.circular(AppRadius.sm),
                           border: Border.all(
-                            color: AppColors.darkNavy,
+                            color: c.borderColor,
                             width: _postType == PostType.immediate ? 3 : 2,
                           ),
                         ),
@@ -190,7 +191,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                                 size: 18,
                                 color: _postType == PostType.immediate
                                     ? Colors.white
-                                    : AppColors.darkNavy,
+                                    : c.textPrimary,
                               ),
                               const SizedBox(width: 6),
                               Text(
@@ -200,7 +201,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                                   fontWeight: FontWeight.w700,
                                   color: _postType == PostType.immediate
                                       ? Colors.white
-                                      : AppColors.darkNavy,
+                                      : c.textPrimary,
                                 ),
                               ),
                             ],
@@ -223,11 +224,11 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                         height: 52,
                         decoration: BoxDecoration(
                           color: _postType == PostType.scheduled
-                              ? AppColors.oliveGreen
-                              : AppColors.surface,
+                              ? c.oliveGreen
+                              : c.surface,
                           borderRadius: BorderRadius.circular(AppRadius.sm),
                           border: Border.all(
-                            color: AppColors.darkNavy,
+                            color: c.borderColor,
                             width: _postType == PostType.scheduled ? 3 : 2,
                           ),
                         ),
@@ -240,7 +241,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                                 size: 18,
                                 color: _postType == PostType.scheduled
                                     ? Colors.white
-                                    : AppColors.darkNavy,
+                                    : c.textPrimary,
                               ),
                               const SizedBox(width: 6),
                               Text(
@@ -250,7 +251,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                                   fontWeight: FontWeight.w700,
                                   color: _postType == PostType.scheduled
                                       ? Colors.white
-                                      : AppColors.darkNavy,
+                                      : c.textPrimary,
                                 ),
                               ),
                             ],
@@ -268,9 +269,9 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                 OutlinedButton.icon(
                   onPressed: _selectDateTime,
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.darkNavy,
-                    side: const BorderSide(
-                        color: AppColors.darkNavy, width: 2),
+                    foregroundColor: c.textPrimary,
+                    side: BorderSide(
+                        color: c.borderColor, width: 2),
                     shape: const RoundedRectangleBorder(),
                   ),
                   icon: const Icon(Icons.calendar_today),
@@ -290,8 +291,8 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                     width: 3,
                     height: 14,
                     color: _postType == PostType.immediate
-                        ? AppColors.dullOrange
-                        : AppColors.oliveGreen,
+                        ? c.dullOrange
+                        : c.oliveGreen,
                   ),
                   const SizedBox(width: AppSpacing.sm),
                   Text(
@@ -299,7 +300,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                     style: GoogleFonts.spaceMono(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.darkNavy,
+                      color: c.textPrimary,
                     ),
                   ),
                 ],
@@ -309,13 +310,13 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                 controller: _titleController,
                 style: GoogleFonts.cabin(
                   fontSize: 14,
-                  color: AppColors.textPrimary,
+                  color: c.textPrimary,
                 ),
                 decoration: InputDecoration(
                   hintText: 'e.g., "Looking for partner"',
                   hintStyle: GoogleFonts.cabin(
                     fontSize: 14,
-                    color: AppColors.textDisabled,
+                    color: c.textDisabled,
                   ),
                 ),
                 validator: (value) {
@@ -334,8 +335,8 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                     width: 3,
                     height: 14,
                     color: _postType == PostType.immediate
-                        ? AppColors.dullOrange
-                        : AppColors.oliveGreen,
+                        ? c.dullOrange
+                        : c.oliveGreen,
                   ),
                   const SizedBox(width: AppSpacing.sm),
                   Text(
@@ -343,7 +344,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                     style: GoogleFonts.spaceMono(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.darkNavy,
+                      color: c.textPrimary,
                     ),
                   ),
                 ],
@@ -353,13 +354,13 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                 controller: _descriptionController,
                 style: GoogleFonts.cabin(
                   fontSize: 14,
-                  color: AppColors.textPrimary,
+                  color: c.textPrimary,
                 ),
                 decoration: InputDecoration(
                   hintText: 'Add details about your plans...',
                   hintStyle: GoogleFonts.cabin(
                     fontSize: 14,
-                    color: AppColors.textDisabled,
+                    color: c.textDisabled,
                   ),
                 ),
                 maxLines: 4,
@@ -372,8 +373,8 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                 child: RetroButton(
                   label: 'Submit Post',
                   icon: Icons.send,
-                  color: AppColors.dullOrange,
-                  shadowColor: AppColors.darkNavy,
+                  color: c.dullOrange,
+                  shadowColor: c.shadowColor,
                   textColor: Colors.white,
                   onPressed: _submitPost,
                 ),

@@ -9,15 +9,16 @@ class StickerTagsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border.all(color: AppColors.darkNavy, width: 2.5),
+        color: c.surface,
+        border: Border.all(color: c.borderColor, width: 2.5),
         borderRadius: BorderRadius.circular(AppRadius.sm),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: AppColors.darkNavy,
-            offset: Offset(4, 4),
+            color: c.shadowColor,
+            offset: const Offset(4, 4),
             blurRadius: 0,
           ),
         ],
@@ -29,7 +30,7 @@ class StickerTagsCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.sm + 4, vertical: 10),
-            color: AppColors.oliveGreen,
+            color: c.oliveGreen,
             child: Text(
               'VIBE CHECK',
               style: GoogleFonts.spaceMono(
@@ -57,7 +58,7 @@ class StickerTagsCard extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: tag.color,
-                      border: Border.all(color: AppColors.darkNavy, width: 2),
+                      border: Border.all(color: c.borderColor, width: 2),
                       borderRadius: BorderRadius.circular(AppRadius.xs),
                       boxShadow: [
                         BoxShadow(
@@ -72,7 +73,9 @@ class StickerTagsCard extends StatelessWidget {
                       style: GoogleFonts.spaceMono(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: tag.color.computeLuminance() > 0.4
+                            ? const Color(0xFF0F0F0F)
+                            : Colors.white,
                       ),
                     ),
                   ),

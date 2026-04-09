@@ -12,18 +12,19 @@ class MessagesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.appColors;
     final conversationsAsync = ref.watch(userConversationsProvider);
     final currentUserId = ref.watch(currentUserIdSyncProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       appBar: AppBar(
         title: Text(
           'MESSAGES',
           style: GoogleFonts.spaceMono(
             fontSize: 22,
             fontWeight: FontWeight.w700,
-            color: AppColors.darkNavy,
+            color: c.borderColor,
           ),
         ),
       ),
@@ -34,10 +35,10 @@ class MessagesScreen extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.chat_bubble_outline,
                     size: 64,
-                    color: AppColors.textDisabled,
+                    color: c.textDisabled,
                   ),
                   const SizedBox(height: AppSpacing.md),
                   Text(
@@ -45,7 +46,7 @@ class MessagesScreen extends ConsumerWidget {
                     style: GoogleFonts.spaceMono(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textDisabled,
+                      color: c.textDisabled,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
@@ -53,7 +54,7 @@ class MessagesScreen extends ConsumerWidget {
                     'Tap a post to start chatting',
                     style: GoogleFonts.cabin(
                       fontSize: 14,
-                      color: AppColors.textDisabled,
+                      color: c.textDisabled,
                     ),
                   ),
                 ],
@@ -94,14 +95,14 @@ class MessagesScreen extends ConsumerWidget {
             style: GoogleFonts.spaceMono(
               fontSize: 13,
               fontWeight: FontWeight.w700,
-              color: AppColors.textSecondary,
+              color: c.textSecondary,
             ),
           ),
         ),
         error: (error, _) => Center(
           child: Text(
             'Error: $error',
-            style: GoogleFonts.cabin(fontSize: 16, color: AppColors.error),
+            style: GoogleFonts.cabin(fontSize: 16, color: c.error),
           ),
         ),
       ),
@@ -124,17 +125,18 @@ class _ConversationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: c.surface,
           borderRadius: BorderRadius.circular(AppRadius.sm),
-          border: Border.all(color: AppColors.darkNavy, width: 2.5),
-          boxShadow: const [
+          border: Border.all(color: c.borderColor, width: 2.5),
+          boxShadow: [
             BoxShadow(
-              color: AppColors.darkNavy,
-              offset: Offset(4, 4),
+              color: c.shadowColor,
+              offset: const Offset(4, 4),
               blurRadius: 0,
             ),
           ],
@@ -143,13 +145,13 @@ class _ConversationCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Colored top strip — bold color blocks
+            // Colored top strip
             Container(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.sm + 4,
                 vertical: 8,
               ),
-              color: isUnread ? AppColors.amber : AppColors.oliveGreen,
+              color: isUnread ? c.amber : c.oliveGreen,
               child: Row(
                 children: [
                   Text(
@@ -157,7 +159,7 @@ class _ConversationCard extends StatelessWidget {
                     style: GoogleFonts.spaceMono(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: isUnread ? AppColors.darkNavy : Colors.white,
+                      color: isUnread ? const Color(0xFF0F0F0F) : Colors.white,
                     ),
                   ),
                 ],
@@ -168,15 +170,15 @@ class _ConversationCard extends StatelessWidget {
               padding: const EdgeInsets.all(AppSpacing.md),
               child: Row(
                 children: [
-                  // Avatar — solid ink circle with white initials
+                  // Avatar
                   Container(
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppColors.darkNavy,
+                      color: c.borderColor,
                       border: Border.all(
-                          color: AppColors.darkNavy, width: 2),
+                          color: c.borderColor, width: 2),
                     ),
                     child: Center(
                       child: Text(
@@ -186,7 +188,7 @@ class _ConversationCard extends StatelessWidget {
                         style: GoogleFonts.spaceMono(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                          color: c.background,
                         ),
                       ),
                     ),
@@ -201,7 +203,7 @@ class _ConversationCard extends StatelessWidget {
                           style: GoogleFonts.cabin(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.darkNavy,
+                            color: c.textPrimary,
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -209,7 +211,7 @@ class _ConversationCard extends StatelessWidget {
                           lastMessage,
                           style: GoogleFonts.cabin(
                             fontSize: 13,
-                            color: AppColors.textSecondary,
+                            color: c.textSecondary,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -217,9 +219,9 @@ class _ConversationCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const Icon(
+                  Icon(
                     Icons.chevron_right,
-                    color: AppColors.darkNavy,
+                    color: c.textPrimary,
                   ),
                 ],
               ),

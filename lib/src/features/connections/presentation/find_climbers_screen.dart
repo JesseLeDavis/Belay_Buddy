@@ -11,12 +11,13 @@ class FindClimbersScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.appColors;
     final usersAsync = ref.watch(discoverableUsersProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       appBar: AppBar(
-        backgroundColor: AppColors.accentBlue,
+        backgroundColor: c.accentBlue,
         title: Text(
           'FIND CLIMBERS',
           style: GoogleFonts.spaceMono(
@@ -26,8 +27,8 @@ class FindClimbersScreen extends ConsumerWidget {
           ),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
-        shape: const Border(
-          bottom: BorderSide(color: AppColors.darkNavy, width: 3),
+        shape: Border(
+          bottom: BorderSide(color: c.borderColor, width: 3),
         ),
       ),
       body: usersAsync.when(
@@ -39,7 +40,7 @@ class FindClimbersScreen extends ConsumerWidget {
                 style: GoogleFonts.spaceMono(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textDisabled,
+                  color: c.textDisabled,
                 ),
               ),
             );
@@ -59,12 +60,12 @@ class FindClimbersScreen extends ConsumerWidget {
             style: GoogleFonts.spaceMono(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textSecondary),
+                color: c.textSecondary),
           ),
         ),
         error: (e, _) => Center(
           child: Text('Error: $e',
-              style: GoogleFonts.cabin(fontSize: 16, color: AppColors.error)),
+              style: GoogleFonts.cabin(fontSize: 16, color: c.error)),
         ),
       ),
     );
@@ -80,7 +81,6 @@ class _ClimberCard extends ConsumerStatefulWidget {
 }
 
 class _ClimberCardState extends ConsumerState<_ClimberCard> {
-  // Local mock state — in production this would update Firestore
   bool _requestSent = false;
 
   static const _styleLabels = {
@@ -90,28 +90,30 @@ class _ClimberCardState extends ConsumerState<_ClimberCard> {
     ClimbingStyle.all: 'ALL',
   };
 
-  static const _disciplineColors = {
-    ClimbingStyle.sport: AppColors.accentBlue,
-    ClimbingStyle.trad: AppColors.dullOrange,
-    ClimbingStyle.boulder: AppColors.oliveGreen,
-    ClimbingStyle.all: AppColors.amber,
+  Map<ClimbingStyle, Color> _disciplineColors(AppColorsExtension c) => {
+    ClimbingStyle.sport: c.accentBlue,
+    ClimbingStyle.trad: c.dullOrange,
+    ClimbingStyle.boulder: c.oliveGreen,
+    ClimbingStyle.all: c.amber,
   };
 
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
     final isConnected = ref.watch(isConnectedProvider(widget.user.uid));
     final hasPending = ref.watch(hasPendingRequestFromProvider(widget.user.uid));
+    final discColors = _disciplineColors(c);
 
     return GestureDetector(
       onTap: () => context.push('/profile/${widget.user.uid}'),
       child: Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: c.surface,
         borderRadius: BorderRadius.circular(AppRadius.sm),
-        border: Border.all(color: AppColors.darkNavy, width: 2.5),
-        boxShadow: const [
+        border: Border.all(color: c.borderColor, width: 2.5),
+        boxShadow: [
           BoxShadow(
-              color: AppColors.darkNavy, offset: Offset(4, 4), blurRadius: 0)
+              color: c.shadowColor, offset: const Offset(4, 4), blurRadius: 0)
         ],
       ),
       clipBehavior: Clip.antiAlias,
@@ -128,9 +130,9 @@ class _ClimberCardState extends ConsumerState<_ClimberCard> {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: _avatarColor(widget.user.uid),
+                    color: _avatarColor(c, widget.user.uid),
                     borderRadius: BorderRadius.circular(AppRadius.sm),
-                    border: Border.all(color: AppColors.darkNavy, width: 2),
+                    border: Border.all(color: c.borderColor, width: 2),
                   ),
                   child: Center(
                     child: Text(
@@ -155,7 +157,7 @@ class _ClimberCardState extends ConsumerState<_ClimberCard> {
                         style: GoogleFonts.spaceMono(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.darkNavy,
+                          color: c.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -166,8 +168,7 @@ class _ClimberCardState extends ConsumerState<_ClimberCard> {
                           return Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 6, vertical: 2),
-                            color: _disciplineColors[s] ??
-                                AppColors.textDisabled,
+                            color: discColors[s] ?? c.textDisabled,
                             child: Text(
                               _styleLabels[s] ?? s.name.toUpperCase(),
                               style: GoogleFonts.spaceMono(
@@ -182,21 +183,21 @@ class _ClimberCardState extends ConsumerState<_ClimberCard> {
                     ],
                   ),
                 ),
-                _buildConnectionButton(isConnected, hasPending),
+                _buildConnectionButton(c, isConnected, hasPending),
               ],
             ),
           ),
 
           // Bio
           if (widget.user.bio != null) ...[
-            const Divider(height: 1, thickness: 1, color: AppColors.darkGrey),
+            Divider(height: 1, thickness: 1, color: c.darkGrey),
             Padding(
               padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.md, vertical: AppSpacing.sm),
               child: Text(
                 widget.user.bio!,
                 style: GoogleFonts.cabin(
-                    fontSize: 13, color: AppColors.textSecondary, height: 1.4),
+                    fontSize: 13, color: c.textSecondary, height: 1.4),
               ),
             ),
           ],
@@ -213,14 +214,14 @@ class _ClimberCardState extends ConsumerState<_ClimberCard> {
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(AppRadius.sm),
-                    border: Border.all(color: AppColors.darkNavy, width: 1.5),
+                    border: Border.all(color: c.borderColor, width: 1.5),
                   ),
                   child: Text(
                     _styleLabels[s] ?? s.name.toUpperCase(),
                     style: GoogleFonts.spaceMono(
                       fontSize: 9,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.darkNavy,
+                      color: c.textPrimary,
                     ),
                   ),
                 );
@@ -233,15 +234,15 @@ class _ClimberCardState extends ConsumerState<_ClimberCard> {
     );
   }
 
-  Widget _buildConnectionButton(bool isConnected, bool hasPending) {
+  Widget _buildConnectionButton(AppColorsExtension c, bool isConnected, bool hasPending) {
     if (isConnected) {
       return Container(
         padding:
             const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 6),
         decoration: BoxDecoration(
-          color: AppColors.oliveGreen,
+          color: c.oliveGreen,
           borderRadius: BorderRadius.circular(AppRadius.sm),
-          border: Border.all(color: AppColors.darkNavy, width: 2),
+          border: Border.all(color: c.borderColor, width: 2),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -266,16 +267,16 @@ class _ClimberCardState extends ConsumerState<_ClimberCard> {
         padding:
             const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 6),
         decoration: BoxDecoration(
-          color: AppColors.chipBg,
+          color: c.chipBg,
           borderRadius: BorderRadius.circular(AppRadius.sm),
-          border: Border.all(color: AppColors.darkNavy, width: 2),
+          border: Border.all(color: c.borderColor, width: 2),
         ),
         child: Text(
           'PENDING',
           style: GoogleFonts.spaceMono(
             fontSize: 9,
             fontWeight: FontWeight.w700,
-            color: AppColors.textSecondary,
+            color: c.textSecondary,
           ),
         ),
       );
@@ -289,19 +290,19 @@ class _ClimberCardState extends ConsumerState<_ClimberCard> {
             'Connection request sent to ${widget.user.displayName}',
             style: GoogleFonts.cabin(color: Colors.white, fontSize: 14),
           ),
-          backgroundColor: AppColors.accentBlue,
+          backgroundColor: c.accentBlue,
         ));
       },
       child: Container(
         padding:
             const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 6),
         decoration: BoxDecoration(
-          color: AppColors.accentBlue,
+          color: c.accentBlue,
           borderRadius: BorderRadius.circular(AppRadius.sm),
-          border: Border.all(color: AppColors.darkNavy, width: 2),
-          boxShadow: const [
+          border: Border.all(color: c.borderColor, width: 2),
+          boxShadow: [
             BoxShadow(
-                color: AppColors.darkNavy, offset: Offset(2, 2), blurRadius: 0)
+                color: c.shadowColor, offset: const Offset(2, 2), blurRadius: 0)
           ],
         ),
         child: Row(
@@ -323,12 +324,12 @@ class _ClimberCardState extends ConsumerState<_ClimberCard> {
     );
   }
 
-  Color _avatarColor(String uid) {
+  Color _avatarColor(AppColorsExtension c, String uid) {
     final colors = [
-      AppColors.dullOrange,
-      AppColors.accentBlue,
-      AppColors.oliveGreen,
-      AppColors.amber,
+      c.dullOrange,
+      c.accentBlue,
+      c.oliveGreen,
+      c.amber,
     ];
     return colors[uid.hashCode % colors.length];
   }

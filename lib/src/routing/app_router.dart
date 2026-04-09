@@ -152,11 +152,12 @@ class _NeoNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
+      decoration: BoxDecoration(
+        color: c.surface,
         border: Border(
-          top: BorderSide(color: AppColors.darkNavy, width: 3),
+          top: BorderSide(color: c.borderColor, width: 3),
         ),
       ),
       child: Row(
@@ -171,11 +172,11 @@ class _NeoNavBar extends StatelessWidget {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 120),
                   decoration: BoxDecoration(
-                    color: isSelected ? AppColors.dullOrange : AppColors.surface,
+                    color: isSelected ? c.dullOrange : c.surface,
                     border: i < tabs.length - 1
-                        ? const Border(
+                        ? Border(
                             right: BorderSide(
-                                color: AppColors.darkNavy, width: 2),
+                                color: c.borderColor, width: 2),
                           )
                         : null,
                   ),
@@ -186,7 +187,7 @@ class _NeoNavBar extends StatelessWidget {
                       Icon(
                         isSelected ? tab.activeIcon : tab.icon,
                         size: 22,
-                        color: isSelected ? Colors.white : AppColors.darkNavy,
+                        color: isSelected ? Colors.white : c.borderColor,
                       ),
                       const SizedBox(height: 3),
                       Text(
@@ -194,7 +195,7 @@ class _NeoNavBar extends StatelessWidget {
                         style: GoogleFonts.spaceMono(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
-                          color: isSelected ? Colors.white : AppColors.darkNavy,
+                          color: isSelected ? Colors.white : c.borderColor,
                         ),
                       ),
                     ],
@@ -214,6 +215,7 @@ class _CreatePostFallback extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -221,7 +223,7 @@ class _CreatePostFallback extends StatelessWidget {
           style: GoogleFonts.spaceMono(
             fontSize: 22,
             fontWeight: FontWeight.w700,
-            color: AppColors.darkNavy,
+            color: c.borderColor,
           ),
         ),
       ),
@@ -231,7 +233,7 @@ class _CreatePostFallback extends StatelessWidget {
           style: GoogleFonts.spaceMono(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: AppColors.error,
+            color: c.error,
           ),
         ),
       ),

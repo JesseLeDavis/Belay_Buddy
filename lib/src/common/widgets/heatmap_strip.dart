@@ -8,28 +8,29 @@ class HeatmapStrip extends StatelessWidget {
 
   const HeatmapStrip({super.key, required this.countsByDate, this.onTap});
 
-  Color _dotColor(int count) {
-    if (count == 0) return AppColors.darkGrey;
-    if (count <= 2) return AppColors.sageLight;
-    if (count <= 5) return AppColors.oliveGreen;
-    return AppColors.dullOrange;
-  }
-
-  String _dayLetter(int weekday) {
-    const letters = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-    return letters[weekday - 1];
-  }
-
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final days = List.generate(7, (i) => today.add(Duration(days: i)));
 
+    Color dotColor(int count) {
+      if (count == 0) return c.darkGrey;
+      if (count <= 2) return c.sageLight;
+      if (count <= 5) return c.oliveGreen;
+      return c.dullOrange;
+    }
+
+    String dayLetter(int weekday) {
+      const letters = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+      return letters[weekday - 1];
+    }
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        color: AppColors.background,
+        color: c.background,
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.md,
           vertical: AppSpacing.sm,
@@ -44,10 +45,10 @@ class HeatmapStrip extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    _dayLetter(day.weekday),
+                    dayLetter(day.weekday),
                     style: GoogleFonts.spaceMono(
                       fontSize: 9,
-                      color: AppColors.textSecondary,
+                      color: c.textSecondary,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -57,7 +58,7 @@ class HeatmapStrip extends StatelessWidget {
                     decoration: isToday
                         ? BoxDecoration(
                             border: Border.all(
-                                color: AppColors.darkNavy, width: 2),
+                                color: c.borderColor, width: 2),
                             borderRadius: BorderRadius.circular(AppRadius.sm),
                           )
                         : null,
@@ -68,7 +69,7 @@ class HeatmapStrip extends StatelessWidget {
                           style: GoogleFonts.spaceMono(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.darkNavy,
+                            color: c.textPrimary,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -77,7 +78,7 @@ class HeatmapStrip extends StatelessWidget {
                             width: 8,
                             height: 8,
                             decoration: BoxDecoration(
-                              color: _dotColor(count),
+                              color: dotColor(count),
                               shape: BoxShape.circle,
                             ),
                           ),

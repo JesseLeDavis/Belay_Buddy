@@ -18,15 +18,16 @@ class ProfileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
     return Container(
         decoration: BoxDecoration(
-          color: AppColors.surface,
-          border: Border.all(color: AppColors.darkNavy, width: 2.5),
+          color: c.surface,
+          border: Border.all(color: c.borderColor, width: 2.5),
           borderRadius: BorderRadius.circular(AppRadius.sm),
-          boxShadow: const [
+          boxShadow: [
             BoxShadow(
-              color: AppColors.darkNavy,
-              offset: Offset(4, 4),
+              color: c.shadowColor,
+              offset: const Offset(4, 4),
               blurRadius: 0,
             ),
           ],
@@ -76,6 +77,7 @@ class StatLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.xs),
       child: Row(
@@ -89,7 +91,7 @@ class StatLine extends StatelessWidget {
                 style: GoogleFonts.spaceMono(
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textDisabled,
+                  color: c.textDisabled,
                 ),
               ),
             ),
@@ -99,7 +101,7 @@ class StatLine extends StatelessWidget {
               value,
               style: GoogleFonts.cabin(
                 fontSize: 14,
-                color: AppColors.textPrimary,
+                color: c.textPrimary,
               ),
             ),
           ),

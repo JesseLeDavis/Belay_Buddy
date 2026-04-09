@@ -12,18 +12,19 @@ class FavoritesCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
     final favoritesAsync = ref.watch(favoriteCragsProvider);
     final venues = favoritesAsync.valueOrNull ?? [];
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border.all(color: AppColors.darkNavy, width: 2.5),
+        color: c.surface,
+        border: Border.all(color: c.borderColor, width: 2.5),
         borderRadius: BorderRadius.circular(AppRadius.sm),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: AppColors.darkNavy,
-            offset: Offset(4, 4),
+            color: c.shadowColor,
+            offset: const Offset(4, 4),
             blurRadius: 0,
           ),
         ],
@@ -32,11 +33,10 @@ class FavoritesCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Header
           Container(
             padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.sm + 4, vertical: 10),
-            color: AppColors.dullOrange,
+            color: c.dullOrange,
             child: Row(
               children: [
                 Text(
@@ -54,34 +54,33 @@ class FavoritesCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(AppRadius.sm),
-                    border: Border.all(color: AppColors.darkNavy, width: 1.5),
+                    border: Border.all(color: c.borderColor, width: 1.5),
                   ),
                   child: Text(
                     '${venues.length}',
                     style: GoogleFonts.spaceMono(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.dullOrange,
+                      color: c.dullOrange,
                     ),
                   ),
                 ),
               ],
             ),
           ),
-
           if (venues.isEmpty)
             Padding(
               padding: const EdgeInsets.all(AppSpacing.md),
               child: Row(
                 children: [
-                  const Icon(Icons.explore_outlined,
-                      size: 16, color: AppColors.textDisabled),
+                  Icon(Icons.explore_outlined,
+                      size: 16, color: c.textDisabled),
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: Text(
                       'Star crags & gyms from the map to see them here.',
                       style: GoogleFonts.cabin(
-                          fontSize: 13, color: AppColors.textSecondary),
+                          fontSize: 13, color: c.textSecondary),
                     ),
                   ),
                 ],
@@ -107,53 +106,47 @@ class FavoriteRow extends StatelessWidget {
     CragType.mixed: 'MIXED',
   };
 
-  static const _cragTypeColors = {
-    CragType.sport: AppColors.accentBlue,
-    CragType.trad: AppColors.dullOrange,
-    CragType.boulder: AppColors.oliveGreen,
-    CragType.mixed: AppColors.amber,
-  };
-
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
+    final cragTypeColors = {
+      CragType.sport: c.accentBlue,
+      CragType.trad: c.dullOrange,
+      CragType.boulder: c.oliveGreen,
+      CragType.mixed: c.amber,
+    };
+
     return GestureDetector(
       onTap: () => context.push('/crag/${venue.id}'),
       child: Container(
         padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.md, vertical: AppSpacing.sm + 2),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           border: Border(
-              bottom: BorderSide(color: AppColors.darkGrey, width: 1)),
+              bottom: BorderSide(color: c.darkGrey, width: 1)),
         ),
         child: Row(
           children: [
-            // Venue type icon
             Container(
               width: 32,
               height: 32,
               decoration: BoxDecoration(
                 color: venue.isGym
-                    ? AppColors.accentBlue.withAlpha(25)
-                    : AppColors.oliveGreen.withAlpha(25),
+                    ? c.accentBlue.withAlpha(25)
+                    : c.oliveGreen.withAlpha(25),
                 borderRadius: BorderRadius.circular(AppRadius.sm),
                 border: Border.all(
-                  color: venue.isGym
-                      ? AppColors.accentBlue
-                      : AppColors.oliveGreen,
+                  color: venue.isGym ? c.accentBlue : c.oliveGreen,
                   width: 2,
                 ),
               ),
               child: Icon(
                 venue.isGym ? Icons.fitness_center : Icons.terrain,
                 size: 16,
-                color: venue.isGym
-                    ? AppColors.accentBlue
-                    : AppColors.oliveGreen,
+                color: venue.isGym ? c.accentBlue : c.oliveGreen,
               ),
             ),
             const SizedBox(width: AppSpacing.sm),
-
-            // Name + type tags
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,7 +156,7 @@ class FavoriteRow extends StatelessWidget {
                     style: GoogleFonts.cabin(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.darkNavy,
+                      color: c.textPrimary,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -173,7 +166,7 @@ class FavoriteRow extends StatelessWidget {
                       spacing: 4,
                       children: venue.types.map((t) {
                         final color =
-                            _cragTypeColors[t] ?? AppColors.textDisabled;
+                            cragTypeColors[t] ?? c.textDisabled;
                         return Text(
                           _cragTypeLabels[t] ?? t.name.toUpperCase(),
                           style: GoogleFonts.spaceMono(
@@ -188,21 +181,17 @@ class FavoriteRow extends StatelessWidget {
                 ],
               ),
             ),
-
-            // Unfavorite star
             GestureDetector(
               onTap: () =>
                   ref.read(favoritesProvider.notifier).toggleFavorite(venue.id),
-              child: const Padding(
-                padding: EdgeInsets.all(4),
-                child: Icon(Icons.star, size: 20, color: AppColors.dullOrange),
+              child: Padding(
+                padding: const EdgeInsets.all(4),
+                child: Icon(Icons.star, size: 20, color: c.dullOrange),
               ),
             ),
-
-            // Nav arrow
             const SizedBox(width: AppSpacing.xs),
-            const Icon(Icons.chevron_right,
-                size: 18, color: AppColors.textDisabled),
+            Icon(Icons.chevron_right,
+                size: 18, color: c.textDisabled),
           ],
         ),
       ),

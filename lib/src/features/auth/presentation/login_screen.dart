@@ -53,8 +53,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       body: Column(
         children: [
           // Top color block — bold orange panel
@@ -66,10 +67,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               left: AppSpacing.lg,
               right: AppSpacing.lg,
             ),
-            decoration: const BoxDecoration(
-              color: AppColors.dullOrange,
+            decoration: BoxDecoration(
+              color: c.dullOrange,
               border: Border(
-                bottom: BorderSide(color: AppColors.darkNavy, width: 3),
+                bottom: BorderSide(color: c.borderColor, width: 3),
               ),
             ),
             child: Column(
@@ -111,15 +112,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     width: double.infinity,
                     padding: const EdgeInsets.all(AppSpacing.md),
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
+                      color: c.surface,
                       borderRadius: BorderRadius.circular(AppRadius.sm),
                       border: Border.fromBorderSide(
-                        BorderSide(color: AppColors.darkNavy, width: 2.5),
+                        BorderSide(color: c.borderColor, width: 2.5),
                       ),
-                      boxShadow: const [
+                      boxShadow: [
                         BoxShadow(
-                          color: AppColors.darkNavy,
-                          offset: Offset(5, 5),
+                          color: c.shadowColor,
+                          offset: const Offset(5, 5),
                           blurRadius: 0,
                         ),
                       ],
@@ -135,8 +136,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                               style: GoogleFonts.spaceMono(
                                 fontSize: 11,
                                 color: line.contains('OK')
-                                    ? AppColors.success
-                                    : AppColors.textSecondary,
+                                    ? c.success
+                                    : c.textSecondary,
                               ),
                             ),
                           ),
@@ -147,7 +148,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           style: GoogleFonts.spaceMono(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.dullOrange,
+                            color: c.dullOrange,
                           ),
                         ),
                       ],
@@ -156,15 +157,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
                   const Spacer(),
 
-                  // Login button — full-width, ink bg, orange hard shadow
+                  // Login button
                   SizedBox(
                     width: double.infinity,
                     child: RetroButton(
                       label: 'Enter',
                       icon: Icons.login,
-                      color: AppColors.darkNavy,
-                      shadowColor: AppColors.dullOrange,
-                      textColor: Colors.white,
+                      color: c.borderColor,
+                      shadowColor: c.dullOrange,
+                      textColor: c.background,
                       onPressed: () {
                         context.go('/');
                       },
@@ -177,7 +178,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                       style: GoogleFonts.spaceMono(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.dullOrange,
+                        color: c.dullOrange,
                       ),
                     ),
                   ),

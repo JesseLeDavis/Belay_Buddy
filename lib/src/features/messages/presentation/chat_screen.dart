@@ -43,12 +43,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.appColors;
     final messagesAsync = ref.watch(messagesProvider(widget.conversationId));
     final currentUserId = ref.watch(currentUserIdSyncProvider);
 
     // Figure out the other user's name for the title
     final conversation = MockData.conversations.where(
-      (c) => c.id == widget.conversationId,
+      (conv) => conv.id == widget.conversationId,
     );
     String otherName = 'Chat';
     if (conversation.isNotEmpty) {
@@ -60,14 +61,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       appBar: AppBar(
         title: Text(
           otherName.toUpperCase(),
           style: GoogleFonts.spaceMono(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: AppColors.darkNavy,
+            color: c.borderColor,
           ),
         ),
       ),
@@ -84,7 +85,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       style: GoogleFonts.spaceMono(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textDisabled,
+                        color: c.textDisabled,
                       ),
                     ),
                   );
@@ -117,26 +118,26 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   style: GoogleFonts.spaceMono(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textSecondary),
+                      color: c.textSecondary),
                 ),
               ),
               error: (error, _) => Center(
                 child: Text(
                   'Error: $error',
                   style: GoogleFonts.cabin(
-                      fontSize: 16, color: AppColors.error),
+                      fontSize: 16, color: c.error),
                 ),
               ),
             ),
           ),
 
-          // Input bar — cream background, 3px ink top border
+          // Input bar
           Container(
             padding: const EdgeInsets.all(AppSpacing.sm),
-            decoration: const BoxDecoration(
-              color: AppColors.chipBg,
+            decoration: BoxDecoration(
+              color: c.chipBg,
               border: Border(
-                top: BorderSide(color: AppColors.darkNavy, width: 3),
+                top: BorderSide(color: c.borderColor, width: 3),
               ),
             ),
             child: Row(
@@ -146,31 +147,31 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     controller: _messageController,
                     style: GoogleFonts.cabin(
                       fontSize: 14,
-                      color: AppColors.textPrimary,
+                      color: c.textPrimary,
                     ),
                     decoration: InputDecoration(
                       hintText: 'Type a message...',
                       hintStyle: GoogleFonts.cabin(
                         fontSize: 14,
-                        color: AppColors.textDisabled,
+                        color: c.textDisabled,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(AppRadius.sm),
-                        borderSide: const BorderSide(
-                            color: AppColors.darkNavy, width: 2),
+                        borderSide: BorderSide(
+                            color: c.borderColor, width: 2),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(AppRadius.sm),
-                        borderSide: const BorderSide(
-                            color: AppColors.darkNavy, width: 2),
+                        borderSide: BorderSide(
+                            color: c.borderColor, width: 2),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(AppRadius.sm),
-                        borderSide: const BorderSide(
-                            color: AppColors.dullOrange, width: 2.5),
+                        borderSide: BorderSide(
+                            color: c.dullOrange, width: 2.5),
                       ),
                       filled: true,
-                      fillColor: AppColors.surface,
+                      fillColor: c.surface,
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: AppSpacing.md,
                         vertical: AppSpacing.sm,
@@ -182,10 +183,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 const SizedBox(width: AppSpacing.sm),
                 Container(
                   decoration: BoxDecoration(
-                    color: AppColors.dullOrange,
+                    color: c.dullOrange,
                     borderRadius: BorderRadius.circular(AppRadius.sm),
                     border: Border.all(
-                        color: AppColors.darkNavy, width: 2),
+                        color: c.borderColor, width: 2),
                   ),
                   child: IconButton(
                     icon: const Icon(Icons.send, color: Colors.white),
@@ -216,7 +217,8 @@ class _ChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bubbleColor = isMe ? AppColors.dullOrange : AppColors.surface;
+    final c = context.appColors;
+    final bubbleColor = isMe ? c.dullOrange : c.surface;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.md + 4),
@@ -233,7 +235,7 @@ class _ChatBubble extends StatelessWidget {
                 left: 3,
                 right: -3,
                 bottom: -3,
-                child: Container(color: AppColors.darkNavy),
+                child: Container(color: c.shadowColor),
               ),
 
               // Tail — behind the bubble so the bottom border hides the seam
@@ -243,7 +245,12 @@ class _ChatBubble extends StatelessWidget {
                 right: isMe ? 12 : null,
                 child: CustomPaint(
                   size: const Size(16, 12),
-                  painter: _TailPainter(isMe: isMe, color: bubbleColor),
+                  painter: _TailPainter(
+                    isMe: isMe,
+                    color: bubbleColor,
+                    borderColor: c.borderColor,
+                    shadowColor: c.shadowColor,
+                  ),
                 ),
               ),
 
@@ -260,7 +267,7 @@ class _ChatBubble extends StatelessWidget {
                     bottomLeft: Radius.circular(isMe ? AppRadius.md : AppRadius.xs),
                     bottomRight: Radius.circular(isMe ? AppRadius.xs : AppRadius.md),
                   ),
-                  border: Border.all(color: AppColors.darkNavy, width: 2),
+                  border: Border.all(color: c.borderColor, width: 2),
                 ),
                 padding: const EdgeInsets.all(AppSpacing.sm + 4),
                 child: Column(
@@ -273,7 +280,7 @@ class _ChatBubble extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                         color: isMe
                             ? Colors.white.withAlpha(200)
-                            : AppColors.textSecondary,
+                            : c.textSecondary,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -281,7 +288,7 @@ class _ChatBubble extends StatelessWidget {
                       text,
                       style: GoogleFonts.cabin(
                         fontSize: 14,
-                        color: isMe ? Colors.white : AppColors.textPrimary,
+                        color: isMe ? Colors.white : c.textPrimary,
                         height: 1.4,
                       ),
                     ),
@@ -292,7 +299,7 @@ class _ChatBubble extends StatelessWidget {
                         fontSize: 9,
                         color: isMe
                             ? Colors.white.withAlpha(150)
-                            : AppColors.textDisabled,
+                            : c.textDisabled,
                       ),
                     ),
                   ],
@@ -306,14 +313,18 @@ class _ChatBubble extends StatelessWidget {
   }
 }
 
-/// Paints a triangular tail below the bubble with a hard-offset shadow.
-/// Sent (isMe): tail points down-right, sits at bottom-right.
-/// Received (!isMe): tail points down-left, sits at bottom-left.
 class _TailPainter extends CustomPainter {
   final bool isMe;
   final Color color;
+  final Color borderColor;
+  final Color shadowColor;
 
-  const _TailPainter({required this.isMe, required this.color});
+  const _TailPainter({
+    required this.isMe,
+    required this.color,
+    required this.borderColor,
+    required this.shadowColor,
+  });
 
   Path _buildTailPath(Size size, {double dx = 0, double dy = 0}) {
     final path = Path();
@@ -337,7 +348,7 @@ class _TailPainter extends CustomPainter {
     canvas.drawPath(
       _buildTailPath(size, dx: 3, dy: 3),
       Paint()
-        ..color = AppColors.darkNavy
+        ..color = shadowColor
         ..style = PaintingStyle.fill,
     );
 
@@ -351,7 +362,7 @@ class _TailPainter extends CustomPainter {
 
     // Border — only the two outer edges (top edge hidden by bubble)
     final borderPaint = Paint()
-      ..color = AppColors.darkNavy
+      ..color = borderColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2
       ..strokeJoin = StrokeJoin.miter;
@@ -370,5 +381,6 @@ class _TailPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_TailPainter old) => old.isMe != isMe || old.color != color;
+  bool shouldRepaint(_TailPainter old) =>
+      old.isMe != isMe || old.color != color || old.borderColor != borderColor;
 }
