@@ -39,7 +39,7 @@ class ProfileCard extends StatelessWidget {
             // Colored top strip — bold fill
             Container(
               padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.sm + 4,
+                horizontal: AppSpacing.smMd,
                 vertical: 10,
               ),
               color: stripColor,

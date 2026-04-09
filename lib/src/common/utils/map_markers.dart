@@ -3,10 +3,26 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-Future<BitmapDescriptor> buildCragMarker() => _buildMarker(isGym: false);
-Future<BitmapDescriptor> buildGymMarker() => _buildMarker(isGym: true);
+Future<BitmapDescriptor> buildCragMarker({
+  Color navy = const Color(0xFF0F0F0F),
+  Color fill = const Color(0xFFFF6B2B),
+  Color iconColor = const Color(0xFFFFFFFF),
+}) =>
+    _buildMarker(isGym: false, navy: navy, fill: fill, iconColor: iconColor);
 
-Future<BitmapDescriptor> _buildMarker({required bool isGym}) async {
+Future<BitmapDescriptor> buildGymMarker({
+  Color navy = const Color(0xFF0F0F0F),
+  Color fill = const Color(0xFF1D63D4),
+  Color iconColor = const Color(0xFFFFFFFF),
+}) =>
+    _buildMarker(isGym: true, navy: navy, fill: fill, iconColor: iconColor);
+
+Future<BitmapDescriptor> _buildMarker({
+  required bool isGym,
+  required Color navy,
+  required Color fill,
+  required Color iconColor,
+}) async {
   // Render at 2x for retina, but keep the logical size compact.
   const double s = 2.0;
   const double w = 48 * s;
@@ -20,8 +36,7 @@ Future<BitmapDescriptor> _buildMarker({required bool isGym}) async {
   final recorder = ui.PictureRecorder();
   final canvas = Canvas(recorder, const Rect.fromLTWH(0, 0, canvasW, canvasH));
 
-  const navy = Color(0xFF0F0F0F);
-  final fill = isGym ? const Color(0xFF1D63D4) : const Color(0xFFFF6B2B);
+  // navy, fill, and iconColor are now passed as parameters
 
   // Hard-offset shadow
   canvas.drawPath(
@@ -48,9 +63,9 @@ Future<BitmapDescriptor> _buildMarker({required bool isGym}) async {
   );
 
   if (isGym) {
-    _drawGymIcon(canvas, iconRect, s);
+    _drawGymIcon(canvas, iconRect, s, iconColor: iconColor, fill: fill);
   } else {
-    _drawCragIcon(canvas, iconRect, s);
+    _drawCragIcon(canvas, iconRect, s, iconColor: iconColor, fill: fill);
   }
 
   final picture = recorder.endRecording();
@@ -79,9 +94,10 @@ Path _pinPath(double x, double y, double w, double h, double tipH) {
 
 /// Crag icon — bold two-peak mountain with snow cap.
 /// Kept to 3 shapes so it reads crisp at small size.
-void _drawCragIcon(Canvas canvas, Rect a, double s) {
-  final white = Paint()
-    ..color = Colors.white
+void _drawCragIcon(Canvas canvas, Rect a, double s,
+    {required Color iconColor, required Color fill}) {
+  final iconPaint = Paint()
+    ..color = iconColor
     ..style = PaintingStyle.fill;
 
   // Back peak (smaller, offset right, semi-transparent)
@@ -91,7 +107,7 @@ void _drawCragIcon(Canvas canvas, Rect a, double s) {
       ..lineTo(a.right, a.bottom)
       ..lineTo(a.left + a.width * 0.35, a.bottom)
       ..close(),
-    Paint()..color = Colors.white.withAlpha(100),
+    Paint()..color = iconColor.withAlpha(100),
   );
 
   // Main peak
@@ -103,7 +119,7 @@ void _drawCragIcon(Canvas canvas, Rect a, double s) {
       ..lineTo(a.right - a.width * 0.1, a.bottom)
       ..lineTo(a.left, a.bottom)
       ..close(),
-    white,
+    iconPaint,
   );
 
   // Snow cap — clean triangle cutout at the summit
@@ -115,7 +131,7 @@ void _drawCragIcon(Canvas canvas, Rect a, double s) {
       ..lineTo(peakX + capW, peakY + capH)
       ..lineTo(peakX - capW, peakY + capH)
       ..close(),
-    Paint()..color = const Color(0xFFFF6B2B), // match crag fill to "punch out"
+    Paint()..color = fill, // match crag fill to "punch out"
   );
 
   // Re-draw snow in slightly transparent white so it's visible but distinct
@@ -125,18 +141,19 @@ void _drawCragIcon(Canvas canvas, Rect a, double s) {
       ..lineTo(peakX + capW, peakY + capH)
       ..lineTo(peakX - capW, peakY + capH)
       ..close(),
-    Paint()..color = Colors.white.withAlpha(180),
+    Paint()..color = iconColor.withAlpha(180),
   );
 }
 
 /// Gym icon — bold climbing wall with 3 holds.
 /// Angled wall silhouette + chunky hold dots = instantly readable.
-void _drawGymIcon(Canvas canvas, Rect a, double s) {
-  final white = Paint()
-    ..color = Colors.white
+void _drawGymIcon(Canvas canvas, Rect a, double s,
+    {required Color iconColor, required Color fill}) {
+  final iconPaint = Paint()
+    ..color = iconColor
     ..style = PaintingStyle.fill;
-  final blueFill = Paint()
-    ..color = const Color(0xFF1D63D4)
+  final holdFill = Paint()
+    ..color = fill
     ..style = PaintingStyle.fill;
 
   // Angled wall slab
@@ -147,7 +164,7 @@ void _drawGymIcon(Canvas canvas, Rect a, double s) {
       ..lineTo(a.right, a.top)
       ..lineTo(a.right, a.bottom)
       ..close(),
-    white,
+    iconPaint,
   );
 
   // Three bold climbing holds (staggered)
@@ -157,13 +174,13 @@ void _drawGymIcon(Canvas canvas, Rect a, double s) {
     Offset(a.left + a.width * 0.72, a.top + a.height * 0.55),
     Offset(a.left + a.width * 0.48, a.top + a.height * 0.78),
   ];
-  for (final c in holds) {
-    canvas.drawCircle(c, holdR, blueFill);
+  for (final pt in holds) {
+    canvas.drawCircle(pt, holdR, holdFill);
     canvas.drawCircle(
-      c,
+      pt,
       holdR,
       Paint()
-        ..color = Colors.white
+        ..color = iconColor
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.5 * s,
     );

@@ -124,7 +124,7 @@ class CragDetailScreen extends ConsumerWidget {
       pinned: true,
       backgroundColor: headerColor,
       leading: BackButton(
-        color: Colors.white,
+        color: c.textOnPrimary,
         onPressed: () => context.canPop() ? context.pop() : context.go('/'),
       ),
       shape: Border(
@@ -150,7 +150,7 @@ class CragDetailScreen extends ConsumerWidget {
                   style: GoogleFonts.spaceMono(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: c.textOnPrimary,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -161,7 +161,7 @@ class CragDetailScreen extends ConsumerWidget {
                       '${crag.region ?? 'Unknown region'} / ${crag.types.map((t) => t.name.toUpperCase()).join(', ')}',
                       style: GoogleFonts.spaceMono(
                         fontSize: 10,
-                        color: Colors.white.withAlpha(204),
+                        color: c.textOnPrimary.withAlpha(204),
                       ),
                     ),
                   ),
@@ -376,15 +376,15 @@ class CragDetailScreen extends ConsumerWidget {
             ),
             child: Row(
               children: [
-                const Icon(Icons.inventory_2_outlined,
-                    size: 16, color: Color(0xFF0F0F0F)),
+                Icon(Icons.inventory_2_outlined,
+                    size: 16, color: c.textPrimary),
                 const SizedBox(width: AppSpacing.sm),
                 Text(
                   'LOST & FOUND BIN',
                   style: GoogleFonts.spaceMono(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF0F0F0F),
+                    color: c.textPrimary,
                   ),
                 ),
                 const Spacer(),
@@ -465,14 +465,14 @@ class CragDetailScreen extends ConsumerWidget {
             ),
             child: Row(
               children: [
-                const Icon(Icons.group_outlined, size: 16, color: Colors.white),
+                Icon(Icons.group_outlined, size: 16, color: c.textOnPrimary),
                 const SizedBox(width: AppSpacing.sm),
                 Text(
                   'COMMUNITY BOARD',
                   style: GoogleFonts.spaceMono(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: c.textOnPrimary,
                   ),
                 ),
                 const Spacer(),
@@ -531,7 +531,7 @@ class CragDetailScreen extends ConsumerWidget {
       child: FloatingActionButton.extended(
         heroTag: 'create_post_fab',
         backgroundColor: c.dullOrange,
-        foregroundColor: Colors.white,
+        foregroundColor: c.textOnPrimary,
         shape: RoundedRectangleBorder(
           borderRadius: const BorderRadius.all(Radius.circular(AppRadius.sm)),
           side: BorderSide(color: c.borderColor, width: 2.5),

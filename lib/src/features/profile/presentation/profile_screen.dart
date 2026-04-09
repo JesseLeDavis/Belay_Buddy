@@ -75,7 +75,7 @@ class ProfileScreen extends ConsumerWidget {
                         style: GoogleFonts.spaceMono(
                             fontSize: 8,
                             fontWeight: FontWeight.w700,
-                            color: Colors.white),
+                            color: c.textOnPrimary),
                       ),
                     ),
                   ),
@@ -152,7 +152,7 @@ class ProfileScreen extends ConsumerWidget {
                           style: GoogleFonts.spaceMono(
                             fontSize: 40,
                             fontWeight: FontWeight.w700,
-                            color: Colors.white,
+                            color: c.textOnPrimary,
                           ),
                         ),
                       ),
@@ -171,8 +171,8 @@ class ProfileScreen extends ConsumerWidget {
                             border: Border.all(
                                 color: c.borderColor, width: 2),
                           ),
-                          child: const Icon(Icons.edit,
-                              size: 14, color: Colors.white),
+                          child: Icon(Icons.edit,
+                              size: 14, color: c.textOnPrimary),
                         ),
                       ),
                     ),
@@ -204,7 +204,7 @@ class ProfileScreen extends ConsumerWidget {
           ProfileCard(
             title: 'USER INFO',
             stripColor: c.amber,
-            titleColor: const Color(0xFF0F0F0F),
+            titleColor: c.textPrimary,
             children: [
               StatLine(
                   label: 'NAME',
@@ -254,15 +254,15 @@ class ProfileScreen extends ConsumerWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.group_add_outlined,
-                      color: Colors.white, size: 18),
+                  Icon(Icons.group_add_outlined,
+                      color: c.textOnPrimary, size: 18),
                   const SizedBox(width: AppSpacing.sm),
                   Text(
                     'FIND CLIMBERS',
                     style: GoogleFonts.spaceMono(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                      color: c.textOnPrimary,
                     ),
                   ),
                 ],
@@ -326,7 +326,7 @@ class _ThemeModeToggle extends ConsumerWidget {
         children: [
           Container(
             padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.sm + 4, vertical: 10),
+                horizontal: AppSpacing.smMd, vertical: 10),
             color: c.borderColor,
             child: Text(
               'APPEARANCE',
@@ -380,7 +380,7 @@ class _ThemeModeToggle extends ConsumerWidget {
                             Icon(icon,
                                 size: 20,
                                 color: isSelected
-                                    ? Colors.white
+                                    ? c.textOnPrimary
                                     : c.textSecondary),
                             const SizedBox(height: 4),
                             Text(
@@ -389,7 +389,7 @@ class _ThemeModeToggle extends ConsumerWidget {
                                 fontSize: 10,
                                 fontWeight: FontWeight.w700,
                                 color: isSelected
-                                    ? Colors.white
+                                    ? c.textOnPrimary
                                     : c.textSecondary,
                               ),
                             ),

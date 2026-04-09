@@ -29,14 +29,14 @@ class StickerTagsCard extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.sm + 4, vertical: 10),
+                horizontal: AppSpacing.smMd, vertical: 10),
             color: c.oliveGreen,
             child: Text(
               'VIBE CHECK',
               style: GoogleFonts.spaceMono(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
-                color: Colors.white,
+                color: c.textOnPrimary,
               ),
             ),
           ),
@@ -53,8 +53,8 @@ class StickerTagsCard extends StatelessWidget {
                   angle: rotation * 3.14159 / 180,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sm + 4,
-                      vertical: AppSpacing.xs + 3,
+                      horizontal: AppSpacing.smMd,
+                      vertical: AppSpacing.sm,
                     ),
                     decoration: BoxDecoration(
                       color: tag.color,
@@ -74,8 +74,8 @@ class StickerTagsCard extends StatelessWidget {
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                         color: tag.color.computeLuminance() > 0.4
-                            ? const Color(0xFF0F0F0F)
-                            : Colors.white,
+                            ? c.textPrimary
+                            : c.textOnPrimary,
                       ),
                     ),
                   ),

@@ -157,7 +157,7 @@ class _NotifTile extends ConsumerWidget {
                 border: Border.all(color: c.borderColor, width: 2),
                 borderRadius: BorderRadius.circular(AppRadius.sm),
               ),
-              child: Icon(icon, size: 18, color: Colors.white),
+              child: Icon(icon, size: 18, color: c.textOnPrimary),
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
@@ -218,7 +218,7 @@ class _NotifTile extends ConsumerWidget {
                     boxShadow: [
                       BoxShadow(
                           color: c.shadowColor,
-                          offset: const Offset(2, 2),
+                          offset: const Offset(4, 4),
                           blurRadius: 0)
                     ],
                   ),
@@ -227,7 +227,7 @@ class _NotifTile extends ConsumerWidget {
                     style: GoogleFonts.spaceMono(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                      color: c.textOnPrimary,
                     ),
                   ),
                 ),
@@ -304,7 +304,7 @@ class _AcceptButtonState extends State<_AcceptButton> {
           style: GoogleFonts.spaceMono(
             fontSize: 10,
             fontWeight: FontWeight.w700,
-            color: Colors.white,
+            color: c.textOnPrimary,
           ),
         ),
       );
@@ -322,7 +322,7 @@ class _AcceptButtonState extends State<_AcceptButton> {
           boxShadow: [
             BoxShadow(
                 color: c.shadowColor,
-                offset: const Offset(2, 2),
+                offset: const Offset(4, 4),
                 blurRadius: 0)
           ],
         ),
@@ -331,7 +331,7 @@ class _AcceptButtonState extends State<_AcceptButton> {
           style: GoogleFonts.spaceMono(
             fontSize: 10,
             fontWeight: FontWeight.w700,
-            color: Colors.white,
+            color: c.textOnPrimary,
           ),
         ),
       ),

@@ -72,7 +72,7 @@ class PostDetailSheet extends ConsumerWidget {
                           style: GoogleFonts.spaceMono(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
-                            color: Colors.white,
+                            color: c.textOnPrimary,
                           ),
                         ),
                       ),
@@ -212,7 +212,7 @@ class PostDetailSheet extends ConsumerWidget {
           color: color),
       child: Text(label,
           style: GoogleFonts.spaceMono(
-              fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white)),
+              fontSize: 11, fontWeight: FontWeight.w700, color: c.textOnPrimary)),
     );
   }
 
@@ -280,7 +280,7 @@ class _PostActionButtonsState extends ConsumerState<_PostActionButtons> {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text(
                 'Message sent to $posterName',
-                style: GoogleFonts.cabin(color: Colors.white, fontSize: 14),
+                style: GoogleFonts.cabin(color: c.textOnPrimary, fontSize: 14),
               ),
             ));
           },
@@ -302,7 +302,7 @@ class _PostActionButtonsState extends ConsumerState<_PostActionButtons> {
                       content: Text(
                         'Connection request sent to $posterName',
                         style: GoogleFonts.cabin(
-                            color: Colors.white, fontSize: 14),
+                            color: c.textOnPrimary, fontSize: 14),
                       ),
                       backgroundColor: c.accentBlue,
                     ));
@@ -320,7 +320,7 @@ class _PostActionButtonsState extends ConsumerState<_PostActionButtons> {
                     : [
                         BoxShadow(
                             color: c.shadowColor,
-                            offset: const Offset(3, 3),
+                            offset: const Offset(4, 4),
                             blurRadius: 0)
                       ],
               ),
@@ -334,7 +334,7 @@ class _PostActionButtonsState extends ConsumerState<_PostActionButtons> {
                     size: 16,
                     color: _connectRequestSent
                         ? c.textSecondary
-                        : Colors.white,
+                        : c.textOnPrimary,
                   ),
                   const SizedBox(width: AppSpacing.sm),
                   Text(
@@ -346,7 +346,7 @@ class _PostActionButtonsState extends ConsumerState<_PostActionButtons> {
                       fontWeight: FontWeight.w700,
                       color: _connectRequestSent
                           ? c.textSecondary
-                          : Colors.white,
+                          : c.textOnPrimary,
                     ),
                   ),
                 ],
@@ -364,14 +364,14 @@ class _PostActionButtonsState extends ConsumerState<_PostActionButtons> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.check, size: 16, color: Colors.white),
+                Icon(Icons.check, size: 16, color: c.textOnPrimary),
                 const SizedBox(width: AppSpacing.sm),
                 Text(
                   'CONNECTED WITH ${posterName.toUpperCase()}',
                   style: GoogleFonts.spaceMono(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: c.textOnPrimary,
                   ),
                 ),
               ],

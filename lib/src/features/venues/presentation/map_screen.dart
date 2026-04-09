@@ -26,15 +26,29 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   static const double _collapsedHeight = 220;
 
+  bool _markersLoaded = false;
+
   @override
-  void initState() {
-    super.initState();
-    _loadMarkerIcons();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_markersLoaded) {
+      _markersLoaded = true;
+      _loadMarkerIcons();
+    }
   }
 
   Future<void> _loadMarkerIcons() async {
-    final crag = await buildCragMarker();
-    final gym = await buildGymMarker();
+    final c = context.appColors;
+    final crag = await buildCragMarker(
+      navy: c.borderColor,
+      fill: c.dullOrange,
+      iconColor: c.textOnPrimary,
+    );
+    final gym = await buildGymMarker(
+      navy: c.borderColor,
+      fill: c.accentBlue,
+      iconColor: c.textOnPrimary,
+    );
     if (mounted) setState(() { _cragIcon = crag; _gymIcon = gym; });
   }
 
@@ -82,7 +96,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           style: GoogleFonts.spaceMono(
             fontSize: 22,
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF0F0F0F),
+            color: c.textPrimary,
           ),
         ),
         shape: Border(
@@ -90,14 +104,14 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search, color: Color(0xFF0F0F0F)),
+            icon: Icon(Icons.search, color: c.textPrimary),
             tooltip: 'Search crags',
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
                     'Crag search coming soon',
-                    style: GoogleFonts.cabin(color: Colors.white, fontSize: 14),
+                    style: GoogleFonts.cabin(color: c.textOnPrimary, fontSize: 14),
                   ),
                 ),
               );
@@ -355,7 +369,7 @@ class _CragCard extends StatelessWidget {
             // Header strip
             Container(
               padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.sm + 4,
+                horizontal: AppSpacing.smMd,
                 vertical: 10,
               ),
               color: crag.isGym ? c.borderColor : c.oliveGreen,
@@ -364,7 +378,7 @@ class _CragCard extends StatelessWidget {
                 style: GoogleFonts.spaceMono(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: crag.isGym ? c.background : Colors.white,
+                  color: crag.isGym ? c.background : c.textOnPrimary,
                 ),
               ),
             ),

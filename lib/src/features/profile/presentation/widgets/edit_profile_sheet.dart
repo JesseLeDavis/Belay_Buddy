@@ -169,7 +169,7 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
                       style: GoogleFonts.spaceMono(
                         fontSize: 9,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: c.textOnPrimary,
                       ),
                     ),
                   ),
@@ -213,8 +213,8 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
                         fontWeight: FontWeight.w700,
                         color: selected
                             ? (tag.color.computeLuminance() > 0.4
-                                ? const Color(0xFF0F0F0F)
-                                : Colors.white)
+                                ? c.textPrimary
+                                : c.textOnPrimary)
                             : c.textSecondary,
                       ),
                     ),
@@ -230,7 +230,7 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
               icon: Icons.check,
               color: c.oliveGreen,
               shadowColor: c.borderColor,
-              textColor: Colors.white,
+              textColor: c.textOnPrimary,
               onPressed: _save,
             ),
             const SizedBox(height: AppSpacing.md),

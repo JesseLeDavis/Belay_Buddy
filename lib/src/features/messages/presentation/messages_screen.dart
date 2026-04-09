@@ -148,7 +148,7 @@ class _ConversationCard extends StatelessWidget {
             // Colored top strip
             Container(
               padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.sm + 4,
+                horizontal: AppSpacing.smMd,
                 vertical: 8,
               ),
               color: isUnread ? c.amber : c.oliveGreen,
@@ -159,7 +159,7 @@ class _ConversationCard extends StatelessWidget {
                     style: GoogleFonts.spaceMono(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: isUnread ? const Color(0xFF0F0F0F) : Colors.white,
+                      color: isUnread ? c.textPrimary : c.textOnPrimary,
                     ),
                   ),
                 ],

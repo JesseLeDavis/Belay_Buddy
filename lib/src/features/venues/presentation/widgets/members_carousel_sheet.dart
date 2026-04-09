@@ -101,7 +101,7 @@ class _MembersCarouselSheetState extends ConsumerState<MembersCarouselSheet> {
                     style: GoogleFonts.spaceMono(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                      color: c.textOnPrimary,
                     ),
                   ),
                 ),
@@ -175,7 +175,7 @@ class _MembersCarouselSheetState extends ConsumerState<MembersCarouselSheet> {
                                 style: GoogleFonts.spaceMono(
                                   fontSize: fontSize,
                                   fontWeight: FontWeight.w700,
-                                  color: Colors.white,
+                                  color: c.textOnPrimary,
                                 ),
                               ),
                             ),

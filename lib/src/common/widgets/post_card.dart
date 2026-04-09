@@ -58,7 +58,7 @@ class PostCard extends ConsumerWidget {
                 // Colored top strip — bold color block
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.sm + 4,
+                    horizontal: AppSpacing.smMd,
                     vertical: 10,
                   ),
                   color: stripColor,
@@ -69,7 +69,7 @@ class PostCard extends ConsumerWidget {
                         style: GoogleFonts.spaceMono(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                          color: c.textOnPrimary,
                         ),
                       ),
                       const Spacer(),
@@ -78,7 +78,7 @@ class PostCard extends ConsumerWidget {
                         style: GoogleFonts.spaceMono(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                          color: c.textOnPrimary,
                         ),
                       ),
                     ],
@@ -158,7 +158,7 @@ class PostCard extends ConsumerWidget {
 
                 // Footer with belay chips
                 Padding(
-                  padding: const EdgeInsets.all(AppSpacing.sm + 4),
+                  padding: const EdgeInsets.all(AppSpacing.smMd),
                   child: Row(
                     children: [
                       Expanded(
@@ -170,14 +170,14 @@ class PostCard extends ConsumerWidget {
                               _BrandChip(
                                 label: 'NEED BELAY',
                                 fillColor: c.accentBlue,
-                                textColor: Colors.white,
+                                textColor: c.textOnPrimary,
                                 borderColor: c.borderColor,
                               ),
                             if (post.offeringBelay)
                               _BrandChip(
                                 label: 'CAN BELAY',
                                 fillColor: c.oliveGreen,
-                                textColor: Colors.white,
+                                textColor: c.textOnPrimary,
                                 borderColor: c.borderColor,
                               ),
                           ],

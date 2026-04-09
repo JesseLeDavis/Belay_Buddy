@@ -108,7 +108,7 @@ class _UserProfileBodyState extends ConsumerState<_UserProfileBody> {
                       style: GoogleFonts.spaceMono(
                         fontSize: 40,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: c.textOnPrimary,
                       ),
                     ),
                   ),
@@ -154,7 +154,7 @@ class _UserProfileBodyState extends ConsumerState<_UserProfileBody> {
                       content: Text(
                         'Messaging coming soon!',
                         style:
-                            GoogleFonts.cabin(color: Colors.white, fontSize: 14),
+                            GoogleFonts.cabin(color: c.textOnPrimary, fontSize: 14),
                       ),
                     ));
                   },
@@ -167,7 +167,7 @@ class _UserProfileBodyState extends ConsumerState<_UserProfileBody> {
                       boxShadow: [
                         BoxShadow(
                           color: c.shadowColor,
-                          offset: const Offset(3, 3),
+                          offset: const Offset(4, 4),
                           blurRadius: 0,
                         ),
                       ],
@@ -218,7 +218,7 @@ class _UserProfileBodyState extends ConsumerState<_UserProfileBody> {
 
     if (isConnected) {
       bgColor = c.oliveGreen;
-      textColor = Colors.white;
+      textColor = c.textOnPrimary;
       label = 'CONNECTED';
       icon = Icons.check;
       onTap = null;
@@ -230,7 +230,7 @@ class _UserProfileBodyState extends ConsumerState<_UserProfileBody> {
       onTap = null;
     } else {
       bgColor = c.accentBlue;
-      textColor = Colors.white;
+      textColor = c.textOnPrimary;
       label = 'CONNECT';
       icon = Icons.person_add_outlined;
       onTap = () {
@@ -238,7 +238,7 @@ class _UserProfileBodyState extends ConsumerState<_UserProfileBody> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
             'Connection request sent to ${user.displayName}',
-            style: GoogleFonts.cabin(color: Colors.white, fontSize: 14),
+            style: GoogleFonts.cabin(color: c.textOnPrimary, fontSize: 14),
           ),
           backgroundColor: c.accentBlue,
         ));
@@ -257,7 +257,7 @@ class _UserProfileBodyState extends ConsumerState<_UserProfileBody> {
               ? [
                   BoxShadow(
                     color: c.shadowColor,
-                    offset: const Offset(3, 3),
+                    offset: const Offset(4, 4),
                     blurRadius: 0,
                   ),
                 ]
@@ -321,14 +321,14 @@ class _StickerTagsSection extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.sm + 4, vertical: 10),
+                horizontal: AppSpacing.smMd, vertical: 10),
             color: c.oliveGreen,
             child: Text(
               'VIBE CHECK',
               style: GoogleFonts.spaceMono(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
-                color: Colors.white,
+                color: c.textOnPrimary,
               ),
             ),
           ),
@@ -345,8 +345,8 @@ class _StickerTagsSection extends StatelessWidget {
                   angle: rotation * 3.14159 / 180,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sm + 4,
-                      vertical: AppSpacing.xs + 3,
+                      horizontal: AppSpacing.smMd,
+                      vertical: AppSpacing.sm,
                     ),
                     decoration: BoxDecoration(
                       color: tag.color,
@@ -366,8 +366,8 @@ class _StickerTagsSection extends StatelessWidget {
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                         color: tag.color.computeLuminance() > 0.4
-                            ? const Color(0xFF0F0F0F)
-                            : Colors.white,
+                            ? c.textPrimary
+                            : c.textOnPrimary,
                       ),
                     ),
                   ),
@@ -445,7 +445,7 @@ class _MutualConnectionsSection extends ConsumerWidget {
                         style: GoogleFonts.spaceMono(
                           fontSize: 9,
                           fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                          color: c.textOnPrimary,
                         ),
                       ),
                     ),

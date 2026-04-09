@@ -23,10 +23,10 @@ class FindClimbersScreen extends ConsumerWidget {
           style: GoogleFonts.spaceMono(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Colors.white,
+            color: c.textOnPrimary,
           ),
         ),
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: c.textOnPrimary),
         shape: Border(
           bottom: BorderSide(color: c.borderColor, width: 3),
         ),
@@ -142,7 +142,7 @@ class _ClimberCardState extends ConsumerState<_ClimberCard> {
                       style: GoogleFonts.spaceMono(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: c.textOnPrimary,
                       ),
                     ),
                   ),
@@ -174,7 +174,7 @@ class _ClimberCardState extends ConsumerState<_ClimberCard> {
                               style: GoogleFonts.spaceMono(
                                 fontSize: 9,
                                 fontWeight: FontWeight.w700,
-                                color: Colors.white,
+                                color: c.textOnPrimary,
                               ),
                             ),
                           );
@@ -247,14 +247,14 @@ class _ClimberCardState extends ConsumerState<_ClimberCard> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.check, size: 12, color: Colors.white),
+            Icon(Icons.check, size: 12, color: c.textOnPrimary),
             const SizedBox(width: 4),
             Text(
               'CONNECTED',
               style: GoogleFonts.spaceMono(
                 fontSize: 9,
                 fontWeight: FontWeight.w700,
-                color: Colors.white,
+                color: c.textOnPrimary,
               ),
             ),
           ],
@@ -288,7 +288,7 @@ class _ClimberCardState extends ConsumerState<_ClimberCard> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
             'Connection request sent to ${widget.user.displayName}',
-            style: GoogleFonts.cabin(color: Colors.white, fontSize: 14),
+            style: GoogleFonts.cabin(color: c.textOnPrimary, fontSize: 14),
           ),
           backgroundColor: c.accentBlue,
         ));
@@ -302,20 +302,20 @@ class _ClimberCardState extends ConsumerState<_ClimberCard> {
           border: Border.all(color: c.borderColor, width: 2),
           boxShadow: [
             BoxShadow(
-                color: c.shadowColor, offset: const Offset(2, 2), blurRadius: 0)
+                color: c.shadowColor, offset: const Offset(4, 4), blurRadius: 0)
           ],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.person_add_outlined, size: 12, color: Colors.white),
+            Icon(Icons.person_add_outlined, size: 12, color: c.textOnPrimary),
             const SizedBox(width: 4),
             Text(
               'CONNECT',
               style: GoogleFonts.spaceMono(
                 fontSize: 9,
                 fontWeight: FontWeight.w700,
-                color: Colors.white,
+                color: c.textOnPrimary,
               ),
             ),
           ],

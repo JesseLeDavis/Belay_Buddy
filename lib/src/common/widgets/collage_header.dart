@@ -215,7 +215,7 @@ class _CollageHeaderState extends ConsumerState<CollageHeader>
               boxShadow: [
                 BoxShadow(
                   color: colors.shadowColor.withAlpha(80),
-                  offset: const Offset(3, 3),
+                  offset: const Offset(4, 4),
                   blurRadius: 0,
                 ),
               ],

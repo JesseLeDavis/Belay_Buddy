@@ -45,7 +45,7 @@ class HomeBaseSheet extends ConsumerWidget {
             ),
             child: Row(
               children: [
-                const Icon(Icons.home, size: 18, color: Colors.white),
+                Icon(Icons.home, size: 18, color: c.textOnPrimary),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Text(
@@ -53,7 +53,7 @@ class HomeBaseSheet extends ConsumerWidget {
                     style: GoogleFonts.spaceMono(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                      color: c.textOnPrimary,
                     ),
                   ),
                 ),
@@ -61,7 +61,7 @@ class HomeBaseSheet extends ConsumerWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: c.surface,
                     borderRadius: BorderRadius.circular(AppRadius.sm),
                     border: Border.all(color: c.borderColor, width: 1.5),
                   ),
@@ -232,7 +232,7 @@ class HomeMembersList extends ConsumerWidget {
                             style: GoogleFonts.spaceMono(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
-                              color: Colors.white,
+                              color: c.textOnPrimary,
                             ),
                           ),
                         ),

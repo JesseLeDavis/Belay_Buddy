@@ -34,7 +34,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       SnackBar(
         content: Text(
           'Message sent',
-          style: GoogleFonts.cabin(color: Colors.white, fontSize: 14),
+          style: GoogleFonts.cabin(color: context.appColors.textOnPrimary, fontSize: 14),
         ),
         duration: const Duration(seconds: 1),
       ),
@@ -189,7 +189,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         color: c.borderColor, width: 2),
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.send, color: Colors.white),
+                    icon: Icon(Icons.send, color: c.textOnPrimary),
                     onPressed: _sendMessage,
                   ),
                 ),
@@ -269,7 +269,7 @@ class _ChatBubble extends StatelessWidget {
                   ),
                   border: Border.all(color: c.borderColor, width: 2),
                 ),
-                padding: const EdgeInsets.all(AppSpacing.sm + 4),
+                padding: const EdgeInsets.all(AppSpacing.smMd),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -279,7 +279,7 @@ class _ChatBubble extends StatelessWidget {
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                         color: isMe
-                            ? Colors.white.withAlpha(200)
+                            ? c.textOnPrimary.withAlpha(200)
                             : c.textSecondary,
                       ),
                     ),
@@ -288,7 +288,7 @@ class _ChatBubble extends StatelessWidget {
                       text,
                       style: GoogleFonts.cabin(
                         fontSize: 14,
-                        color: isMe ? Colors.white : c.textPrimary,
+                        color: isMe ? c.textOnPrimary : c.textPrimary,
                         height: 1.4,
                       ),
                     ),
@@ -298,7 +298,7 @@ class _ChatBubble extends StatelessWidget {
                       style: GoogleFonts.spaceMono(
                         fontSize: 9,
                         color: isMe
-                            ? Colors.white.withAlpha(150)
+                            ? c.textOnPrimary.withAlpha(150)
                             : c.textDisabled,
                       ),
                     ),

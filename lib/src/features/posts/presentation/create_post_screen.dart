@@ -72,7 +72,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
       SnackBar(
         content: Text(
           'Post submitted to ${widget.crag.name}',
-          style: GoogleFonts.cabin(color: Colors.white, fontSize: 14),
+          style: GoogleFonts.cabin(color: context.appColors.textOnPrimary, fontSize: 14),
         ),
       ),
     );
@@ -190,7 +190,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                                 Icons.flash_on,
                                 size: 18,
                                 color: _postType == PostType.immediate
-                                    ? Colors.white
+                                    ? c.textOnPrimary
                                     : c.textPrimary,
                               ),
                               const SizedBox(width: 6),
@@ -200,7 +200,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                                   fontSize: 14,
                                   fontWeight: FontWeight.w700,
                                   color: _postType == PostType.immediate
-                                      ? Colors.white
+                                      ? c.textOnPrimary
                                       : c.textPrimary,
                                 ),
                               ),
@@ -240,7 +240,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                                 Icons.calendar_today,
                                 size: 18,
                                 color: _postType == PostType.scheduled
-                                    ? Colors.white
+                                    ? c.textOnPrimary
                                     : c.textPrimary,
                               ),
                               const SizedBox(width: 6),
@@ -250,7 +250,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                                   fontSize: 14,
                                   fontWeight: FontWeight.w700,
                                   color: _postType == PostType.scheduled
-                                      ? Colors.white
+                                      ? c.textOnPrimary
                                       : c.textPrimary,
                                 ),
                               ),
@@ -375,7 +375,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                   icon: Icons.send,
                   color: c.dullOrange,
                   shadowColor: c.shadowColor,
-                  textColor: Colors.white,
+                  textColor: c.textOnPrimary,
                   onPressed: _submitPost,
                 ),
               ),

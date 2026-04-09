@@ -5,13 +5,13 @@ import 'package:google_fonts/google_fonts.dart';
 class CountBadge extends StatelessWidget {
   final String label;
   final Color color;
-  final Color textColor;
+  final Color? textColor;
 
   const CountBadge({
     super.key,
     required this.label,
     required this.color,
-    this.textColor = Colors.white,
+    this.textColor,
   });
 
   @override
@@ -29,7 +29,7 @@ class CountBadge extends StatelessWidget {
         style: GoogleFonts.spaceMono(
           fontSize: 10,
           fontWeight: FontWeight.w700,
-          color: textColor,
+          color: textColor ?? c.textOnPrimary,
         ),
       ),
     );

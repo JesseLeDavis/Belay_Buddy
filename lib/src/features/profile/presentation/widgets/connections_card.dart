@@ -36,7 +36,7 @@ class ConnectionsCard extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.sm + 4, vertical: 10),
+                horizontal: AppSpacing.smMd, vertical: 10),
             color: c.accentBlue,
             child: Row(
               children: [
@@ -45,7 +45,7 @@ class ConnectionsCard extends StatelessWidget {
                   style: GoogleFonts.spaceMono(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: c.textOnPrimary,
                   ),
                 ),
                 const Spacer(),
@@ -53,7 +53,7 @@ class ConnectionsCard extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: c.surface,
                     borderRadius: BorderRadius.circular(AppRadius.sm),
                     border: Border.all(color: c.borderColor, width: 1.5),
                   ),
@@ -167,7 +167,7 @@ class ConnectionRow extends StatelessWidget {
                   style: GoogleFonts.spaceMono(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: c.textOnPrimary,
                   ),
                 ),
               ),

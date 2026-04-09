@@ -187,7 +187,7 @@ class _NeoNavBar extends StatelessWidget {
                       Icon(
                         isSelected ? tab.activeIcon : tab.icon,
                         size: 22,
-                        color: isSelected ? Colors.white : c.borderColor,
+                        color: isSelected ? c.textOnPrimary : c.borderColor,
                       ),
                       const SizedBox(height: 3),
                       Text(
@@ -195,7 +195,7 @@ class _NeoNavBar extends StatelessWidget {
                         style: GoogleFonts.spaceMono(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
-                          color: isSelected ? Colors.white : c.borderColor,
+                          color: isSelected ? c.textOnPrimary : c.borderColor,
                         ),
                       ),
                     ],

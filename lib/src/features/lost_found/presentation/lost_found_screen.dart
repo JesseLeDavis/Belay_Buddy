@@ -18,10 +18,10 @@ class LostFoundScreen extends StatelessWidget {
           style: GoogleFonts.spaceMono(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF0F0F0F),
+            color: c.textPrimary,
           ),
         ),
-        iconTheme: const IconThemeData(color: Color(0xFF0F0F0F)),
+        iconTheme: IconThemeData(color: c.textPrimary),
         shape: Border(
           bottom: BorderSide(color: c.borderColor, width: 3),
         ),

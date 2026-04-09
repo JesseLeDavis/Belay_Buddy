@@ -142,7 +142,7 @@ class VenueNotifySheet extends ConsumerWidget {
             ),
             child: Row(
               children: [
-                const Icon(Icons.notifications, size: 18, color: Colors.white),
+                Icon(Icons.notifications, size: 18, color: c.textOnPrimary),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Text(
@@ -150,7 +150,7 @@ class VenueNotifySheet extends ConsumerWidget {
                     style: GoogleFonts.spaceMono(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                      color: c.textOnPrimary,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -200,7 +200,7 @@ class VenueNotifySheet extends ConsumerWidget {
                           style: GoogleFonts.spaceMono(
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
-                            color: Colors.white,
+                            color: c.textOnPrimary,
                           ),
                         ),
                       ),

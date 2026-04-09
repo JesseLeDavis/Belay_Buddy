@@ -32,7 +32,7 @@ class LostFoundPreviewRow extends StatelessWidget {
               style: GoogleFonts.spaceMono(
                 fontSize: 9,
                 fontWeight: FontWeight.w700,
-                color: Colors.white,
+                color: c.textOnPrimary,
               ),
             ),
           ),

@@ -81,7 +81,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   style: GoogleFonts.spaceMono(
                     fontSize: 36,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: c.textOnPrimary,
                     height: 1.1,
                   ),
                 ),
@@ -91,7 +91,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   style: GoogleFonts.spaceMono(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white.withAlpha(204),
+                    color: c.textOnPrimary.withAlpha(204),
                   ),
                 ),
               ],

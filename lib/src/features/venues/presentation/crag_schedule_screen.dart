@@ -18,10 +18,10 @@ class CragScheduleScreen extends StatelessWidget {
           style: GoogleFonts.spaceMono(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Colors.white,
+            color: c.textOnPrimary,
           ),
         ),
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: c.textOnPrimary),
         shape: Border(
           bottom: BorderSide(color: c.borderColor, width: 3),
         ),

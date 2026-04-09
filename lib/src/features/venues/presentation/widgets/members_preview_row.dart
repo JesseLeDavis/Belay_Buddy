@@ -64,7 +64,7 @@ class MembersPreviewRow extends ConsumerWidget {
                             style: GoogleFonts.spaceMono(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
-                              color: Colors.white,
+                              color: c.textOnPrimary,
                             ),
                           ),
                         ),
