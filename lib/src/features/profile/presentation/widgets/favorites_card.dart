@@ -99,22 +99,9 @@ class FavoriteRow extends StatelessWidget {
   final WidgetRef ref;
   const FavoriteRow({super.key, required this.venue, required this.ref});
 
-  static const _cragTypeLabels = {
-    CragType.sport: 'SPORT',
-    CragType.trad: 'TRAD',
-    CragType.boulder: 'BOULDER',
-    CragType.mixed: 'MIXED',
-  };
-
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
-    final cragTypeColors = {
-      CragType.sport: c.accentBlue,
-      CragType.trad: c.dullOrange,
-      CragType.boulder: c.oliveGreen,
-      CragType.mixed: c.amber,
-    };
 
     return GestureDetector(
       onTap: () => context.push('/crag/${venue.id}'),
@@ -160,24 +147,6 @@ class FavoriteRow extends StatelessWidget {
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
-                  if (venue.types.isNotEmpty) ...[
-                    const SizedBox(height: 3),
-                    Wrap(
-                      spacing: 4,
-                      children: venue.types.map((t) {
-                        final color =
-                            cragTypeColors[t] ?? c.textDisabled;
-                        return Text(
-                          _cragTypeLabels[t] ?? t.name.toUpperCase(),
-                          style: GoogleFonts.spaceMono(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w700,
-                            color: color,
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ],
                 ],
               ),
             ),

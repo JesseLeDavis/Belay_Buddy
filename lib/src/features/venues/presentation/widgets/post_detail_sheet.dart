@@ -170,15 +170,6 @@ class PostDetailSheet extends ConsumerWidget {
                                     color: c.textPrimary,
                                   ),
                                 ),
-                                if (user != null)
-                                  Text(
-                                    user.climbingStyles
-                                        .map(_styleName)
-                                        .join(' · '),
-                                    style: GoogleFonts.spaceMono(
-                                        fontSize: 11,
-                                        color: c.textSecondary),
-                                  ),
                               ],
                             ),
                           ),
@@ -231,15 +222,6 @@ class PostDetailSheet extends ConsumerWidget {
     }
   }
 
-  String _styleName(dynamic style) {
-    const names = {
-      'sport': 'Sport',
-      'trad': 'Trad',
-      'boulder': 'Boulder',
-      'all': 'All Styles',
-    };
-    return names[style.toString().split('.').last] ?? style.toString();
-  }
 }
 
 class _PostActionButtons extends ConsumerStatefulWidget {

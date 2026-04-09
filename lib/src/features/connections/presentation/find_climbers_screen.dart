@@ -83,26 +83,11 @@ class _ClimberCard extends ConsumerStatefulWidget {
 class _ClimberCardState extends ConsumerState<_ClimberCard> {
   bool _requestSent = false;
 
-  static const _styleLabels = {
-    ClimbingStyle.sport: 'SPORT',
-    ClimbingStyle.trad: 'TRAD',
-    ClimbingStyle.boulder: 'BOULDER',
-    ClimbingStyle.all: 'ALL',
-  };
-
-  Map<ClimbingStyle, Color> _disciplineColors(AppColorsExtension c) => {
-    ClimbingStyle.sport: c.accentBlue,
-    ClimbingStyle.trad: c.dullOrange,
-    ClimbingStyle.boulder: c.oliveGreen,
-    ClimbingStyle.all: c.amber,
-  };
-
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
     final isConnected = ref.watch(isConnectedProvider(widget.user.uid));
     final hasPending = ref.watch(hasPendingRequestFromProvider(widget.user.uid));
-    final discColors = _disciplineColors(c);
 
     return GestureDetector(
       onTap: () => context.push('/profile/${widget.user.uid}'),
@@ -160,26 +145,6 @@ class _ClimberCardState extends ConsumerState<_ClimberCard> {
                           color: c.textPrimary,
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Wrap(
-                        spacing: 4,
-                        runSpacing: 4,
-                        children: widget.user.climbingStyles.map((s) {
-                          return Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 2),
-                            color: discColors[s] ?? c.textDisabled,
-                            child: Text(
-                              _styleLabels[s] ?? s.name.toUpperCase(),
-                              style: GoogleFonts.spaceMono(
-                                fontSize: 9,
-                                fontWeight: FontWeight.w700,
-                                color: c.textOnPrimary,
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
                     ],
                   ),
                 ),
@@ -202,32 +167,6 @@ class _ClimberCardState extends ConsumerState<_ClimberCard> {
             ),
           ],
 
-          // Style chips
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-                AppSpacing.md, 0, AppSpacing.md, AppSpacing.md),
-            child: Wrap(
-              spacing: AppSpacing.xs,
-              runSpacing: AppSpacing.xs,
-              children: widget.user.climbingStyles.map((s) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(AppRadius.sm),
-                    border: Border.all(color: c.borderColor, width: 1.5),
-                  ),
-                  child: Text(
-                    _styleLabels[s] ?? s.name.toUpperCase(),
-                    style: GoogleFonts.spaceMono(
-                      fontSize: 9,
-                      fontWeight: FontWeight.w700,
-                      color: c.textPrimary,
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
         ],
       ),
       ),

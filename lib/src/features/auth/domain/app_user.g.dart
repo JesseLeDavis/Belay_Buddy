@@ -16,10 +16,6 @@ _$AppUserImpl _$$AppUserImplFromJson(Map<String, dynamic> json) =>
       experienceLevel: $enumDecodeNullable(
               _$ExperienceLevelEnumMap, json['experienceLevel']) ??
           ExperienceLevel.intermediate,
-      climbingStyles: (json['climbingStyles'] as List<dynamic>?)
-              ?.map((e) => $enumDecode(_$ClimbingStyleEnumMap, e))
-              .toList() ??
-          const [ClimbingStyle.all],
       climbingTags: (json['climbingTags'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
@@ -61,9 +57,6 @@ Map<String, dynamic> _$$AppUserImplToJson(_$AppUserImpl instance) =>
       'photoUrl': instance.photoUrl,
       'bio': instance.bio,
       'experienceLevel': _$ExperienceLevelEnumMap[instance.experienceLevel]!,
-      'climbingStyles': instance.climbingStyles
-          .map((e) => _$ClimbingStyleEnumMap[e]!)
-          .toList(),
       'climbingTags': instance.climbingTags,
       'favoriteCragIds': instance.favoriteCragIds,
       'favoriteGymIds': instance.favoriteGymIds,
@@ -83,11 +76,4 @@ const _$ExperienceLevelEnumMap = {
   ExperienceLevel.intermediate: 'intermediate',
   ExperienceLevel.advanced: 'advanced',
   ExperienceLevel.expert: 'expert',
-};
-
-const _$ClimbingStyleEnumMap = {
-  ClimbingStyle.sport: 'sport',
-  ClimbingStyle.trad: 'trad',
-  ClimbingStyle.boulder: 'boulder',
-  ClimbingStyle.all: 'all',
 };

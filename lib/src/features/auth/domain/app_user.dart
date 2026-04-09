@@ -10,13 +10,6 @@ enum ExperienceLevel {
   expert,
 }
 
-enum ClimbingStyle {
-  sport,
-  trad,
-  boulder,
-  all,
-}
-
 @freezed
 class AppUser with _$AppUser {
   const factory AppUser({
@@ -26,7 +19,6 @@ class AppUser with _$AppUser {
     String? photoUrl,
     String? bio,
     @Default(ExperienceLevel.intermediate) ExperienceLevel experienceLevel,
-    @Default([ClimbingStyle.all]) List<ClimbingStyle> climbingStyles,
     @Default([]) List<String> climbingTags,
     @Default([]) List<String> favoriteCragIds,
     @Default([]) List<String> favoriteGymIds,

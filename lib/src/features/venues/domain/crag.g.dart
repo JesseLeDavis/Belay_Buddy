@@ -23,10 +23,6 @@ _$CragImpl _$$CragImplFromJson(Map<String, dynamic> json) => _$CragImpl(
       name: json['name'] as String,
       location: CragLocation.fromJson(json['location'] as Map<String, dynamic>),
       description: json['description'] as String?,
-      types: (json['types'] as List<dynamic>?)
-              ?.map((e) => $enumDecode(_$CragTypeEnumMap, e))
-              .toList() ??
-          const [],
       imageUrl: json['imageUrl'] as String?,
       region: json['region'] as String?,
       country: json['country'] as String?,
@@ -44,7 +40,6 @@ Map<String, dynamic> _$$CragImplToJson(_$CragImpl instance) =>
       'name': instance.name,
       'location': instance.location,
       'description': instance.description,
-      'types': instance.types.map((e) => _$CragTypeEnumMap[e]!).toList(),
       'imageUrl': instance.imageUrl,
       'region': instance.region,
       'country': instance.country,
@@ -53,10 +48,3 @@ Map<String, dynamic> _$$CragImplToJson(_$CragImpl instance) =>
       'createdAt': instance.createdAt?.toIso8601String(),
       'createdBy': instance.createdBy,
     };
-
-const _$CragTypeEnumMap = {
-  CragType.sport: 'sport',
-  CragType.trad: 'trad',
-  CragType.boulder: 'boulder',
-  CragType.mixed: 'mixed',
-};

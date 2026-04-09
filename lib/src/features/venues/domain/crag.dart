@@ -3,13 +3,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'crag.freezed.dart';
 part 'crag.g.dart';
 
-enum CragType {
-  sport,
-  trad,
-  boulder,
-  mixed,
-}
-
 @freezed
 class CragLocation with _$CragLocation {
   const factory CragLocation({
@@ -28,7 +21,6 @@ class Crag with _$Crag {
     required String name,
     required CragLocation location,
     String? description,
-    @Default([]) List<CragType> types,
     String? imageUrl,
     String? region,
     String? country,

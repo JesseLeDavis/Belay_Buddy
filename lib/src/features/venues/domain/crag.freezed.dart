@@ -193,7 +193,6 @@ mixin _$Crag {
   String get name => throw _privateConstructorUsedError;
   CragLocation get location => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
-  List<CragType> get types => throw _privateConstructorUsedError;
   String? get imageUrl => throw _privateConstructorUsedError;
   String? get region => throw _privateConstructorUsedError;
   String? get country => throw _privateConstructorUsedError;
@@ -221,7 +220,6 @@ abstract class $CragCopyWith<$Res> {
       String name,
       CragLocation location,
       String? description,
-      List<CragType> types,
       String? imageUrl,
       String? region,
       String? country,
@@ -252,7 +250,6 @@ class _$CragCopyWithImpl<$Res, $Val extends Crag>
     Object? name = null,
     Object? location = null,
     Object? description = freezed,
-    Object? types = null,
     Object? imageUrl = freezed,
     Object? region = freezed,
     Object? country = freezed,
@@ -278,10 +275,6 @@ class _$CragCopyWithImpl<$Res, $Val extends Crag>
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String?,
-      types: null == types
-          ? _value.types
-          : types // ignore: cast_nullable_to_non_nullable
-              as List<CragType>,
       imageUrl: freezed == imageUrl
           ? _value.imageUrl
           : imageUrl // ignore: cast_nullable_to_non_nullable
@@ -336,7 +329,6 @@ abstract class _$$CragImplCopyWith<$Res> implements $CragCopyWith<$Res> {
       String name,
       CragLocation location,
       String? description,
-      List<CragType> types,
       String? imageUrl,
       String? region,
       String? country,
@@ -365,7 +357,6 @@ class __$$CragImplCopyWithImpl<$Res>
     Object? name = null,
     Object? location = null,
     Object? description = freezed,
-    Object? types = null,
     Object? imageUrl = freezed,
     Object? region = freezed,
     Object? country = freezed,
@@ -391,10 +382,6 @@ class __$$CragImplCopyWithImpl<$Res>
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
               as String?,
-      types: null == types
-          ? _value._types
-          : types // ignore: cast_nullable_to_non_nullable
-              as List<CragType>,
       imageUrl: freezed == imageUrl
           ? _value.imageUrl
           : imageUrl // ignore: cast_nullable_to_non_nullable
@@ -435,15 +422,13 @@ class _$CragImpl implements _Crag {
       required this.name,
       required this.location,
       this.description,
-      final List<CragType> types = const [],
       this.imageUrl,
       this.region,
       this.country,
       this.isGym = false,
       this.activeClimbersCount = 0,
       this.createdAt,
-      this.createdBy})
-      : _types = types;
+      this.createdBy});
 
   factory _$CragImpl.fromJson(Map<String, dynamic> json) =>
       _$$CragImplFromJson(json);
@@ -456,15 +441,6 @@ class _$CragImpl implements _Crag {
   final CragLocation location;
   @override
   final String? description;
-  final List<CragType> _types;
-  @override
-  @JsonKey()
-  List<CragType> get types {
-    if (_types is EqualUnmodifiableListView) return _types;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_types);
-  }
-
   @override
   final String? imageUrl;
   @override
@@ -484,7 +460,7 @@ class _$CragImpl implements _Crag {
 
   @override
   String toString() {
-    return 'Crag(id: $id, name: $name, location: $location, description: $description, types: $types, imageUrl: $imageUrl, region: $region, country: $country, isGym: $isGym, activeClimbersCount: $activeClimbersCount, createdAt: $createdAt, createdBy: $createdBy)';
+    return 'Crag(id: $id, name: $name, location: $location, description: $description, imageUrl: $imageUrl, region: $region, country: $country, isGym: $isGym, activeClimbersCount: $activeClimbersCount, createdAt: $createdAt, createdBy: $createdBy)';
   }
 
   @override
@@ -498,7 +474,6 @@ class _$CragImpl implements _Crag {
                 other.location == location) &&
             (identical(other.description, description) ||
                 other.description == description) &&
-            const DeepCollectionEquality().equals(other._types, _types) &&
             (identical(other.imageUrl, imageUrl) ||
                 other.imageUrl == imageUrl) &&
             (identical(other.region, region) || other.region == region) &&
@@ -520,7 +495,6 @@ class _$CragImpl implements _Crag {
       name,
       location,
       description,
-      const DeepCollectionEquality().hash(_types),
       imageUrl,
       region,
       country,
@@ -551,7 +525,6 @@ abstract class _Crag implements Crag {
       required final String name,
       required final CragLocation location,
       final String? description,
-      final List<CragType> types,
       final String? imageUrl,
       final String? region,
       final String? country,
@@ -570,8 +543,6 @@ abstract class _Crag implements Crag {
   CragLocation get location;
   @override
   String? get description;
-  @override
-  List<CragType> get types;
   @override
   String? get imageUrl;
   @override

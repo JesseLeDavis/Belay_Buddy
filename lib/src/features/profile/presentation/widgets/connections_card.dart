@@ -130,15 +130,6 @@ class ConnectionRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
-    final disciplineColors = {
-      ClimbingStyle.sport: c.accentBlue,
-      ClimbingStyle.trad: c.dullOrange,
-      ClimbingStyle.boulder: c.oliveGreen,
-      ClimbingStyle.all: c.amber,
-    };
-    final primaryStyle = user.climbingStyles.isNotEmpty
-        ? user.climbingStyles.first
-        : ClimbingStyle.all;
 
     return GestureDetector(
       onTap: () => context.push('/profile/${user.uid}'),
@@ -155,7 +146,7 @@ class ConnectionRow extends StatelessWidget {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: disciplineColors[primaryStyle] ?? c.borderColor,
+                color: c.borderColor,
                 borderRadius: BorderRadius.circular(AppRadius.sm),
                 border: Border.all(color: c.borderColor, width: 2),
               ),
@@ -183,15 +174,6 @@ class ConnectionRow extends StatelessWidget {
                 ),
               ),
             ),
-            Text(
-              user.climbingStyles
-                  .take(2)
-                  .map((s) => s.name.toUpperCase())
-                  .join(' · '),
-              style: GoogleFonts.spaceMono(
-                  fontSize: 9, color: c.textSecondary),
-            ),
-            const SizedBox(width: AppSpacing.xs),
             Icon(Icons.chevron_right,
                 size: 16, color: c.textDisabled),
           ],

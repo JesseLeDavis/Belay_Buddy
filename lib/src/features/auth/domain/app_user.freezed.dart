@@ -26,7 +26,6 @@ mixin _$AppUser {
   String? get photoUrl => throw _privateConstructorUsedError;
   String? get bio => throw _privateConstructorUsedError;
   ExperienceLevel get experienceLevel => throw _privateConstructorUsedError;
-  List<ClimbingStyle> get climbingStyles => throw _privateConstructorUsedError;
   List<String> get climbingTags => throw _privateConstructorUsedError;
   List<String> get favoriteCragIds => throw _privateConstructorUsedError;
   List<String> get favoriteGymIds => throw _privateConstructorUsedError;
@@ -61,7 +60,6 @@ abstract class $AppUserCopyWith<$Res> {
       String? photoUrl,
       String? bio,
       ExperienceLevel experienceLevel,
-      List<ClimbingStyle> climbingStyles,
       List<String> climbingTags,
       List<String> favoriteCragIds,
       List<String> favoriteGymIds,
@@ -97,7 +95,6 @@ class _$AppUserCopyWithImpl<$Res, $Val extends AppUser>
     Object? photoUrl = freezed,
     Object? bio = freezed,
     Object? experienceLevel = null,
-    Object? climbingStyles = null,
     Object? climbingTags = null,
     Object? favoriteCragIds = null,
     Object? favoriteGymIds = null,
@@ -136,10 +133,6 @@ class _$AppUserCopyWithImpl<$Res, $Val extends AppUser>
           ? _value.experienceLevel
           : experienceLevel // ignore: cast_nullable_to_non_nullable
               as ExperienceLevel,
-      climbingStyles: null == climbingStyles
-          ? _value.climbingStyles
-          : climbingStyles // ignore: cast_nullable_to_non_nullable
-              as List<ClimbingStyle>,
       climbingTags: null == climbingTags
           ? _value.climbingTags
           : climbingTags // ignore: cast_nullable_to_non_nullable
@@ -206,7 +199,6 @@ abstract class _$$AppUserImplCopyWith<$Res> implements $AppUserCopyWith<$Res> {
       String? photoUrl,
       String? bio,
       ExperienceLevel experienceLevel,
-      List<ClimbingStyle> climbingStyles,
       List<String> climbingTags,
       List<String> favoriteCragIds,
       List<String> favoriteGymIds,
@@ -240,7 +232,6 @@ class __$$AppUserImplCopyWithImpl<$Res>
     Object? photoUrl = freezed,
     Object? bio = freezed,
     Object? experienceLevel = null,
-    Object? climbingStyles = null,
     Object? climbingTags = null,
     Object? favoriteCragIds = null,
     Object? favoriteGymIds = null,
@@ -279,10 +270,6 @@ class __$$AppUserImplCopyWithImpl<$Res>
           ? _value.experienceLevel
           : experienceLevel // ignore: cast_nullable_to_non_nullable
               as ExperienceLevel,
-      climbingStyles: null == climbingStyles
-          ? _value._climbingStyles
-          : climbingStyles // ignore: cast_nullable_to_non_nullable
-              as List<ClimbingStyle>,
       climbingTags: null == climbingTags
           ? _value._climbingTags
           : climbingTags // ignore: cast_nullable_to_non_nullable
@@ -345,7 +332,6 @@ class _$AppUserImpl implements _AppUser {
       this.photoUrl,
       this.bio,
       this.experienceLevel = ExperienceLevel.intermediate,
-      final List<ClimbingStyle> climbingStyles = const [ClimbingStyle.all],
       final List<String> climbingTags = const [],
       final List<String> favoriteCragIds = const [],
       final List<String> favoriteGymIds = const [],
@@ -358,8 +344,7 @@ class _$AppUserImpl implements _AppUser {
       this.notifyHomeConnections = false,
       this.createdAt,
       this.lastActive})
-      : _climbingStyles = climbingStyles,
-        _climbingTags = climbingTags,
+      : _climbingTags = climbingTags,
         _favoriteCragIds = favoriteCragIds,
         _favoriteGymIds = favoriteGymIds,
         _connectionIds = connectionIds,
@@ -381,15 +366,6 @@ class _$AppUserImpl implements _AppUser {
   @override
   @JsonKey()
   final ExperienceLevel experienceLevel;
-  final List<ClimbingStyle> _climbingStyles;
-  @override
-  @JsonKey()
-  List<ClimbingStyle> get climbingStyles {
-    if (_climbingStyles is EqualUnmodifiableListView) return _climbingStyles;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_climbingStyles);
-  }
-
   final List<String> _climbingTags;
   @override
   @JsonKey()
@@ -456,7 +432,7 @@ class _$AppUserImpl implements _AppUser {
 
   @override
   String toString() {
-    return 'AppUser(uid: $uid, email: $email, displayName: $displayName, photoUrl: $photoUrl, bio: $bio, experienceLevel: $experienceLevel, climbingStyles: $climbingStyles, climbingTags: $climbingTags, favoriteCragIds: $favoriteCragIds, favoriteGymIds: $favoriteGymIds, connectionIds: $connectionIds, pendingConnectionIds: $pendingConnectionIds, homeGymId: $homeGymId, homeCragId: $homeCragId, isHomeVisible: $isHomeVisible, notifyHomeCatch: $notifyHomeCatch, notifyHomeConnections: $notifyHomeConnections, createdAt: $createdAt, lastActive: $lastActive)';
+    return 'AppUser(uid: $uid, email: $email, displayName: $displayName, photoUrl: $photoUrl, bio: $bio, experienceLevel: $experienceLevel, climbingTags: $climbingTags, favoriteCragIds: $favoriteCragIds, favoriteGymIds: $favoriteGymIds, connectionIds: $connectionIds, pendingConnectionIds: $pendingConnectionIds, homeGymId: $homeGymId, homeCragId: $homeCragId, isHomeVisible: $isHomeVisible, notifyHomeCatch: $notifyHomeCatch, notifyHomeConnections: $notifyHomeConnections, createdAt: $createdAt, lastActive: $lastActive)';
   }
 
   @override
@@ -473,8 +449,6 @@ class _$AppUserImpl implements _AppUser {
             (identical(other.bio, bio) || other.bio == bio) &&
             (identical(other.experienceLevel, experienceLevel) ||
                 other.experienceLevel == experienceLevel) &&
-            const DeepCollectionEquality()
-                .equals(other._climbingStyles, _climbingStyles) &&
             const DeepCollectionEquality()
                 .equals(other._climbingTags, _climbingTags) &&
             const DeepCollectionEquality()
@@ -503,28 +477,26 @@ class _$AppUserImpl implements _AppUser {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hashAll([
-        runtimeType,
-        uid,
-        email,
-        displayName,
-        photoUrl,
-        bio,
-        experienceLevel,
-        const DeepCollectionEquality().hash(_climbingStyles),
-        const DeepCollectionEquality().hash(_climbingTags),
-        const DeepCollectionEquality().hash(_favoriteCragIds),
-        const DeepCollectionEquality().hash(_favoriteGymIds),
-        const DeepCollectionEquality().hash(_connectionIds),
-        const DeepCollectionEquality().hash(_pendingConnectionIds),
-        homeGymId,
-        homeCragId,
-        isHomeVisible,
-        notifyHomeCatch,
-        notifyHomeConnections,
-        createdAt,
-        lastActive
-      ]);
+  int get hashCode => Object.hash(
+      runtimeType,
+      uid,
+      email,
+      displayName,
+      photoUrl,
+      bio,
+      experienceLevel,
+      const DeepCollectionEquality().hash(_climbingTags),
+      const DeepCollectionEquality().hash(_favoriteCragIds),
+      const DeepCollectionEquality().hash(_favoriteGymIds),
+      const DeepCollectionEquality().hash(_connectionIds),
+      const DeepCollectionEquality().hash(_pendingConnectionIds),
+      homeGymId,
+      homeCragId,
+      isHomeVisible,
+      notifyHomeCatch,
+      notifyHomeConnections,
+      createdAt,
+      lastActive);
 
   /// Create a copy of AppUser
   /// with the given fields replaced by the non-null parameter values.
@@ -550,7 +522,6 @@ abstract class _AppUser implements AppUser {
       final String? photoUrl,
       final String? bio,
       final ExperienceLevel experienceLevel,
-      final List<ClimbingStyle> climbingStyles,
       final List<String> climbingTags,
       final List<String> favoriteCragIds,
       final List<String> favoriteGymIds,
@@ -578,8 +549,6 @@ abstract class _AppUser implements AppUser {
   String? get bio;
   @override
   ExperienceLevel get experienceLevel;
-  @override
-  List<ClimbingStyle> get climbingStyles;
   @override
   List<String> get climbingTags;
   @override

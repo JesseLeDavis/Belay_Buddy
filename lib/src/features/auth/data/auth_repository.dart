@@ -23,7 +23,6 @@ class CurrentUserNotifier extends StateNotifier<AppUser?> {
   void updateProfile({
     String? displayName,
     String? bio,
-    List<ClimbingStyle>? climbingStyles,
     List<String>? climbingTags,
   }) {
     final user = state;
@@ -31,7 +30,6 @@ class CurrentUserNotifier extends StateNotifier<AppUser?> {
     state = user.copyWith(
       displayName: displayName ?? user.displayName,
       bio: bio,
-      climbingStyles: climbingStyles ?? user.climbingStyles,
       climbingTags: climbingTags ?? user.climbingTags,
     );
   }

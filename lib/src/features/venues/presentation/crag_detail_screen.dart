@@ -158,7 +158,7 @@ class CragDetailScreen extends ConsumerWidget {
                   Opacity(
                     opacity: (1 - scrollFraction / 0.7).clamp(0.0, 1.0),
                     child: Text(
-                      '${crag.region ?? 'Unknown region'} / ${crag.types.map((t) => t.name.toUpperCase()).join(', ')}',
+                      crag.region ?? 'Unknown region',
                       style: GoogleFonts.spaceMono(
                         fontSize: 10,
                         color: c.textOnPrimary.withAlpha(204),
@@ -203,26 +203,6 @@ class CragDetailScreen extends ConsumerWidget {
                 style: GoogleFonts.spaceMono(
                     fontSize: 12, color: c.textSecondary),
               ),
-              const Spacer(),
-              ...crag.types.map((t) => Padding(
-                    padding: const EdgeInsets.only(left: AppSpacing.xs),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.sm, vertical: 3),
-                      decoration: BoxDecoration(
-                          border:
-                              Border.all(color: c.borderColor, width: 2),
-                          borderRadius: BorderRadius.circular(AppRadius.sm)),
-                      child: Text(
-                        t.name.toUpperCase(),
-                        style: GoogleFonts.spaceMono(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: c.textPrimary,
-                        ),
-                      ),
-                    ),
-                  )),
             ],
           ),
           if (crag.description != null) ...[
