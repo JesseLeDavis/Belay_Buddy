@@ -3,6 +3,7 @@ import 'package:belay_buddy/src/features/venues/data/venues_repository.dart';
 import 'package:belay_buddy/src/features/favorites/data/favorites_repository.dart';
 import 'package:belay_buddy/src/features/home_settings/data/home_settings_repository.dart';
 import 'package:belay_buddy/src/common/theme/app_theme.dart';
+import 'package:belay_buddy/src/common/utils/climbing_tags.dart';
 import 'package:belay_buddy/src/common/utils/map_markers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -339,13 +340,14 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
 // ── Crag card ─────────────────────────────────────────────────────────────────
 
-class _CragCard extends StatelessWidget {
+class _CragCard extends ConsumerWidget {
   final Crag crag;
   const _CragCard({required this.crag});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.appColors;
+    final vibeTags = ref.watch(cragVibeTagsProvider(crag.id));
     return GestureDetector(
       onTap: () => context.push('/crag/${crag.id}'),
       child: Container(
@@ -416,6 +418,39 @@ class _CragCard extends StatelessWidget {
                 ],
               ),
             ),
+
+            // Vibe chips
+            if (vibeTags.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.smMd, 0, AppSpacing.smMd, AppSpacing.sm),
+                child: Wrap(
+                  spacing: 4,
+                  runSpacing: 4,
+                  children: vibeTags.take(3).map((vt) {
+                    final tag = ClimbingTags.getById(vt.tagId);
+                    if (tag == null) return const SizedBox.shrink();
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 5, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: tag.color.withAlpha(30),
+                        border: Border.all(color: tag.color, width: 1.5),
+                      ),
+                      child: Text(
+                        vt.count > 1
+                            ? '${tag.label} ×${vt.count}'
+                            : tag.label,
+                        style: GoogleFonts.spaceMono(
+                          fontSize: 8,
+                          fontWeight: FontWeight.w700,
+                          color: tag.color,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
 
             // Footer
             Container(

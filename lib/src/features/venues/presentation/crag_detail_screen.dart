@@ -1,3 +1,4 @@
+import 'package:belay_buddy/src/common/utils/climbing_tags.dart';
 import 'package:belay_buddy/src/features/posts/domain/climbing_post.dart';
 import 'package:belay_buddy/src/features/venues/domain/crag.dart';
 import 'package:belay_buddy/src/features/lost_found/domain/lost_found_item.dart';
@@ -205,6 +206,7 @@ class CragDetailScreen extends ConsumerWidget {
               ),
             ],
           ),
+          _buildVibeChips(context, ref, crag.id),
           if (crag.description != null) ...[
             const SizedBox(height: AppSpacing.sm),
             Text(
@@ -315,6 +317,62 @@ class CragDetailScreen extends ConsumerWidget {
           borderRadius:
               BorderRadius.vertical(top: Radius.circular(AppRadius.lg))),
       builder: (_) => HomeBaseSheet(crag: crag),
+    );
+  }
+
+  // ── Vibe chips ─────────────────────────────────────────────────────────────
+
+  Widget _buildVibeChips(BuildContext context, WidgetRef ref, String cragId) {
+    final vibeTags = ref.watch(cragVibeTagsProvider(cragId));
+    if (vibeTags.isEmpty) return const SizedBox.shrink();
+    final c = context.appColors;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.sm),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'COMMUNITY VIBE',
+            style: GoogleFonts.spaceMono(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: c.textSecondary,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Wrap(
+            spacing: AppSpacing.xs,
+            runSpacing: AppSpacing.xs,
+            children: vibeTags.map((vt) {
+              final tag = ClimbingTags.getById(vt.tagId);
+              if (tag == null) return const SizedBox.shrink();
+              final rotation = ClimbingTags.rotationFor(vt.tagId);
+              return Transform.rotate(
+                angle: rotation * 3.14159 / 180,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: tag.color.withAlpha(30),
+                    border: Border.all(color: tag.color, width: 2),
+                  ),
+                  child: Text(
+                    vt.count > 1
+                        ? '${tag.label} ×${vt.count}'
+                        : tag.label,
+                    style: GoogleFonts.spaceMono(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w700,
+                      color: tag.color,
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
     );
   }
 

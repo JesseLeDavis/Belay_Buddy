@@ -85,6 +85,22 @@ final visibleHomeMembersProvider =
 
 /// Member count for a crag/gym — base count from mock data adjusted by
 /// whether the current user has this as their home location.
+/// Top community vibe tags for a crag/gym — aggregated from home members'
+/// climbingTags, sorted by frequency. Returns (tagId, count) pairs.
+final cragVibeTagsProvider =
+    Provider.family<List<({String tagId, int count})>, String>((ref, cragId) {
+  final members = MockData.getVisibleHomeMembers(cragId);
+  final tally = <String, int>{};
+  for (final user in members) {
+    for (final tag in user.climbingTags) {
+      tally[tag] = (tally[tag] ?? 0) + 1;
+    }
+  }
+  final sorted = tally.entries.toList()
+    ..sort((a, b) => b.value.compareTo(a.value));
+  return sorted.take(5).map((e) => (tagId: e.key, count: e.value)).toList();
+});
+
 final homeMemberCountProvider =
     Provider.family<int, String>((ref, cragId) {
   final settings = ref.watch(homeSettingsProvider);
