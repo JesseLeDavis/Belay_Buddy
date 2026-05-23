@@ -2,7 +2,6 @@ import 'package:belay_buddy/src/features/auth/domain/app_user.dart';
 import 'package:belay_buddy/src/features/notifications/domain/climbing_notification.dart';
 import 'package:belay_buddy/src/features/posts/domain/climbing_post.dart';
 import 'package:belay_buddy/src/features/venues/domain/crag.dart';
-import 'package:belay_buddy/src/features/lost_found/domain/lost_found_item.dart';
 import 'package:belay_buddy/src/features/messages/domain/message.dart';
 
 /// The mock "current user" ID used throughout the app.
@@ -57,7 +56,7 @@ class MockData {
       displayName: 'Carlos Trad-Dad',
       bio: 'Trad dad energy. Rack jangler. Cam whisperer.',
       experienceLevel: ExperienceLevel.expert,
-      climbingTags: ['trad_dad', 'crack_addict', 'spray_lord', 'tape_gloves', 'silent_sender', 'first_ascensionist'],
+      climbingTags: ['trad_dad', 'offwidth_warrior', 'spray_lord', 'tape_gloves', 'silent_sender', 'first_ascensionist'],
       favoriteCragIds: ['crag_yosemite', 'crag_eldorado'],
       favoriteGymIds: [],
       connectionIds: ['user_1'],
@@ -284,7 +283,7 @@ class MockData {
   // ============ POSTS ============
 
   static final List<ClimbingPost> posts = [
-    // Red Rocks posts
+    // ── Red Rocks: Partner Requests ──
     ClimbingPost(
       id: 'post_1',
       userId: 'user_1',
@@ -292,9 +291,10 @@ class MockData {
       title: 'Looking for belay partner at Calico Basin',
       description: 'Planning to hit some 5.10s this afternoon. Got a 70m rope.',
       dateTime: DateTime.now().subtract(const Duration(minutes: 30)),
-      type: PostType.immediate,
+      type: PostType.partnerRequest,
+      partnerNeedType: PartnerNeedType.belay,
       needsBelay: true,
-      offeringBelay: false,
+      gradeRange: '5.9-5.11a',
       expiresAt: DateTime.now().add(const Duration(hours: 11)),
       createdAt: DateTime.now().subtract(const Duration(minutes: 30)),
     ),
@@ -306,9 +306,10 @@ class MockData {
       description:
           'I can top-rope 5.9 comfortably. Would love someone patient to show me the ropes (literally).',
       dateTime: DateTime.now().add(const Duration(days: 2)),
-      type: PostType.scheduled,
+      type: PostType.partnerRequest,
+      partnerNeedType: PartnerNeedType.ropedPartner,
       needsBelay: true,
-      offeringBelay: false,
+      gradeRange: '5.6-5.9',
       expiresAt: DateTime.now().add(const Duration(days: 2, hours: 2)),
       createdAt: DateTime.now().subtract(const Duration(hours: 3)),
     ),
@@ -319,14 +320,88 @@ class MockData {
       title: 'Free belays! Happy to help anyone',
       description: 'Resting my fingers today but happy to belay if you need it.',
       dateTime: DateTime.now().subtract(const Duration(hours: 1)),
-      type: PostType.immediate,
-      needsBelay: false,
+      type: PostType.partnerRequest,
+      partnerNeedType: PartnerNeedType.belay,
       offeringBelay: true,
       expiresAt: DateTime.now().add(const Duration(hours: 10)),
       createdAt: DateTime.now().subtract(const Duration(hours: 1)),
     ),
 
-    // Yosemite posts
+    // ── Red Rocks: Introductions ──
+    ClimbingPost(
+      id: 'post_intro_1',
+      userId: 'user_4',
+      cragId: 'crag_red_rocks',
+      title: 'New to outdoor climbing — looking for friends!',
+      description:
+          'Hey! I\'m Priya, just moved to Vegas and looking for climbing buddies. '
+          'I mostly top-rope but want to learn lead. Down for chill sessions!',
+      dateTime: DateTime.now().subtract(const Duration(days: 2)),
+      type: PostType.introduction,
+      climbingLevel: '5.7-5.9',
+      climbingGoals: ['Learn to lead', 'Meet climbing partners', 'Get outdoors more'],
+      createdAt: DateTime.now().subtract(const Duration(days: 2)),
+    ),
+    ClimbingPost(
+      id: 'post_intro_2',
+      userId: 'user_6',
+      cragId: 'crag_red_rocks',
+      title: 'Comp climber gone casual — let\'s climb!',
+      description:
+          'Jordan here! Ex-comp climber just looking to have fun on real rock. '
+          'Strong on overhangs, terrible on slabs. Let\'s be friends.',
+      dateTime: DateTime.now().subtract(const Duration(days: 1)),
+      type: PostType.introduction,
+      climbingLevel: '5.12a-5.13b',
+      climbingGoals: ['Climb outdoors more', 'Find regular partners', 'Trad climbing'],
+      createdAt: DateTime.now().subtract(const Duration(days: 1)),
+    ),
+
+    // ── Red Rocks: Lost & Found ──
+    ClimbingPost(
+      id: 'post_lf_1',
+      userId: 'user_2',
+      cragId: 'crag_red_rocks',
+      title: 'Found: Black ATC belay device',
+      description: 'Found near Calico Basin. Well worn, has a carabiner attached.',
+      dateTime: DateTime.now().subtract(const Duration(hours: 3)),
+      type: PostType.lostFound,
+      lostFoundStatus: LostFoundStatus.found,
+      lostFoundCategory: LostFoundCategory.gear,
+      itemName: 'Black ATC belay device',
+      locationNote: 'Base of Calico Basin wall',
+      createdAt: DateTime.now().subtract(const Duration(hours: 3)),
+    ),
+    ClimbingPost(
+      id: 'post_lf_2',
+      userId: 'user_3',
+      cragId: 'crag_red_rocks',
+      title: 'Lost: Blue Patagonia fleece',
+      description: 'Has my name written on the inside tag. Lost somewhere near the main wall.',
+      dateTime: DateTime.now().subtract(const Duration(days: 1)),
+      type: PostType.lostFound,
+      lostFoundStatus: LostFoundStatus.lost,
+      lostFoundCategory: LostFoundCategory.clothing,
+      itemName: 'Blue Patagonia fleece',
+      locationNote: 'Main wall / parking area',
+      createdAt: DateTime.now().subtract(const Duration(days: 1)),
+    ),
+    ClimbingPost(
+      id: 'post_lf_3',
+      userId: 'user_1',
+      cragId: 'crag_red_rocks',
+      title: 'Found: Prescription glasses in case',
+      description: 'Wire-framed glasses in a green hard case. Found at Calico Hills.',
+      dateTime: DateTime.now().subtract(const Duration(hours: 6)),
+      type: PostType.lostFound,
+      lostFoundStatus: LostFoundStatus.found,
+      lostFoundCategory: LostFoundCategory.personalItem,
+      itemName: 'Prescription glasses in case',
+      locationNote: 'Calico Hills area',
+      createdAt: DateTime.now().subtract(const Duration(hours: 6)),
+    ),
+
+    // ── Yosemite: Partner Requests ──
     ClimbingPost(
       id: 'post_4',
       userId: 'user_3',
@@ -335,9 +410,11 @@ class MockData {
       description:
           'Looking for someone to attempt The Nose in a day. Must lead 5.12 trad comfortably.',
       dateTime: DateTime.now().add(const Duration(days: 5)),
-      type: PostType.scheduled,
+      type: PostType.partnerRequest,
+      partnerNeedType: PartnerNeedType.ropedPartner,
       needsBelay: true,
       offeringBelay: true,
+      gradeRange: '5.12+',
       expiresAt: DateTime.now().add(const Duration(days: 5, hours: 2)),
       createdAt: DateTime.now().subtract(const Duration(hours: 6)),
     ),
@@ -348,9 +425,8 @@ class MockData {
       title: 'Bouldering at Camp 4 today',
       description: 'Working the Midnight Lightning sit start. Come hang!',
       dateTime: DateTime.now(),
-      type: PostType.immediate,
-      needsBelay: false,
-      offeringBelay: false,
+      type: PostType.partnerRequest,
+      partnerNeedType: PartnerNeedType.boulderingBuddy,
       expiresAt: DateTime.now().add(const Duration(hours: 12)),
       createdAt: DateTime.now(),
     ),
@@ -361,14 +437,48 @@ class MockData {
       title: 'Sport climbing at Cookie Cliff',
       description: 'Projecting Cosmic Debris. Could use a belay buddy!',
       dateTime: DateTime.now().add(const Duration(hours: 3)),
-      type: PostType.scheduled,
+      type: PostType.partnerRequest,
+      partnerNeedType: PartnerNeedType.belay,
       needsBelay: true,
       offeringBelay: true,
+      gradeRange: '5.11-5.12a',
       expiresAt: DateTime.now().add(const Duration(hours: 5)),
       createdAt: DateTime.now().subtract(const Duration(hours: 1)),
     ),
 
-    // Eldorado Canyon posts
+    // ── Yosemite: Introduction ──
+    ClimbingPost(
+      id: 'post_intro_3',
+      userId: 'user_3',
+      cragId: 'crag_yosemite',
+      title: 'Trad dad looking for Valley regulars',
+      description:
+          'Carlos here. In the Valley for the next month. Looking to link up with '
+          'folks for multi-pitch trad. I lead hard cracks and have a full rack.',
+      dateTime: DateTime.now().subtract(const Duration(days: 3)),
+      type: PostType.introduction,
+      climbingLevel: '5.12 trad',
+      climbingGoals: ['Big wall objectives', 'Find trad partners', 'Multi-pitch'],
+      createdAt: DateTime.now().subtract(const Duration(days: 3)),
+    ),
+
+    // ── Yosemite: Lost & Found ──
+    ClimbingPost(
+      id: 'post_lf_4',
+      userId: 'user_3',
+      cragId: 'crag_yosemite',
+      title: 'Lost: GoPro Hero 12',
+      description: 'In a black protective case with a chest harness. Lost somewhere on the approach to El Cap.',
+      dateTime: DateTime.now().subtract(const Duration(hours: 12)),
+      type: PostType.lostFound,
+      lostFoundStatus: LostFoundStatus.lost,
+      lostFoundCategory: LostFoundCategory.personalItem,
+      itemName: 'GoPro Hero 12',
+      locationNote: 'El Cap approach trail',
+      createdAt: DateTime.now().subtract(const Duration(hours: 12)),
+    ),
+
+    // ── Eldorado Canyon: Partner Requests ──
     ClimbingPost(
       id: 'post_7',
       userId: 'user_3',
@@ -376,9 +486,11 @@ class MockData {
       title: 'Bastille Crack this weekend',
       description: 'Classic 5.7 trad. I have a full rack. Just need a partner.',
       dateTime: DateTime.now().add(const Duration(days: 3)),
-      type: PostType.scheduled,
+      type: PostType.partnerRequest,
+      partnerNeedType: PartnerNeedType.ropedPartner,
       needsBelay: true,
       offeringBelay: true,
+      gradeRange: '5.7-5.9',
       expiresAt: DateTime.now().add(const Duration(days: 3, hours: 2)),
       createdAt: DateTime.now().subtract(const Duration(hours: 12)),
     ),
@@ -389,14 +501,31 @@ class MockData {
       title: 'Anyone top-roping Wind Tower?',
       description: 'First time at Eldo! Would love company.',
       dateTime: DateTime.now().add(const Duration(days: 1)),
-      type: PostType.scheduled,
+      type: PostType.partnerRequest,
+      partnerNeedType: PartnerNeedType.belay,
       needsBelay: true,
-      offeringBelay: false,
+      gradeRange: '5.6-5.8',
       expiresAt: DateTime.now().add(const Duration(days: 1, hours: 2)),
       createdAt: DateTime.now().subtract(const Duration(hours: 5)),
     ),
 
-    // Rumney posts
+    // ── Eldorado: Introduction ──
+    ClimbingPost(
+      id: 'post_intro_4',
+      userId: 'user_8',
+      cragId: 'crag_eldorado',
+      title: 'Route setter looking for outdoor projects',
+      description:
+          'Nico here — I set at Movement Denver and want to climb outside more. '
+          'Strong on crimps, working on my crack technique. Let\'s link up!',
+      dateTime: DateTime.now().subtract(const Duration(hours: 18)),
+      type: PostType.introduction,
+      climbingLevel: '5.12-5.13a',
+      climbingGoals: ['Crack climbing', 'Outdoor projects', 'Meet trad climbers'],
+      createdAt: DateTime.now().subtract(const Duration(hours: 18)),
+    ),
+
+    // ── Rumney: Partner Requests ──
     ClimbingPost(
       id: 'post_9',
       userId: 'user_2',
@@ -404,9 +533,11 @@ class MockData {
       title: 'Sending temps at Waimea Wall',
       description: 'Perfect fall friction. Let\'s crush some pockets!',
       dateTime: DateTime.now(),
-      type: PostType.immediate,
+      type: PostType.partnerRequest,
+      partnerNeedType: PartnerNeedType.belay,
       needsBelay: true,
       offeringBelay: true,
+      gradeRange: '5.11-5.12b',
       expiresAt: DateTime.now().add(const Duration(hours: 12)),
       createdAt: DateTime.now(),
     ),
@@ -417,14 +548,14 @@ class MockData {
       title: 'Weekend warrior looking for crew',
       description: 'Driving up Saturday AM. Room in the car for 2.',
       dateTime: DateTime.now().add(const Duration(days: 4)),
-      type: PostType.scheduled,
-      needsBelay: false,
+      type: PostType.partnerRequest,
+      partnerNeedType: PartnerNeedType.ropedPartner,
       offeringBelay: true,
       expiresAt: DateTime.now().add(const Duration(days: 4, hours: 2)),
       createdAt: DateTime.now().subtract(const Duration(hours: 8)),
     ),
 
-    // Smith Rock posts
+    // ── Smith Rock: Partner Requests ──
     ClimbingPost(
       id: 'post_11',
       userId: 'user_3',
@@ -432,9 +563,10 @@ class MockData {
       title: 'Chain Reaction project sesh',
       description: 'Working the crux on 5.12c. Patient belayer needed!',
       dateTime: DateTime.now().subtract(const Duration(minutes: 15)),
-      type: PostType.immediate,
+      type: PostType.partnerRequest,
+      partnerNeedType: PartnerNeedType.belay,
       needsBelay: true,
-      offeringBelay: false,
+      gradeRange: '5.12c',
       expiresAt: DateTime.now().add(const Duration(hours: 11)),
       createdAt: DateTime.now().subtract(const Duration(minutes: 15)),
     ),
@@ -445,9 +577,11 @@ class MockData {
       title: 'Morning session at the Dihedrals',
       description: 'Easy trad and moderate sport. All levels welcome.',
       dateTime: DateTime.now().add(const Duration(days: 1)),
-      type: PostType.scheduled,
+      type: PostType.partnerRequest,
+      partnerNeedType: PartnerNeedType.ropedPartner,
       needsBelay: true,
       offeringBelay: true,
+      gradeRange: '5.7-5.10',
       expiresAt: DateTime.now().add(const Duration(days: 1, hours: 2)),
       createdAt: DateTime.now().subtract(const Duration(hours: 2)),
     ),
@@ -458,11 +592,89 @@ class MockData {
       title: 'Bouldering at Monkey Face base',
       description: 'Warm-up boulders then maybe lead some routes. Down for anything.',
       dateTime: DateTime.now().add(const Duration(hours: 5)),
-      type: PostType.scheduled,
-      needsBelay: false,
+      type: PostType.partnerRequest,
+      partnerNeedType: PartnerNeedType.boulderingBuddy,
       offeringBelay: true,
       expiresAt: DateTime.now().add(const Duration(hours: 7)),
       createdAt: DateTime.now().subtract(const Duration(hours: 1)),
+    ),
+
+    // ── Smith Rock: Lost & Found ──
+    ClimbingPost(
+      id: 'post_lf_5',
+      userId: 'user_4',
+      cragId: 'crag_smith_rock',
+      title: 'Lost: Orange Petzl Grigri',
+      description: 'Has a small nick on the side plate. Lost near the Dihedrals.',
+      dateTime: DateTime.now().subtract(const Duration(hours: 8)),
+      type: PostType.lostFound,
+      lostFoundStatus: LostFoundStatus.lost,
+      lostFoundCategory: LostFoundCategory.gear,
+      itemName: 'Orange Petzl Grigri',
+      locationNote: 'Near the Dihedrals',
+      createdAt: DateTime.now().subtract(const Duration(hours: 8)),
+    ),
+    ClimbingPost(
+      id: 'post_lf_6',
+      userId: 'user_2',
+      cragId: 'crag_smith_rock',
+      title: 'Found: 60m dry-treated rope',
+      description: 'Blue/green pattern, left at the base of Monkey Face. No bag.',
+      dateTime: DateTime.now().subtract(const Duration(days: 2)),
+      type: PostType.lostFound,
+      lostFoundStatus: LostFoundStatus.found,
+      lostFoundCategory: LostFoundCategory.rope,
+      itemName: '60m dry-treated rope',
+      locationNote: 'Base of Monkey Face',
+      createdAt: DateTime.now().subtract(const Duration(days: 2)),
+    ),
+
+    // ── Gym: Movement Denver: Introduction ──
+    ClimbingPost(
+      id: 'post_intro_5',
+      userId: 'user_7',
+      cragId: 'gym_movement_denver',
+      title: 'Auto-belay queen looking for real partners',
+      description:
+          'Tess here! I\'ve been climbing solo on auto-belays for months. '
+          'Looking for patient belay partners. I climb 5.9-5.10 and am reliable!',
+      dateTime: DateTime.now().subtract(const Duration(hours: 4)),
+      type: PostType.introduction,
+      climbingLevel: '5.9-5.10',
+      climbingGoals: ['Find belay partners', 'Lead climbing', 'Build confidence'],
+      createdAt: DateTime.now().subtract(const Duration(hours: 4)),
+    ),
+    ClimbingPost(
+      id: 'post_intro_6',
+      userId: 'user_9',
+      cragId: 'gym_movement_denver',
+      title: 'Gym rat — always down for a session',
+      description:
+          'Kira here. I boulder V4-V6 and I\'m at Movement almost every evening. '
+          'Hit me up if you want a spotter or just want to session!',
+      dateTime: DateTime.now().subtract(const Duration(days: 1)),
+      type: PostType.introduction,
+      climbingLevel: 'V4-V6',
+      climbingGoals: ['Boulder harder', 'Find regular gym partners', 'Comp prep'],
+      createdAt: DateTime.now().subtract(const Duration(days: 1)),
+    ),
+
+    // ── Gym: Movement Denver: Partner Requests ──
+    ClimbingPost(
+      id: 'post_14',
+      userId: 'user_8',
+      cragId: 'gym_movement_denver',
+      title: 'Lead climbing session tonight',
+      description: 'Working on lead endurance. Need a belay partner for 6-8pm.',
+      dateTime: DateTime.now().add(const Duration(hours: 4)),
+      type: PostType.partnerRequest,
+      partnerNeedType: PartnerNeedType.belay,
+      needsBelay: true,
+      offeringBelay: true,
+      gradeRange: '5.11-5.12',
+      respondentIds: ['user_7'],
+      expiresAt: DateTime.now().add(const Duration(hours: 6)),
+      createdAt: DateTime.now().subtract(const Duration(hours: 2)),
     ),
   ];
 
@@ -626,90 +838,6 @@ class MockData {
         .where((m) => m.conversationId == conversationId)
         .toList()
       ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
-  }
-
-  // ============ LOST & FOUND ============
-
-  static final List<LostFoundItem> lostFoundItems = [
-    // Red Rocks
-    LostFoundItem(
-      id: 'lf_1',
-      cragId: 'crag_red_rocks',
-      userId: 'user_2',
-      status: LostFoundStatus.found,
-      category: LostFoundCategory.gear,
-      itemName: 'Black ATC belay device',
-      description: 'Found near Calico Basin. Well worn, has a carabiner attached.',
-      locationNote: 'Base of Calico Basin wall',
-      createdAt: DateTime.now().subtract(const Duration(hours: 3)),
-    ),
-    LostFoundItem(
-      id: 'lf_2',
-      cragId: 'crag_red_rocks',
-      userId: 'user_3',
-      status: LostFoundStatus.lost,
-      category: LostFoundCategory.clothing,
-      itemName: 'Blue Patagonia fleece',
-      description: 'Has my name written on the inside tag. Lost somewhere near the main wall.',
-      locationNote: 'Main wall / parking area',
-      createdAt: DateTime.now().subtract(const Duration(days: 1)),
-    ),
-    LostFoundItem(
-      id: 'lf_3',
-      cragId: 'crag_red_rocks',
-      userId: 'user_1',
-      status: LostFoundStatus.found,
-      category: LostFoundCategory.personalItem,
-      itemName: 'Prescription glasses in case',
-      description: 'Wire-framed glasses in a green hard case. Found at Calico Hills.',
-      locationNote: 'Calico Hills area',
-      createdAt: DateTime.now().subtract(const Duration(hours: 6)),
-    ),
-
-    // Smith Rock
-    LostFoundItem(
-      id: 'lf_4',
-      cragId: 'crag_smith_rock',
-      userId: 'user_4',
-      status: LostFoundStatus.lost,
-      category: LostFoundCategory.gear,
-      itemName: 'Orange Petzl Grigri',
-      description: 'Has a small nick on the side plate. Lost near the Dihedrals.',
-      locationNote: 'Near the Dihedrals',
-      createdAt: DateTime.now().subtract(const Duration(hours: 8)),
-    ),
-    LostFoundItem(
-      id: 'lf_5',
-      cragId: 'crag_smith_rock',
-      userId: 'user_2',
-      status: LostFoundStatus.found,
-      category: LostFoundCategory.rope,
-      itemName: '60m dry-treated rope',
-      description: 'Blue/green pattern, left at the base of Monkey Face. No bag.',
-      locationNote: 'Base of Monkey Face',
-      createdAt: DateTime.now().subtract(const Duration(days: 2)),
-    ),
-
-    // Yosemite
-    LostFoundItem(
-      id: 'lf_6',
-      cragId: 'crag_yosemite',
-      userId: 'user_3',
-      status: LostFoundStatus.lost,
-      category: LostFoundCategory.personalItem,
-      itemName: 'GoPro Hero 12',
-      description: 'In a black protective case with a chest harness. Lost somewhere on the approach to El Cap.',
-      locationNote: 'El Cap approach trail',
-      createdAt: DateTime.now().subtract(const Duration(hours: 12)),
-    ),
-  ];
-
-  static List<LostFoundItem> getLostFoundForCrag(String cragId) {
-    return lostFoundItems
-        .where((item) => item.cragId == cragId && !item.isResolved)
-        .toList()
-      ..sort((a, b) => (b.createdAt ?? DateTime(2000))
-          .compareTo(a.createdAt ?? DateTime(2000)));
   }
 
   /// Helper: get conversations for a user

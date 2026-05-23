@@ -65,10 +65,8 @@ lib/
         │   └── data/               # favorites_repository.dart (FavoritesNotifier)
         ├── home_settings/
         │   └── data/               # home_settings_repository.dart (HomeSettingsNotifier)
-        ├── lost_found/
-        │   ├── domain/             # lost_found_item.dart (Freezed)
-        │   ├── data/               # lost_found_repository.dart
-        │   └── presentation/       # lost_found_screen.dart (stub)
+        ├── community/
+        │   └── presentation/       # community_board_screen.dart (per-crag unified board: intros, partner requests, lost & found)
         └── profile/
             └── presentation/       # profile_screen, user_profile_screen
 ```
@@ -103,13 +101,13 @@ conversations/  id, participantIds[], lastMessage, lastMessageTime,
                 isReadByUser{}, createdAt
   messages/     id, conversationId, senderId, text, timestamp, isRead
 
-lost_found/     id, cragId, userId, status, category, itemName,
-                description, locationNote, isResolved, createdAt
+posts/          (lost & found items are now stored as posts with type=lostFound,
+                 see ClimbingPost: lostFoundStatus, lostFoundCategory, itemName,
+                 locationNote, isResolved)
 ```
 
 ## Known TODOs
 - **CragScheduleScreen** — stub "COMING SOON"; needs full calendar heatmap + day-filtered session list
-- **LostFoundScreen** — stub "COMING SOON"; needs filter tabs, full LostFoundCard widget, create form, mark-resolved
 - **Firebase init** — `Firebase.initializeApp()` not called in main.dart; swap providers when ready to go live
 - **Post expiration Cloud Functions** — `onCreate` trigger for `expiresAt`, scheduled sweep to set `isExpired: true`
 - **ProfileScreen** — currently read-only; needs edit capability (bio, experience level, styles)

@@ -15,7 +15,11 @@ class PostPreviewRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.appColors;
     final userAsync = ref.watch(userByIdProvider(post.userId));
-    final isNow = post.type == PostType.immediate;
+    final typeColor = switch (post.type) {
+      PostType.introduction => c.accentBlue,
+      PostType.partnerRequest => c.dullOrange,
+      PostType.lostFound => c.amber,
+    };
 
     return GestureDetector(
       onTap: onTap,
@@ -31,7 +35,7 @@ class PostPreviewRow extends ConsumerWidget {
             Container(
               width: 4,
               height: 44,
-              color: isNow ? c.dullOrange : c.oliveGreen,
+              color: typeColor,
             ),
             const SizedBox(width: AppSpacing.sm),
             Expanded(

@@ -366,7 +366,7 @@ class _StickerTagsSection extends StatelessWidget {
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                         color: tag.color.computeLuminance() > 0.4
-                            ? c.textPrimary
+                            ? c.textOnTertiary
                             : c.textOnPrimary,
                       ),
                     ),

@@ -204,7 +204,7 @@ class ProfileScreen extends ConsumerWidget {
           ProfileCard(
             title: 'USER INFO',
             stripColor: c.amber,
-            titleColor: c.textPrimary,
+            titleColor: c.textOnTertiary,
             children: [
               StatLine(
                   label: 'NAME',

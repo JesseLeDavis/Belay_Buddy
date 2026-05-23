@@ -200,7 +200,7 @@ class VenueNotifySheet extends ConsumerWidget {
                           style: GoogleFonts.spaceMono(
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
-                            color: c.textOnPrimary,
+                            color: c.textOnTertiary,
                           ),
                         ),
                       ),

@@ -263,6 +263,24 @@ class _NotifTile extends ConsumerWidget {
           '${notif.fromUserName} accepted your request',
           'You\'re now connected',
         );
+      case NotificationType.partnerInterest:
+        return (
+          Icons.emoji_people,
+          c.dullOrange,
+          '${notif.fromUserName} is interested in your session',
+          notif.cragName != null
+              ? 'At ${notif.cragName}'
+              : 'Tap to view',
+        );
+      case NotificationType.lostFoundClaim:
+        return (
+          Icons.inventory_2_outlined,
+          c.amber,
+          '${notif.fromUserName} responded to your item',
+          notif.cragName != null
+              ? 'At ${notif.cragName}'
+              : 'Tap to view',
+        );
     }
   }
 

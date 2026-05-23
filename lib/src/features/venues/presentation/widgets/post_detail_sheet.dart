@@ -3,7 +3,6 @@ import 'package:belay_buddy/src/features/posts/domain/climbing_post.dart';
 import 'package:belay_buddy/src/features/auth/data/auth_repository.dart';
 import 'package:belay_buddy/src/features/connections/data/connections_repository.dart';
 import 'package:belay_buddy/src/features/venues/domain/crag.dart';
-import 'package:belay_buddy/src/features/lost_found/presentation/lost_found_screen.dart';
 import 'package:belay_buddy/src/common/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -58,21 +57,19 @@ class PostDetailSheet extends ConsumerWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: AppSpacing.sm, vertical: 4),
                         decoration: BoxDecoration(
-                          color: post.type == PostType.immediate
-                              ? c.dullOrange
-                              : c.oliveGreen,
+                          color: _typeBadgeColor(post.type, c),
                           borderRadius: BorderRadius.circular(AppRadius.sm),
                           border:
                               Border.all(color: c.borderColor, width: 2),
                         ),
                         child: Text(
-                          post.type == PostType.immediate
-                              ? '● NOW'
-                              : '◆ SCHEDULED',
+                          _typeBadgeLabel(post.type),
                           style: GoogleFonts.spaceMono(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
-                            color: c.textOnPrimary,
+                            color: post.type == PostType.lostFound
+                                ? c.textOnTertiary
+                                : c.textOnPrimary,
                           ),
                         ),
                       ),
@@ -205,6 +202,28 @@ class PostDetailSheet extends ConsumerWidget {
           style: GoogleFonts.spaceMono(
               fontSize: 11, fontWeight: FontWeight.w700, color: c.textOnPrimary)),
     );
+  }
+
+  Color _typeBadgeColor(PostType type, AppColorsExtension c) {
+    switch (type) {
+      case PostType.introduction:
+        return c.accentBlue;
+      case PostType.partnerRequest:
+        return c.dullOrange;
+      case PostType.lostFound:
+        return c.amber;
+    }
+  }
+
+  String _typeBadgeLabel(PostType type) {
+    switch (type) {
+      case PostType.introduction:
+        return '● INTRO';
+      case PostType.partnerRequest:
+        return '◆ PARTNER';
+      case PostType.lostFound:
+        return '▲ LOST/FOUND';
+    }
   }
 
   String _formatFullDateTime(DateTime dt) {
@@ -401,13 +420,26 @@ class PostTypeSheet extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.sm),
           _PostTypeOption(
-            accentColor: c.oliveGreen,
+            accentColor: c.accentBlue,
+            icon: Icons.person_add_outlined,
+            title: 'INTRODUCTION',
+            subtitle: 'Introduce yourself and find climbing friends',
+            onTap: () {
+              Navigator.of(context).pop();
+              context.push('/crag/${crag.id}/post',
+                  extra: {'crag': crag, 'postType': 'introduction'});
+            },
+          ),
+          Divider(height: 1, thickness: 1, color: c.borderColor),
+          _PostTypeOption(
+            accentColor: c.dullOrange,
             icon: Icons.group_outlined,
-            title: 'PARTNER SESSION',
+            title: 'PARTNER REQUEST',
             subtitle: 'Find someone to climb with on a specific day',
             onTap: () {
               Navigator.of(context).pop();
-              context.push('/crag/${crag.id}/post', extra: crag);
+              context.push('/crag/${crag.id}/post',
+                  extra: {'crag': crag, 'postType': 'partnerRequest'});
             },
           ),
           if (!crag.isGym) ...[
@@ -419,9 +451,8 @@ class PostTypeSheet extends StatelessWidget {
               subtitle: 'Report a found item or post a lookout request',
               onTap: () {
                 Navigator.of(context).pop();
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => LostFoundScreen(cragId: crag.id),
-                ));
+                context.push('/crag/${crag.id}/post',
+                    extra: {'crag': crag, 'postType': 'lostFound'});
               },
             ),
           ],

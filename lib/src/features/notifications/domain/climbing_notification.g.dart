@@ -42,4 +42,6 @@ const _$NotificationTypeEnumMap = {
   NotificationType.catchNeeded: 'catchNeeded',
   NotificationType.connectionRequest: 'connectionRequest',
   NotificationType.connectionAccepted: 'connectionAccepted',
+  NotificationType.partnerInterest: 'partnerInterest',
+  NotificationType.lostFoundClaim: 'lostFoundClaim',
 };

@@ -20,37 +20,27 @@ class MapScreen extends ConsumerStatefulWidget {
 
 class _MapScreenState extends ConsumerState<MapScreen> {
   bool _mapExpanded = false;
-  BitmapDescriptor? _cragIcon;
-  BitmapDescriptor? _gymIcon;
   GoogleMapController? _mapController;
   bool _hasAnimatedToHome = false;
+  BitmapDescriptor? _cragIcon;
+  BitmapDescriptor? _gymIcon;
 
   static const double _collapsedHeight = 220;
 
-  bool _markersLoaded = false;
-
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_markersLoaded) {
-      _markersLoaded = true;
-      _loadMarkerIcons();
-    }
+  void initState() {
+    super.initState();
+    _loadMarkers();
   }
 
-  Future<void> _loadMarkerIcons() async {
-    final c = context.appColors;
-    final crag = await buildCragMarker(
-      navy: c.borderColor,
-      fill: c.dullOrange,
-      iconColor: c.textOnPrimary,
-    );
-    final gym = await buildGymMarker(
-      navy: c.borderColor,
-      fill: c.accentBlue,
-      iconColor: c.textOnPrimary,
-    );
-    if (mounted) setState(() { _cragIcon = crag; _gymIcon = gym; });
+  Future<void> _loadMarkers() async {
+    final results = await Future.wait([buildCragMarker(), buildGymMarker()]);
+    if (mounted) {
+      setState(() {
+        _cragIcon = results[0];
+        _gymIcon = results[1];
+      });
+    }
   }
 
   void _onMapCreated(GoogleMapController controller) {
@@ -97,9 +87,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           style: GoogleFonts.spaceMono(
             fontSize: 22,
             fontWeight: FontWeight.w700,
-            color: c.textPrimary,
+            color: c.textOnTertiary,
           ),
         ),
+        iconTheme: IconThemeData(color: c.textOnTertiary),
         shape: Border(
           bottom: BorderSide(color: c.borderColor, width: 3),
         ),

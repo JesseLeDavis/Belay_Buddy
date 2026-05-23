@@ -17,17 +17,23 @@ class PostCard extends ConsumerWidget {
     this.onTap,
   });
 
-  bool get _isImmediate => post.type == PostType.immediate;
+  Color _stripColor(AppColorsExtension c) => switch (post.type) {
+    PostType.introduction => c.accentBlue,
+    PostType.partnerRequest => c.dullOrange,
+    PostType.lostFound => c.amber,
+  };
 
-  String _typeLabel() {
-    return _isImmediate ? '\u25CF CLIMBING NOW' : '\u25C6 SCHEDULED';
-  }
+  String _typeLabel() => switch (post.type) {
+    PostType.introduction => '\u25CF INTRODUCTION',
+    PostType.partnerRequest => '\u25C6 PARTNER REQUEST',
+    PostType.lostFound => '\u25B2 LOST & FOUND',
+  };
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.appColors;
     final userAsync = ref.watch(userByIdProvider(post.userId));
-    final stripColor = _isImmediate ? c.dullOrange : c.oliveGreen;
+    final stripColor = _stripColor(c);
 
     return GestureDetector(
       onTap: onTap,

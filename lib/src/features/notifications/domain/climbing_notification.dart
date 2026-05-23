@@ -4,9 +4,11 @@ part 'climbing_notification.freezed.dart';
 part 'climbing_notification.g.dart';
 
 enum NotificationType {
-  catchNeeded,       // A connection posted they need a belay/catch
-  connectionRequest, // Someone wants to connect with you
-  connectionAccepted, // Your connection request was accepted
+  catchNeeded,         // A connection posted they need a belay/catch
+  connectionRequest,   // Someone wants to connect with you
+  connectionAccepted,  // Your connection request was accepted
+  partnerInterest,     // Someone expressed interest in your partner request
+  lostFoundClaim,      // Someone claimed/reported on your lost & found item
 }
 
 @freezed

@@ -1,20 +1,15 @@
 import 'package:belay_buddy/src/common/utils/climbing_tags.dart';
+import 'package:belay_buddy/src/features/auth/data/auth_repository.dart';
 import 'package:belay_buddy/src/features/posts/domain/climbing_post.dart';
 import 'package:belay_buddy/src/features/venues/domain/crag.dart';
-import 'package:belay_buddy/src/features/lost_found/domain/lost_found_item.dart';
 import 'package:belay_buddy/src/features/venues/data/venues_repository.dart';
 import 'package:belay_buddy/src/features/posts/data/posts_repository.dart';
-import 'package:belay_buddy/src/features/lost_found/data/lost_found_repository.dart';
 import 'package:belay_buddy/src/features/home_settings/data/home_settings_repository.dart';
-import 'package:belay_buddy/src/features/venues/presentation/crag_schedule_screen.dart';
-import 'package:belay_buddy/src/features/lost_found/presentation/lost_found_screen.dart';
 import 'package:belay_buddy/src/features/venues/presentation/widgets/crag_widgets.dart';
 import 'package:belay_buddy/src/features/venues/presentation/widgets/favorite_notify_row.dart';
 import 'package:belay_buddy/src/features/venues/presentation/widgets/home_base_sheet.dart';
-import 'package:belay_buddy/src/features/venues/presentation/widgets/lost_found_preview_row.dart';
 import 'package:belay_buddy/src/features/venues/presentation/widgets/members_preview_row.dart';
 import 'package:belay_buddy/src/features/venues/presentation/widgets/post_detail_sheet.dart';
-import 'package:belay_buddy/src/features/venues/presentation/widgets/post_preview_row.dart';
 import 'package:belay_buddy/src/common/theme/app_theme.dart';
 import 'package:belay_buddy/src/common/widgets/collage_header.dart';
 import 'package:belay_buddy/src/common/widgets/heatmap_strip.dart';
@@ -32,7 +27,6 @@ class CragDetailScreen extends ConsumerWidget {
     final c = context.appColors;
     final cragAsync = ref.watch(cragProvider(cragId));
     final postsAsync = ref.watch(postsAtCragProvider(cragId));
-    final lostFoundAsync = ref.watch(lostFoundAtCragProvider(cragId));
     final countsByDate = ref.watch(postCountsByDateProvider(cragId));
 
     return Scaffold(
@@ -56,7 +50,6 @@ class CragDetailScreen extends ConsumerWidget {
             ref,
             crag,
             postsAsync,
-            lostFoundAsync,
             countsByDate,
           );
         },
@@ -90,20 +83,14 @@ class CragDetailScreen extends ConsumerWidget {
     WidgetRef ref,
     Crag crag,
     AsyncValue<List<ClimbingPost>> postsAsync,
-    AsyncValue<List<LostFoundItem>> lostFoundAsync,
     Map<DateTime, int> countsByDate,
   ) {
     final posts = postsAsync.valueOrNull ?? [];
-    final lostFound = lostFoundAsync.valueOrNull ?? [];
 
     return CustomScrollView(
       slivers: [
         _buildAppBar(context, crag),
         SliverToBoxAdapter(child: _buildCragInfo(context, ref, crag)),
-        if (!crag.isGym)
-          SliverToBoxAdapter(
-            child: _buildLostFoundPanel(context, crag, lostFound),
-          ),
         SliverToBoxAdapter(
           child: _buildCommunityPanel(context, ref, crag, posts, countsByDate),
         ),
@@ -376,88 +363,6 @@ class CragDetailScreen extends ConsumerWidget {
     );
   }
 
-  // ── Lost & Found panel ─────────────────────────────────────────────────────
-
-  Widget _buildLostFoundPanel(
-      BuildContext context, Crag crag, List<LostFoundItem> items) {
-    final c = context.appColors;
-    final foundCount =
-        items.where((i) => i.status == LostFoundStatus.found).length;
-    final lostCount =
-        items.where((i) => i.status == LostFoundStatus.lost).length;
-    final preview = items.take(2).toList();
-
-    return Container(
-      margin: const EdgeInsets.fromLTRB(
-          AppSpacing.md, AppSpacing.sm, AppSpacing.md, 0),
-      decoration: BoxDecoration(
-        color: c.surface,
-        borderRadius: BorderRadius.circular(AppRadius.sm),
-        border: Border.all(color: c.borderColor, width: 2.5),
-        boxShadow: [
-          BoxShadow(
-              color: c.shadowColor, offset: const Offset(5, 5), blurRadius: 0)
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Header
-          Container(
-            padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.md, vertical: 12),
-            decoration: BoxDecoration(
-              color: c.amber,
-              border: Border(
-                  bottom: BorderSide(color: c.borderColor, width: 2)),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.inventory_2_outlined,
-                    size: 16, color: c.textPrimary),
-                const SizedBox(width: AppSpacing.sm),
-                Text(
-                  'LOST & FOUND BIN',
-                  style: GoogleFonts.spaceMono(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: c.textPrimary,
-                  ),
-                ),
-                const Spacer(),
-                if (foundCount > 0) ...[
-                  CountBadge(
-                      label: '$foundCount FOUND', color: c.oliveGreen),
-                  const SizedBox(width: 6),
-                ],
-                if (lostCount > 0)
-                  CountBadge(
-                      label: '$lostCount LOST', color: c.dullOrange),
-              ],
-            ),
-          ),
-
-          // Content
-          if (preview.isEmpty)
-            _emptyPanelRow(context, 'NOTHING POSTED YET', Icons.backpack_outlined)
-          else
-            ...preview.map((item) => LostFoundPreviewRow(item: item)),
-
-          // Footer
-          PanelFooter(
-            label: items.isEmpty
-                ? 'POST AN ITEM'
-                : 'VIEW ALL ${items.length} ITEMS →',
-            onTap: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => LostFoundScreen(cragId: crag.id),
-            )),
-          ),
-        ],
-      ),
-    );
-  }
-
   // ── Community Board panel ──────────────────────────────────────────────────
 
   Widget _buildCommunityPanel(
@@ -468,14 +373,17 @@ class CragDetailScreen extends ConsumerWidget {
     Map<DateTime, int> countsByDate,
   ) {
     final c = context.appColors;
-    final upcoming = posts
-        .where((p) =>
-            !p.isExpired &&
-            p.dateTime
-                .isAfter(DateTime.now().subtract(const Duration(hours: 1))))
-        .toList()
-      ..sort((a, b) => a.dateTime.compareTo(b.dateTime));
-    final preview = upcoming.take(2).toList();
+
+    // Sort by newest first, take a mixed preview
+    final sorted = [...posts]
+      ..sort((a, b) => (b.createdAt ?? DateTime(2000))
+          .compareTo(a.createdAt ?? DateTime(2000)));
+    final preview = sorted.take(3).toList();
+
+    // Count by type
+    final introCount = posts.where((p) => p.type == PostType.introduction).length;
+    final partnerCount = posts.where((p) => p.type == PostType.partnerRequest).length;
+    final lfCount = posts.where((p) => p.type == PostType.lostFound).length;
 
     return Container(
       margin: const EdgeInsets.all(AppSpacing.md),
@@ -503,7 +411,7 @@ class CragDetailScreen extends ConsumerWidget {
             ),
             child: Row(
               children: [
-                Icon(Icons.group_outlined, size: 16, color: c.textOnPrimary),
+                Icon(Icons.forum_outlined, size: 16, color: c.textOnPrimary),
                 const SizedBox(width: AppSpacing.sm),
                 Text(
                   'COMMUNITY BOARD',
@@ -515,7 +423,7 @@ class CragDetailScreen extends ConsumerWidget {
                 ),
                 const Spacer(),
                 CountBadge(
-                  label: '${upcoming.length} THIS WEEK',
+                  label: '${posts.length} POSTS',
                   color: c.surface,
                   textColor: c.textPrimary,
                 ),
@@ -523,31 +431,55 @@ class CragDetailScreen extends ConsumerWidget {
             ),
           ),
 
+          // Type summary row
+          Container(
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+            decoration: BoxDecoration(
+              color: c.chipBg,
+              border: Border(
+                  bottom: BorderSide(color: c.darkGrey, width: 1)),
+            ),
+            child: Row(
+              children: [
+                if (introCount > 0) ...[
+                  _TypeBadge(label: '$introCount INTROS', color: c.accentBlue),
+                  const SizedBox(width: 6),
+                ],
+                if (partnerCount > 0) ...[
+                  _TypeBadge(label: '$partnerCount PARTNER', color: c.dullOrange),
+                  const SizedBox(width: 6),
+                ],
+                if (lfCount > 0)
+                  _TypeBadge(label: '$lfCount LOST/FOUND', color: c.amber,
+                      textColor: c.textOnTertiary),
+              ],
+            ),
+          ),
+
           // Heatmap strip
           HeatmapStrip(
             countsByDate: countsByDate,
-            onTap: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => CragScheduleScreen(cragId: crag.id),
-            )),
+            onTap: () => context.push('/crag/${crag.id}/community'),
           ),
 
           Divider(height: 1, thickness: 1, color: c.borderColor),
 
           // Post previews
           if (preview.isEmpty)
-            _emptyPanelRow(context, 'NO SESSIONS POSTED', Icons.event_available_outlined)
+            _emptyPanelRow(context, 'NO POSTS YET', Icons.forum_outlined)
           else
-            ...preview.map((post) => PostPreviewRow(
+            ...preview.map((post) => _CommunityPreviewRow(
                   post: post,
                   onTap: () => _showPostDetail(context, ref, post),
                 )),
 
-          // Footer
+          // Footer — go to full community board
           PanelFooter(
-            label: posts.isEmpty ? 'POST A SESSION' : 'VIEW FULL SCHEDULE →',
-            onTap: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => CragScheduleScreen(cragId: crag.id),
-            )),
+            label: posts.isEmpty
+                ? 'START THE CONVERSATION'
+                : 'VIEW FULL COMMUNITY BOARD →',
+            onTap: () => context.push('/crag/${crag.id}/community'),
           ),
         ],
       ),
@@ -633,6 +565,113 @@ class CragDetailScreen extends ConsumerWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ── Helper widgets for community preview ────────────────────────────────────
+
+class _TypeBadge extends StatelessWidget {
+  final String label;
+  final Color color;
+  final Color? textColor;
+
+  const _TypeBadge({required this.label, required this.color, this.textColor});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withAlpha(30),
+        border: Border.all(color: color, width: 1.5),
+        borderRadius: BorderRadius.circular(AppRadius.xs),
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.spaceMono(
+          fontSize: 9,
+          fontWeight: FontWeight.w700,
+          color: textColor ?? color,
+        ),
+      ),
+    );
+  }
+}
+
+class _CommunityPreviewRow extends ConsumerWidget {
+  final ClimbingPost post;
+  final VoidCallback onTap;
+  const _CommunityPreviewRow({required this.post, required this.onTap});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.appColors;
+    final userAsync = ref.watch(userByIdProvider(post.userId));
+
+    final typeColor = switch (post.type) {
+      PostType.introduction => c.accentBlue,
+      PostType.partnerRequest => c.dullOrange,
+      PostType.lostFound => c.amber,
+    };
+    final typeIcon = switch (post.type) {
+      PostType.introduction => Icons.person_add,
+      PostType.partnerRequest => Icons.group,
+      PostType.lostFound =>
+        post.lostFoundStatus == LostFoundStatus.lost
+            ? Icons.search
+            : Icons.inventory_2,
+    };
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md, vertical: AppSpacing.sm + 2),
+        decoration: BoxDecoration(
+          border:
+              Border(bottom: BorderSide(color: c.darkGrey, width: 1)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 4,
+              height: 44,
+              color: typeColor,
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Icon(typeIcon, size: 16, color: typeColor),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    post.title,
+                    style: GoogleFonts.cabin(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: c.textPrimary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  userAsync.when(
+                    data: (user) => Text(
+                      user?.displayName ?? 'Unknown',
+                      style: GoogleFonts.spaceMono(
+                          fontSize: 10, color: c.textSecondary),
+                    ),
+                    loading: () => const SizedBox.shrink(),
+                    error: (_, __) => const SizedBox.shrink(),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

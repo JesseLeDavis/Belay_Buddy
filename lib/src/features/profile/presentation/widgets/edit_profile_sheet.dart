@@ -213,7 +213,7 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
                         fontWeight: FontWeight.w700,
                         color: selected
                             ? (tag.color.computeLuminance() > 0.4
-                                ? c.textPrimary
+                                ? c.textOnTertiary
                                 : c.textOnPrimary)
                             : c.textSecondary,
                       ),

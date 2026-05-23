@@ -1,7 +1,9 @@
 import 'package:belay_buddy/src/features/venues/domain/crag.dart';
+import 'package:belay_buddy/src/features/posts/domain/climbing_post.dart';
 import 'package:belay_buddy/src/features/auth/presentation/login_screen.dart';
 import 'package:belay_buddy/src/features/venues/presentation/crag_detail_screen.dart';
 import 'package:belay_buddy/src/features/posts/presentation/create_post_screen.dart';
+import 'package:belay_buddy/src/features/community/presentation/community_board_screen.dart';
 import 'package:belay_buddy/src/features/venues/presentation/map_screen.dart';
 import 'package:belay_buddy/src/features/messages/presentation/chat_screen.dart';
 import 'package:belay_buddy/src/features/messages/presentation/messages_screen.dart';
@@ -46,11 +48,30 @@ final appRouter = GoRouter(
                 GoRoute(
                   path: 'post',
                   builder: (context, state) {
-                    final crag = state.extra;
-                    if (crag == null) {
-                      return const _CreatePostFallback();
+                    final extra = state.extra;
+                    // Support both old (Crag) and new (Map) formats
+                    if (extra is Crag) {
+                      return CreatePostScreen(crag: extra);
                     }
-                    return CreatePostScreen(crag: crag as Crag);
+                    if (extra is Map) {
+                      final crag = extra['crag'] as Crag?;
+                      if (crag == null) return const _CreatePostFallback();
+                      final typeStr = extra['postType'] as String?;
+                      final postType = switch (typeStr) {
+                        'introduction' => PostType.introduction,
+                        'lostFound' => PostType.lostFound,
+                        _ => PostType.partnerRequest,
+                      };
+                      return CreatePostScreen(crag: crag, postType: postType);
+                    }
+                    return const _CreatePostFallback();
+                  },
+                ),
+                GoRoute(
+                  path: 'community',
+                  builder: (context, state) {
+                    final cragId = state.pathParameters['id']!;
+                    return CommunityBoardScreen(cragId: cragId);
                   },
                 ),
               ],

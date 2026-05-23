@@ -159,7 +159,7 @@ class _ConversationCard extends StatelessWidget {
                     style: GoogleFonts.spaceMono(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: isUnread ? c.textPrimary : c.textOnPrimary,
+                      color: isUnread ? c.textOnTertiary : c.textOnPrimary,
                     ),
                   ),
                 ],

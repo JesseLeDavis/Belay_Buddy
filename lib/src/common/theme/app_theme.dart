@@ -53,6 +53,7 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
     required this.textDisabled,
     required this.textOnPrimary,
     required this.textOnSecondary,
+    required this.textOnTertiary,
     required this.textOnCork,
     required this.teal,
     required this.pink,
@@ -118,6 +119,7 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
   final Color textDisabled;
   final Color textOnPrimary;
   final Color textOnSecondary;
+  final Color textOnTertiary;
   final Color textOnCork;
 
   // Legacy aliases
@@ -174,6 +176,7 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
     Color? textDisabled,
     Color? textOnPrimary,
     Color? textOnSecondary,
+    Color? textOnTertiary,
     Color? textOnCork,
     Color? teal,
     Color? pink,
@@ -225,6 +228,7 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
       textDisabled: textDisabled ?? this.textDisabled,
       textOnPrimary: textOnPrimary ?? this.textOnPrimary,
       textOnSecondary: textOnSecondary ?? this.textOnSecondary,
+      textOnTertiary: textOnTertiary ?? this.textOnTertiary,
       textOnCork: textOnCork ?? this.textOnCork,
       teal: teal ?? this.teal,
       pink: pink ?? this.pink,
@@ -281,6 +285,7 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
       textDisabled: Color.lerp(textDisabled, other.textDisabled, t)!,
       textOnPrimary: Color.lerp(textOnPrimary, other.textOnPrimary, t)!,
       textOnSecondary: Color.lerp(textOnSecondary, other.textOnSecondary, t)!,
+      textOnTertiary: Color.lerp(textOnTertiary, other.textOnTertiary, t)!,
       textOnCork: Color.lerp(textOnCork, other.textOnCork, t)!,
       teal: Color.lerp(teal, other.teal, t)!,
       pink: Color.lerp(pink, other.pink, t)!,
@@ -349,6 +354,7 @@ const lightColors = AppColorsExtension(
   textDisabled: Color(0xFF9A8E84),
   textOnPrimary: Color(0xFFFFFFFF),
   textOnSecondary: Color(0xFFFFFFFF),
+  textOnTertiary: Color(0xFF0F0F0F),
   textOnCork: Color(0xFF0F0F0F),
 
   teal: Color(0xFF1D63D4),
@@ -413,6 +419,7 @@ const darkColors = AppColorsExtension(
   textDisabled: Color(0xFF5E554C),
   textOnPrimary: Color(0xFFFFFFFF),
   textOnSecondary: Color(0xFFFFFFFF),
+  textOnTertiary: Color(0xFF0F0F0F),    // always dark — amber/yellow bg is bright in both modes
   textOnCork: Color(0xFFEDE6DA),
 
   teal: Color(0xFF4A8AF5),
@@ -637,7 +644,7 @@ class AppTheme {
       secondaryContainer: c.secondaryContainer,
       onSecondaryContainer: c.oliveGreen,
       tertiary: c.amber,
-      onTertiary: c.textOnPrimary,
+      onTertiary: c.textOnTertiary,
       tertiaryContainer: c.tertiaryContainer,
       onTertiaryContainer: c.amber,
       error: c.error,
