@@ -3,6 +3,7 @@ import 'package:belay_buddy/src/features/now/data/now_repository.dart';
 import 'package:belay_buddy/src/features/now/domain/now_session.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 /// NOW — the hero surface of the redesign.
@@ -120,7 +121,11 @@ class _TopBar extends StatelessWidget {
               ),
             ),
           ),
-          const _AvatarDot(initial: 't', size: 28),
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => context.push('/profile'),
+            child: const _AvatarDot(initial: 't', size: 28),
+          ),
         ],
       ),
     );

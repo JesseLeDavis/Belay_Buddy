@@ -104,9 +104,9 @@ class ScaffoldWithNavBar extends StatelessWidget {
 
   const ScaffoldWithNavBar({super.key, required this.child, required this.location});
 
-  // NOW is the target home; MAP is kept during the redesign so existing
-  // surfaces are reachable. Tabs collapse to NOW + CHATS + ME-avatar in a
-  // future IA-flip PR.
+  // IA-flipped: just NOW + CHATS. ME lives behind the top-right avatar on
+  // NOW; the map is reachable via URL or future "Change home gym" sheet
+  // launched from ME — both demoted out of the primary nav per the brief.
   static const _tabs = [
     (
       path: '/now',
@@ -114,26 +114,17 @@ class ScaffoldWithNavBar extends StatelessWidget {
       activeIcon: Icons.circle,
       label: 'NOW',
     ),
-    (path: '/', icon: Icons.map_outlined, activeIcon: Icons.map, label: 'MAP'),
     (
       path: '/messages',
       icon: Icons.chat_bubble_outline,
       activeIcon: Icons.chat_bubble,
-      label: 'MSG',
-    ),
-    (
-      path: '/profile',
-      icon: Icons.person_outline,
-      activeIcon: Icons.person,
-      label: 'ME',
+      label: 'CHATS',
     ),
   ];
 
   int get _selectedIndex {
-    if (location.startsWith('/now')) return 0;
-    if (location.startsWith('/messages')) return 2;
-    if (location.startsWith('/profile')) return 3;
-    return 1;
+    if (location.startsWith('/messages')) return 1;
+    return 0; // NOW is the default for /, /now, /crag/*, /profile
   }
 
   @override
