@@ -2,7 +2,6 @@ import 'package:belay_buddy/src/features/auth/domain/app_user.dart';
 import 'package:belay_buddy/src/features/posts/domain/climbing_post.dart';
 import 'package:belay_buddy/src/features/auth/data/auth_repository.dart';
 import 'package:belay_buddy/src/features/connections/data/connections_repository.dart';
-import 'package:belay_buddy/src/features/venues/domain/crag.dart';
 import 'package:belay_buddy/src/common/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -45,40 +44,13 @@ class PostDetailSheet extends ConsumerWidget {
                         color: c.borderColor.withAlpha(80)),
                   ),
                   const SizedBox(height: AppSpacing.md),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.sm, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: _typeBadgeColor(post.type, c),
-                          borderRadius: BorderRadius.circular(AppRadius.sm),
-                          border:
-                              Border.all(color: c.borderColor, width: 2),
-                        ),
-                        child: Text(
-                          _typeBadgeLabel(post.type),
-                          style: GoogleFonts.spaceMono(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: post.type == PostType.lostFound
-                                ? c.textOnTertiary
-                                : c.textOnPrimary,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
-                      Expanded(
-                        child: Text(
-                          post.title,
-                          style: GoogleFonts.spaceMono(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            color: c.textPrimary,
-                          ),
-                        ),
-                      ),
-                    ],
+                  Text(
+                    post.title,
+                    style: GoogleFonts.spaceMono(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: c.textPrimary,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.md),
                   if (post.description != null &&
@@ -195,28 +167,6 @@ class PostDetailSheet extends ConsumerWidget {
           style: GoogleFonts.spaceMono(
               fontSize: 11, fontWeight: FontWeight.w700, color: c.textOnPrimary)),
     );
-  }
-
-  Color _typeBadgeColor(PostType type, AppColorsExtension c) {
-    switch (type) {
-      case PostType.introduction:
-        return c.accentBlue;
-      case PostType.partnerRequest:
-        return c.dullOrange;
-      case PostType.lostFound:
-        return c.amber;
-    }
-  }
-
-  String _typeBadgeLabel(PostType type) {
-    switch (type) {
-      case PostType.introduction:
-        return '● INTRO';
-      case PostType.partnerRequest:
-        return '◆ PARTNER';
-      case PostType.lostFound:
-        return '▲ LOST/FOUND';
-    }
   }
 
   String _formatFullDateTime(DateTime dt) {
@@ -378,136 +328,3 @@ class _PostActionButtonsState extends ConsumerState<_PostActionButtons> {
   }
 }
 
-class PostTypeSheet extends StatelessWidget {
-  final Crag crag;
-  const PostTypeSheet({super.key, required this.crag});
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.appColors;
-    return Padding(
-      padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).padding.bottom + AppSpacing.md),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 12),
-          Center(
-            child: Container(
-                width: 40, height: 4, color: c.borderColor.withAlpha(80)),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-            child: Text(
-              'WHAT DO YOU WANT TO POST?',
-              style: GoogleFonts.spaceMono(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: c.textPrimary,
-              ),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          _PostTypeOption(
-            accentColor: c.accentBlue,
-            icon: Icons.person_add_outlined,
-            title: 'INTRODUCTION',
-            subtitle: 'Introduce yourself and find climbing friends',
-            onTap: () {
-              Navigator.of(context).pop();
-              context.push('/crag/${crag.id}/post',
-                  extra: {'crag': crag, 'postType': 'introduction'});
-            },
-          ),
-          Divider(height: 1, thickness: 1, color: c.borderColor),
-          _PostTypeOption(
-            accentColor: c.dullOrange,
-            icon: Icons.group_outlined,
-            title: 'PARTNER REQUEST',
-            subtitle: 'Find someone to climb with on a specific day',
-            onTap: () {
-              Navigator.of(context).pop();
-              context.push('/crag/${crag.id}/post',
-                  extra: {'crag': crag, 'postType': 'partnerRequest'});
-            },
-          ),
-          if (!crag.isGym) ...[
-            Divider(height: 1, thickness: 1, color: c.borderColor),
-            _PostTypeOption(
-              accentColor: c.amber,
-              icon: Icons.inventory_2_outlined,
-              title: 'LOST & FOUND',
-              subtitle: 'Report a found item or post a lookout request',
-              onTap: () {
-                Navigator.of(context).pop();
-                context.push('/crag/${crag.id}/post',
-                    extra: {'crag': crag, 'postType': 'lostFound'});
-              },
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _PostTypeOption extends StatelessWidget {
-  final Color accentColor;
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  const _PostTypeOption({
-    required this.accentColor,
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.appColors;
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md, vertical: AppSpacing.md),
-        child: Row(
-          children: [
-            Container(width: 4, height: 48, color: accentColor),
-            const SizedBox(width: AppSpacing.md),
-            Icon(icon, size: 24, color: accentColor),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.spaceMono(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: c.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: GoogleFonts.cabin(
-                        fontSize: 13, color: c.textSecondary),
-                  ),
-                ],
-              ),
-            ),
-            Icon(Icons.chevron_right, color: c.textPrimary),
-          ],
-        ),
-      ),
-    );
-  }
-}

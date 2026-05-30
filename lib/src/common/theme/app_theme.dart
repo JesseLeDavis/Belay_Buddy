@@ -2,8 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 // ---------------------------------------------------------------------------
-// AppColorsExtension — ThemeExtension carrying every app-specific color.
-// Light and dark instances below; access via `context.appColors`.
+// Chalk & Static — design tokens.
+//
+// Source of truth: docs/design-north-star.md
+//
+// Brand rule: lime is reserved exclusively for "a human is reachable."
+// Never decoration. If you reach for `c.lime` in a button that posts, waves,
+// or opens settings — stop. Use ink instead.
+//
+// Existing field names (dullOrange, oliveGreen, amber, accentBlue, etc.) are
+// kept for now to avoid a cascade of call-site renames. They have been
+// remapped to ink/chalk-blue/canvas so they no longer carry the old
+// neobrutalist meaning. A follow-up PR will migrate call sites onto the
+// semantic names below (ink, chalkBlue, lime).
 // ---------------------------------------------------------------------------
 
 @immutable
@@ -59,9 +70,20 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
     required this.pink,
     required this.borderColor,
     required this.shadowColor,
+    required this.ink,
+    required this.chalkBlue,
+    required this.lime,
   });
 
-  // Core
+  // ── Chalk & Static core ───────────────────────────────────────────────────
+  /// Near-black. All text, hairlines, default UI surface for type.
+  final Color ink;
+  /// Soft ambient. Expected/inferred states, secondary metadata.
+  final Color chalkBlue;
+  /// Reserved for "a human is reachable." Never decoration.
+  final Color lime;
+
+  // ── Legacy field surface (remapped to Chalk & Static) ─────────────────────
   final Color background;
   final Color surface;
   final Color surfaceLight;
@@ -72,8 +94,6 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
   final Color white;
   final Color dimWhite;
   final Color darkGrey;
-
-  // Soft tints
   final Color sageLight;
   final Color orangeLight;
   final Color accentBlue;
@@ -81,8 +101,6 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
   final Color chipBg;
   final Color tanStrip;
   final Color yellowFill;
-
-  // Semantic aliases
   final Color primary;
   final Color primaryLight;
   final Color primaryContainer;
@@ -91,20 +109,13 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
   final Color secondaryContainer;
   final Color tertiary;
   final Color tertiaryContainer;
-
   final Color canvas;
   final Color cardSurface;
-
-  // Notes
   final Color noteImmediate;
   final Color noteScheduled;
-
-  // Cork board
   final Color cork;
   final Color corkDark;
   final Color inputFill;
-
-  // Semantic
   final Color success;
   final Color successContainer;
   final Color error;
@@ -112,8 +123,6 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
   final Color warning;
   final Color warningContainer;
   final Color info;
-
-  // Text
   final Color textPrimary;
   final Color textSecondary;
   final Color textDisabled;
@@ -121,12 +130,8 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
   final Color textOnSecondary;
   final Color textOnTertiary;
   final Color textOnCork;
-
-  // Legacy aliases
   final Color teal;
   final Color pink;
-
-  // Neobrutalist structural colors (borders & shadows flip in dark mode)
   final Color borderColor;
   final Color shadowColor;
 
@@ -182,6 +187,9 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
     Color? pink,
     Color? borderColor,
     Color? shadowColor,
+    Color? ink,
+    Color? chalkBlue,
+    Color? lime,
   }) {
     return AppColorsExtension(
       background: background ?? this.background,
@@ -234,6 +242,9 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
       pink: pink ?? this.pink,
       borderColor: borderColor ?? this.borderColor,
       shadowColor: shadowColor ?? this.shadowColor,
+      ink: ink ?? this.ink,
+      chalkBlue: chalkBlue ?? this.chalkBlue,
+      lime: lime ?? this.lime,
     );
   }
 
@@ -291,147 +302,164 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
       pink: Color.lerp(pink, other.pink, t)!,
       borderColor: Color.lerp(borderColor, other.borderColor, t)!,
       shadowColor: Color.lerp(shadowColor, other.shadowColor, t)!,
+      ink: Color.lerp(ink, other.ink, t)!,
+      chalkBlue: Color.lerp(chalkBlue, other.chalkBlue, t)!,
+      lime: Color.lerp(lime, other.lime, t)!,
     );
   }
 }
 
 // ---------------------------------------------------------------------------
-// Light & Dark color instances
+// Light & Dark color instances — Chalk & Static
 // ---------------------------------------------------------------------------
+
+// Light: warm manila canvas, ink on top, chalk-blue ambient, lime signal.
+const _ink = Color(0xFF111111);
+const _canvas = Color(0xFFEDE6D3);
+const _chalkBlue = Color(0xFFC8D4DE);
+const _lime = Color(0xFFD8FF3C);
+const _inkSecondary = Color(0xFF5A554A);
+const _inkDisabled = Color(0xFF9A9385);
+const _hairline = Color(0xFF111111);
 
 const lightColors = AppColorsExtension(
-  // Core
-  background: Color(0xFFF7EDD8),
-  surface: Color(0xFFFFFFFF),
-  surfaceLight: Color(0xFFFFFFFF),
-  darkNavy: Color(0xFF0F0F0F),
-  dullOrange: Color(0xFFFF6B2B),
-  oliveGreen: Color(0xFF2D9B4E),
-  amber: Color(0xFFFFD000),
-  white: Color(0xFFFFFFFF),
-  dimWhite: Color(0xFF5A5048),
-  darkGrey: Color(0xFFD6CEC4),
+  ink: _ink,
+  chalkBlue: _chalkBlue,
+  lime: _lime,
 
-  // Soft tints
-  sageLight: Color(0xFFB2DFBB),
-  orangeLight: Color(0xFFFFBE9D),
-  accentBlue: Color(0xFF1D63D4),
-  blueLight: Color(0xFFBBD1F5),
-  chipBg: Color(0xFFFFF8EE),
-  tanStrip: Color(0xFFD4AA7D),
-  yellowFill: Color(0xFFFFF0A0),
+  background: _canvas,
+  surface: _canvas,
+  surfaceLight: _canvas,
+  darkNavy: _ink,
+  dullOrange: _ink,
+  oliveGreen: _ink,
+  amber: _chalkBlue,
+  white: _canvas,
+  dimWhite: _inkSecondary,
+  darkGrey: Color(0xFFD6CFBE),
 
-  // Semantic
-  primary: Color(0xFFFF6B2B),
-  primaryLight: Color(0xFFFF9966),
-  primaryContainer: Color(0xFFFFBE9D),
-  secondary: Color(0xFF2D9B4E),
-  secondaryLight: Color(0xFF5BBF6E),
-  secondaryContainer: Color(0xFFB2DFBB),
-  tertiary: Color(0xFFFFD000),
-  tertiaryContainer: Color(0xFFFFF0A0),
+  sageLight: _chalkBlue,
+  orangeLight: _chalkBlue,
+  accentBlue: _ink,
+  blueLight: _chalkBlue,
+  chipBg: _canvas,
+  tanStrip: _chalkBlue,
+  yellowFill: _chalkBlue,
 
-  canvas: Color(0xFFF7EDD8),
-  cardSurface: Color(0xFFFFFFFF),
+  primary: _ink,
+  primaryLight: _inkSecondary,
+  primaryContainer: _chalkBlue,
+  secondary: _ink,
+  secondaryLight: _inkSecondary,
+  secondaryContainer: _chalkBlue,
+  tertiary: _chalkBlue,
+  tertiaryContainer: _chalkBlue,
 
-  noteImmediate: Color(0xFFFFBE9D),
-  noteScheduled: Color(0xFFB2DFBB),
+  canvas: _canvas,
+  cardSurface: _canvas,
 
-  cork: Color(0xFFE8D5B0),
-  corkDark: Color(0xFFD4AA7D),
-  inputFill: Color(0xFFFFF8EE),
+  noteImmediate: _chalkBlue,
+  noteScheduled: _chalkBlue,
 
-  success: Color(0xFF2D9B4E),
-  successContainer: Color(0xFFB2DFBB),
-  error: Color(0xFFE03030),
-  errorContainer: Color(0xFFFFBE9D),
-  warning: Color(0xFFFFD000),
-  warningContainer: Color(0xFFFFF0A0),
-  info: Color(0xFF1D63D4),
+  cork: _canvas,
+  corkDark: Color(0xFFD6CFBE),
+  inputFill: _canvas,
 
-  textPrimary: Color(0xFF0F0F0F),
-  textSecondary: Color(0xFF5A5048),
-  textDisabled: Color(0xFF9A8E84),
-  textOnPrimary: Color(0xFFFFFFFF),
-  textOnSecondary: Color(0xFFFFFFFF),
-  textOnTertiary: Color(0xFF0F0F0F),
-  textOnCork: Color(0xFF0F0F0F),
+  success: _ink,
+  successContainer: _chalkBlue,
+  error: Color(0xFFC9342B),
+  errorContainer: _chalkBlue,
+  warning: _ink,
+  warningContainer: _chalkBlue,
+  info: _ink,
 
-  teal: Color(0xFF1D63D4),
-  pink: Color(0xFFFF6B2B),
+  textPrimary: _ink,
+  textSecondary: _inkSecondary,
+  textDisabled: _inkDisabled,
+  textOnPrimary: _canvas,
+  textOnSecondary: _canvas,
+  textOnTertiary: _ink,
+  textOnCork: _ink,
 
-  borderColor: Color(0xFF0F0F0F),
-  shadowColor: Color(0xFF0F0F0F),
+  teal: _ink,
+  pink: _ink,
+
+  borderColor: _hairline,
+  shadowColor: Color(0x00000000), // shadows are off in Chalk & Static
 );
+
+// Dark: warm-charcoal canvas, light ink, same chalk-blue + lime semantics.
+const _darkCanvas = Color(0xFF1A1612);
+const _darkInk = Color(0xFFEDE6D3);
+const _darkInkSecondary = Color(0xFFA89A8C);
+const _darkInkDisabled = Color(0xFF5E554C);
+const _darkChalkBlue = Color(0xFF3A4754);
 
 const darkColors = AppColorsExtension(
-  // Core — warm charcoal, never cold grey
-  background: Color(0xFF1A1612),
-  surface: Color(0xFF2A2420),
-  surfaceLight: Color(0xFF332C26),
-  darkNavy: Color(0xFFE8DFD0),       // flipped to light for visibility
-  dullOrange: Color(0xFFFF7A3D),     // slightly lighter for dark bg contrast
-  oliveGreen: Color(0xFF3AB85E),     // bumped luminance
-  amber: Color(0xFFFFD000),          // unchanged — reads well on dark
-  white: Color(0xFF1A1612),          // inverted: "white" areas become dark bg
-  dimWhite: Color(0xFFA89A8C),       // muted warm tan
-  darkGrey: Color(0xFF3E3830),       // dividers
+  ink: _darkInk,
+  chalkBlue: _darkChalkBlue,
+  lime: _lime, // lime is the same in both modes — it's a signal, not a theme color
 
-  // Soft tints — low-opacity washes over dark surfaces
-  sageLight: Color(0xFF1E2E20),
-  orangeLight: Color(0xFF3D2518),
-  accentBlue: Color(0xFF4A8AF5),     // lightened so blue is visible on dark
-  blueLight: Color(0xFF1A2436),
-  chipBg: Color(0xFF332C26),
-  tanStrip: Color(0xFF4A3D2E),
-  yellowFill: Color(0xFF332C14),
+  background: _darkCanvas,
+  surface: _darkCanvas,
+  surfaceLight: Color(0xFF24201B),
+  darkNavy: _darkInk,
+  dullOrange: _darkInk,
+  oliveGreen: _darkInk,
+  amber: _darkChalkBlue,
+  white: _darkCanvas,
+  dimWhite: _darkInkSecondary,
+  darkGrey: Color(0xFF3E3830),
 
-  // Semantic
-  primary: Color(0xFFFF7A3D),
-  primaryLight: Color(0xFFFF9966),
-  primaryContainer: Color(0xFF3D2518),
-  secondary: Color(0xFF3AB85E),
-  secondaryLight: Color(0xFF5BBF6E),
-  secondaryContainer: Color(0xFF1E2E20),
-  tertiary: Color(0xFFFFD000),
-  tertiaryContainer: Color(0xFF332C14),
+  sageLight: _darkChalkBlue,
+  orangeLight: _darkChalkBlue,
+  accentBlue: _darkInk,
+  blueLight: _darkChalkBlue,
+  chipBg: Color(0xFF24201B),
+  tanStrip: _darkChalkBlue,
+  yellowFill: _darkChalkBlue,
 
-  canvas: Color(0xFF1A1612),
-  cardSurface: Color(0xFF2A2420),
+  primary: _darkInk,
+  primaryLight: _darkInkSecondary,
+  primaryContainer: _darkChalkBlue,
+  secondary: _darkInk,
+  secondaryLight: _darkInkSecondary,
+  secondaryContainer: _darkChalkBlue,
+  tertiary: _darkChalkBlue,
+  tertiaryContainer: _darkChalkBlue,
 
-  noteImmediate: Color(0xFF3D2518),
-  noteScheduled: Color(0xFF1E2E20),
+  canvas: _darkCanvas,
+  cardSurface: _darkCanvas,
 
-  cork: Color(0xFF3D3228),
-  corkDark: Color(0xFF4A3D2E),
-  inputFill: Color(0xFF332C26),
+  noteImmediate: _darkChalkBlue,
+  noteScheduled: _darkChalkBlue,
 
-  success: Color(0xFF3AB85E),
-  successContainer: Color(0xFF1E2E20),
-  error: Color(0xFFF04848),
-  errorContainer: Color(0xFF3D2518),
-  warning: Color(0xFFFFD000),
-  warningContainer: Color(0xFF332C14),
-  info: Color(0xFF4A8AF5),
+  cork: _darkCanvas,
+  corkDark: Color(0xFF3E3830),
+  inputFill: Color(0xFF24201B),
 
-  textPrimary: Color(0xFFEDE6DA),
-  textSecondary: Color(0xFFA89A8C),
-  textDisabled: Color(0xFF5E554C),
-  textOnPrimary: Color(0xFFFFFFFF),
-  textOnSecondary: Color(0xFFFFFFFF),
-  textOnTertiary: Color(0xFF0F0F0F),    // always dark — amber/yellow bg is bright in both modes
-  textOnCork: Color(0xFFEDE6DA),
+  success: _darkInk,
+  successContainer: _darkChalkBlue,
+  error: Color(0xFFE85A50),
+  errorContainer: _darkChalkBlue,
+  warning: _darkInk,
+  warningContainer: _darkChalkBlue,
+  info: _darkInk,
 
-  teal: Color(0xFF4A8AF5),
-  pink: Color(0xFFFF7A3D),
+  textPrimary: _darkInk,
+  textSecondary: _darkInkSecondary,
+  textDisabled: _darkInkDisabled,
+  textOnPrimary: _darkCanvas,
+  textOnSecondary: _darkCanvas,
+  textOnTertiary: _ink,
+  textOnCork: _darkInk,
 
-  borderColor: Color(0xFFE8DFD0),    // light borders on dark bg
-  shadowColor: Color(0xFF0D0A08),    // solid dark shadow
+  teal: _darkInk,
+  pink: _darkInk,
+
+  borderColor: _darkInk,
+  shadowColor: Color(0x00000000),
 );
-
-// ---------------------------------------------------------------------------
-// Convenience extension — `context.appColors`
-// ---------------------------------------------------------------------------
 
 extension AppColorsX on BuildContext {
   AppColorsExtension get appColors =>
@@ -439,218 +467,209 @@ extension AppColorsX on BuildContext {
 }
 
 // ---------------------------------------------------------------------------
-// Legacy static class — kept for backward compatibility during migration.
-// Prefer `context.appColors.X` in all new code.
+// Legacy static AppColors — kept const so admin/ and climbing_tags.dart still
+// compile. Values remapped to Chalk & Static.
 // ---------------------------------------------------------------------------
-
-/// Neobrutalist color palette — saturated, punchy, bold.
 class AppColors {
   AppColors._();
 
-  // Core palette
-  static const Color background = Color(0xFFF7EDD8);   // warm cream
-  static const Color surface = Color(0xFFFFFFFF);       // pure white
-  static const Color surfaceLight = Color(0xFFFFFFFF);
-  static const Color darkNavy = Color(0xFF0F0F0F);      // near-black ink
-  static const Color dullOrange = Color(0xFFFF6B2B);     // vivid climbing orange
-  static const Color oliveGreen = Color(0xFF2D9B4E);     // forest green
-  static const Color amber = Color(0xFFFFD000);          // electric gold
-  static const Color white = Color(0xFFFFFFFF);
-  static const Color dimWhite = Color(0xFF5A5048);
-  static const Color darkGrey = Color(0xFFD6CEC4);
+  static const Color background = _canvas;
+  static const Color surface = _canvas;
+  static const Color surfaceLight = _canvas;
+  static const Color darkNavy = _ink;
+  static const Color dullOrange = _ink;
+  static const Color oliveGreen = _ink;
+  static const Color amber = _chalkBlue;
+  static const Color white = _canvas;
+  static const Color dimWhite = _inkSecondary;
+  static const Color darkGrey = Color(0xFFD6CFBE);
 
-  // Card header strips — softer fills
-  static const Color sageLight = Color(0xFFB2DFBB);     // soft green tint
-  static const Color orangeLight = Color(0xFFFFBE9D);   // soft orange tint
+  static const Color sageLight = _chalkBlue;
+  static const Color orangeLight = _chalkBlue;
+  static const Color accentBlue = _ink;
+  static const Color blueLight = _chalkBlue;
+  static const Color chipBg = _canvas;
+  static const Color tanStrip = _chalkBlue;
+  static const Color yellowFill = _chalkBlue;
 
-  // Accent colors
-  static const Color accentBlue = Color(0xFF1D63D4);    // cobalt blue
-  static const Color blueLight = Color(0xFFBBD1F5);     // soft blue tint
+  static const Color primary = _ink;
+  static const Color primaryLight = _inkSecondary;
+  static const Color primaryContainer = _chalkBlue;
+  static const Color secondary = _ink;
+  static const Color secondaryLight = _inkSecondary;
+  static const Color secondaryContainer = _chalkBlue;
+  static const Color tertiary = _chalkBlue;
+  static const Color tertiaryContainer = _chalkBlue;
 
-  // Chip / off-white background
-  static const Color chipBg = Color(0xFFFFF8EE);        // off-white cream
+  static const Color canvas = _canvas;
+  static const Color cardSurface = _canvas;
 
-  // Tan strip
-  static const Color tanStrip = Color(0xFFD4AA7D);
+  static const Color noteImmediate = _chalkBlue;
+  static const Color noteScheduled = _chalkBlue;
 
-  // Yellow fill
-  static const Color yellowFill = Color(0xFFFFF0A0);    // soft yellow tint
+  static const Color cork = _canvas;
+  static const Color corkDark = Color(0xFFD6CFBE);
+  static const Color inputFill = _canvas;
 
-  // Semantic aliases
-  static const Color primary = dullOrange;
-  static const Color primaryLight = Color(0xFFFF9966);
-  static const Color primaryContainer = orangeLight;
-  static const Color secondary = oliveGreen;
-  static const Color secondaryLight = Color(0xFF5BBF6E);
-  static const Color secondaryContainer = sageLight;
-  static const Color tertiary = amber;
-  static const Color tertiaryContainer = Color(0xFFFFF0A0);
+  static const Color success = _ink;
+  static const Color successContainer = _chalkBlue;
+  static const Color error = Color(0xFFC9342B);
+  static const Color errorContainer = _chalkBlue;
+  static const Color warning = _ink;
+  static const Color warningContainer = _chalkBlue;
+  static const Color info = _ink;
 
-  static const Color canvas = background;
-  static const Color cardSurface = surface;
+  static const Color textPrimary = _ink;
+  static const Color textSecondary = _inkSecondary;
+  static const Color textDisabled = _inkDisabled;
+  static const Color textOnPrimary = _canvas;
+  static const Color textOnSecondary = _canvas;
+  static const Color textOnCork = _ink;
 
-  // Note colors
-  static const Color noteImmediate = orangeLight;
-  static const Color noteScheduled = sageLight;
+  static const Color teal = _ink;
+  static const Color pink = _ink;
 
-  // Cork board -> warm background
-  static const Color cork = Color(0xFFE8D5B0);          // warm tan
-  static const Color corkDark = Color(0xFFD4AA7D);
-  static const Color inputFill = Color(0xFFFFF8EE);
-
-  // Semantic
-  static const Color success = Color(0xFF2D9B4E);
-  static const Color successContainer = sageLight;
-  static const Color error = Color(0xFFE03030);
-  static const Color errorContainer = orangeLight;
-  static const Color warning = amber;
-  static const Color warningContainer = Color(0xFFFFF0A0);
-  static const Color info = accentBlue;
-
-  // Text
-  static const Color textPrimary = Color(0xFF0F0F0F);
-  static const Color textSecondary = Color(0xFF5A5048);
-  static const Color textDisabled = Color(0xFF9A8E84);
-  static const Color textOnPrimary = Color(0xFFFFFFFF);
-  static const Color textOnSecondary = Color(0xFFFFFFFF);
-  static const Color textOnCork = darkNavy;
-
-  // Legacy aliases
-  static const Color teal = accentBlue;
-  static const Color pink = dullOrange;
+  // Chalk & Static semantic
+  static const Color ink = _ink;
+  static const Color chalkBlue = _chalkBlue;
+  static const Color lime = _lime;
 }
 
-/// Spacing constants (4dp base grid).
+// ---------------------------------------------------------------------------
+// Spacing — unchanged (4dp grid)
+// ---------------------------------------------------------------------------
 class AppSpacing {
   AppSpacing._();
 
   static const double xs = 4.0;
   static const double sm = 8.0;
-  static const double smMd = 12.0;  // between sm and md — card strip padding
+  static const double smMd = 12.0;
   static const double md = 16.0;
   static const double lg = 24.0;
   static const double xl = 32.0;
   static const double xxl = 48.0;
 }
 
-/// Border radius tokens — subtle rounding, keeps the neo-brutalist edge.
+// ---------------------------------------------------------------------------
+// Radii — Chalk & Static is zero-radius except for circular avatars.
+// All sm/md/lg/xl tokens map to 0; `full` stays 999 for circles.
+// ---------------------------------------------------------------------------
 class AppRadius {
   AppRadius._();
 
-  static const double xs = 3.0;   // badges, chips, small tags
-  static const double sm = 4.0;   // buttons, inputs, small cards
-  static const double md = 6.0;   // panels, cards
-  static const double lg = 8.0;   // bottom sheets, large containers
-  static const double xl = 12.0;  // modals
-  static const double full = 999.0; // avatars only
+  static const double xs = 0.0;
+  static const double sm = 0.0;
+  static const double md = 0.0;
+  static const double lg = 0.0;
+  static const double xl = 0.0;
+  static const double full = 999.0;
 }
 
+// ---------------------------------------------------------------------------
+// Theme
+// ---------------------------------------------------------------------------
 class AppTheme {
   AppTheme._();
 
-  static TextTheme _buildTextTheme({required Color primary, required Color secondary}) {
-    final cabin = GoogleFonts.cabinTextTheme();
-    final spaceMono = GoogleFonts.spaceMonoTextTheme();
+  static const _hairlineWidth = 1.5;
+
+  static TextTheme _buildTextTheme(
+      {required Color primary, required Color secondary}) {
+    final ui = GoogleFonts.interTextTheme();
+    final mono = GoogleFonts.jetBrainsMonoTextTheme();
 
     return TextTheme(
-      displayLarge: spaceMono.displayLarge?.copyWith(
+      displayLarge: ui.displayLarge?.copyWith(
         fontSize: 36,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w600,
         height: 1.1,
         color: primary,
       ),
-      headlineLarge: spaceMono.headlineLarge?.copyWith(
+      headlineLarge: ui.headlineLarge?.copyWith(
         fontSize: 28,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w600,
         height: 1.2,
         color: primary,
       ),
-      headlineMedium: spaceMono.headlineMedium?.copyWith(
+      headlineMedium: ui.headlineMedium?.copyWith(
         fontSize: 22,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w600,
         height: 1.2,
         color: primary,
       ),
-      headlineSmall: spaceMono.headlineSmall?.copyWith(
+      headlineSmall: ui.headlineSmall?.copyWith(
         fontSize: 18,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w600,
         height: 1.2,
         color: primary,
       ),
-      titleMedium: cabin.titleMedium?.copyWith(
+      titleMedium: ui.titleMedium?.copyWith(
         fontSize: 16,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w600,
         height: 1.4,
         color: primary,
       ),
-      titleSmall: spaceMono.titleSmall?.copyWith(
-        fontSize: 13,
-        fontWeight: FontWeight.w700,
+      titleSmall: mono.titleSmall?.copyWith(
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
         height: 1.4,
         color: primary,
       ),
-      bodyLarge: cabin.bodyLarge?.copyWith(
+      bodyLarge: ui.bodyLarge?.copyWith(
         fontSize: 16,
         fontWeight: FontWeight.w400,
         height: 1.5,
         color: primary,
       ),
-      bodyMedium: cabin.bodyMedium?.copyWith(
+      bodyMedium: ui.bodyMedium?.copyWith(
         fontSize: 14,
         fontWeight: FontWeight.w400,
         height: 1.5,
         color: primary,
       ),
-      bodySmall: cabin.bodySmall?.copyWith(
+      bodySmall: ui.bodySmall?.copyWith(
         fontSize: 12,
         fontWeight: FontWeight.w400,
         height: 1.5,
         color: secondary,
       ),
-      labelLarge: spaceMono.labelLarge?.copyWith(
-        fontSize: 13,
-        fontWeight: FontWeight.w700,
+      labelLarge: mono.labelLarge?.copyWith(
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
         height: 1.0,
         color: primary,
       ),
-      labelSmall: spaceMono.labelSmall?.copyWith(
+      labelSmall: mono.labelSmall?.copyWith(
         fontSize: 10,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w500,
         height: 1.0,
         color: primary,
       ),
     );
   }
 
-  // -------------------------------------------------------------------------
-  // Light theme
-  // -------------------------------------------------------------------------
   static ThemeData get light => _buildTheme(lightColors, Brightness.light);
-
-  // -------------------------------------------------------------------------
-  // Dark theme
-  // -------------------------------------------------------------------------
   static ThemeData get dark => _buildTheme(darkColors, Brightness.dark);
 
   static ThemeData _buildTheme(AppColorsExtension c, Brightness brightness) {
     final colorScheme = ColorScheme(
       brightness: brightness,
-      primary: c.dullOrange,
-      onPrimary: c.textOnPrimary,
-      primaryContainer: c.primaryContainer,
-      onPrimaryContainer: c.dullOrange,
-      secondary: c.oliveGreen,
-      onSecondary: c.textOnSecondary,
-      secondaryContainer: c.secondaryContainer,
-      onSecondaryContainer: c.oliveGreen,
-      tertiary: c.amber,
-      onTertiary: c.textOnTertiary,
-      tertiaryContainer: c.tertiaryContainer,
-      onTertiaryContainer: c.amber,
+      primary: c.ink,
+      onPrimary: c.canvas,
+      primaryContainer: c.chalkBlue,
+      onPrimaryContainer: c.ink,
+      secondary: c.ink,
+      onSecondary: c.canvas,
+      secondaryContainer: c.chalkBlue,
+      onSecondaryContainer: c.ink,
+      tertiary: c.lime,
+      onTertiary: c.ink,
+      tertiaryContainer: c.chalkBlue,
+      onTertiaryContainer: c.ink,
       error: c.error,
-      onError: Colors.white,
-      errorContainer: c.errorContainer,
-      onErrorContainer: c.error,
+      onError: c.canvas,
+      errorContainer: c.chalkBlue,
+      onErrorContainer: c.ink,
       surface: c.surface,
       onSurface: c.textPrimary,
       surfaceContainerHighest: c.inputFill,
@@ -662,48 +681,46 @@ class AppTheme {
       useMaterial3: true,
       brightness: brightness,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: c.background,
-      textTheme: _buildTextTheme(primary: c.textPrimary, secondary: c.textSecondary),
+      scaffoldBackgroundColor: c.canvas,
+      textTheme:
+          _buildTextTheme(primary: c.textPrimary, secondary: c.textSecondary),
       extensions: [c],
       appBarTheme: AppBarTheme(
-        backgroundColor: c.surface,
-        foregroundColor: c.borderColor,
+        backgroundColor: c.canvas,
+        foregroundColor: c.ink,
         elevation: 0,
         centerTitle: false,
-        titleTextStyle: GoogleFonts.spaceMono(
-          fontSize: 22,
-          fontWeight: FontWeight.w700,
-          color: c.borderColor,
+        titleTextStyle: GoogleFonts.inter(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: c.ink,
         ),
-        iconTheme: IconThemeData(color: c.borderColor),
+        iconTheme: IconThemeData(color: c.ink),
         shape: Border(
-          bottom: BorderSide(color: c.borderColor, width: 3),
+          bottom: BorderSide(color: c.borderColor, width: _hairlineWidth),
         ),
       ),
       cardTheme: CardTheme(
         elevation: 0,
-        color: c.surface,
+        color: c.canvas,
         shadowColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.sm),
-          side: BorderSide(color: c.borderColor, width: 2.5),
-        ),
+        shape: const RoundedRectangleBorder(),
         margin: EdgeInsets.zero,
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: c.chipBg,
+        fillColor: c.canvas,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.sm),
-          borderSide: BorderSide(color: c.borderColor, width: 2),
+          borderRadius: BorderRadius.zero,
+          borderSide: BorderSide(color: c.borderColor, width: _hairlineWidth),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.sm),
-          borderSide: BorderSide(color: c.borderColor, width: 2),
+          borderRadius: BorderRadius.zero,
+          borderSide: BorderSide(color: c.borderColor, width: _hairlineWidth),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.sm),
-          borderSide: BorderSide(color: c.dullOrange, width: 2.5),
+          borderRadius: BorderRadius.zero,
+          borderSide: BorderSide(color: c.borderColor, width: _hairlineWidth),
         ),
         labelStyle: TextStyle(color: c.textSecondary),
         hintStyle: TextStyle(color: c.textDisabled),
@@ -714,45 +731,39 @@ class AppTheme {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: c.borderColor,
-          foregroundColor: c.textOnPrimary,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.sm),
-            side: BorderSide(color: c.borderColor, width: 2.5),
-          ),
+          backgroundColor: c.ink,
+          foregroundColor: c.canvas,
+          shape: const RoundedRectangleBorder(),
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.lg,
             vertical: AppSpacing.md,
           ),
-          textStyle: GoogleFonts.spaceMono(
+          textStyle: GoogleFonts.inter(
             fontSize: 14,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: c.dullOrange,
-        foregroundColor: Colors.white,
+        backgroundColor: c.ink,
+        foregroundColor: c.canvas,
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.sm),
-          side: BorderSide(color: c.borderColor, width: 2.5),
-        ),
-        extendedTextStyle: GoogleFonts.spaceMono(
+        shape: const RoundedRectangleBorder(),
+        extendedTextStyle: GoogleFonts.inter(
           fontSize: 14,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w600,
         ),
       ),
       chipTheme: ChipThemeData(
-        backgroundColor: c.chipBg,
+        backgroundColor: c.canvas,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.xs),
-          side: BorderSide(color: c.borderColor, width: 2),
+          borderRadius: BorderRadius.zero,
+          side: BorderSide(color: c.borderColor, width: _hairlineWidth),
         ),
-        labelStyle: GoogleFonts.spaceMono(
+        labelStyle: GoogleFonts.jetBrainsMono(
           fontSize: 10,
-          fontWeight: FontWeight.w700,
-          color: c.borderColor,
+          fontWeight: FontWeight.w500,
+          color: c.ink,
         ),
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.sm,
@@ -760,117 +771,103 @@ class AppTheme {
         ),
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: c.surface,
-        selectedItemColor: c.dullOrange,
+        backgroundColor: c.canvas,
+        selectedItemColor: c.ink,
         unselectedItemColor: c.textDisabled,
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: c.surface,
-        indicatorColor: c.orangeLight,
-        indicatorShape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.xs),
-        ),
+        backgroundColor: c.canvas,
+        indicatorColor: Colors.transparent,
+        indicatorShape: const RoundedRectangleBorder(),
         surfaceTintColor: Colors.transparent,
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return GoogleFonts.spaceMono(
+            return GoogleFonts.jetBrainsMono(
               fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: c.dullOrange,
+              fontWeight: FontWeight.w500,
+              color: c.ink,
             );
           }
-          return GoogleFonts.spaceMono(
+          return GoogleFonts.jetBrainsMono(
             fontSize: 11,
             color: c.textDisabled,
           );
         }),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return IconThemeData(color: c.dullOrange);
+            return IconThemeData(color: c.ink);
           }
           return IconThemeData(color: c.textDisabled);
         }),
       ),
       dividerTheme: DividerThemeData(
-        color: c.darkGrey,
-        thickness: 1,
+        color: c.borderColor,
+        thickness: _hairlineWidth,
       ),
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: c.borderColor,
-        contentTextStyle: GoogleFonts.cabin(color: c.background),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.sm),
-        ),
+        backgroundColor: c.ink,
+        contentTextStyle: GoogleFonts.inter(color: c.canvas),
+        shape: const RoundedRectangleBorder(),
         behavior: SnackBarBehavior.floating,
       ),
       segmentedButtonTheme: SegmentedButtonThemeData(
         style: ButtonStyle(
           backgroundColor: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.selected)) {
-              return c.dullOrange;
-            }
-            return c.surface;
+            if (states.contains(WidgetState.selected)) return c.ink;
+            return c.canvas;
           }),
           foregroundColor: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.selected)) {
-              return c.textOnPrimary;
-            }
-            return c.borderColor;
+            if (states.contains(WidgetState.selected)) return c.canvas;
+            return c.ink;
           }),
           side: WidgetStateProperty.all(
-            BorderSide(color: c.borderColor, width: 2),
+            BorderSide(color: c.borderColor, width: _hairlineWidth),
           ),
-          shape: WidgetStateProperty.all(
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppRadius.xs),
-            ),
-          ),
+          shape: WidgetStateProperty.all(const RoundedRectangleBorder()),
         ),
       ),
       checkboxTheme: CheckboxThemeData(
         fillColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
-            return c.dullOrange;
-          }
+          if (states.contains(WidgetState.selected)) return c.ink;
           return Colors.transparent;
         }),
-        checkColor: WidgetStateProperty.all(Colors.white),
-        side: BorderSide(color: c.borderColor, width: 2),
+        checkColor: WidgetStateProperty.all(c.canvas),
+        side: BorderSide(color: c.borderColor, width: _hairlineWidth),
       ),
       listTileTheme: ListTileThemeData(
-        tileColor: c.surface,
+        tileColor: c.canvas,
         textColor: c.textPrimary,
-        iconColor: c.borderColor,
+        iconColor: c.ink,
       ),
       dropdownMenuTheme: DropdownMenuThemeData(
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          fillColor: c.chipBg,
+          fillColor: c.canvas,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppRadius.sm),
-            borderSide: BorderSide(color: c.borderColor, width: 2),
+            borderRadius: BorderRadius.zero,
+            borderSide: BorderSide(color: c.borderColor, width: _hairlineWidth),
           ),
         ),
       ),
       dialogTheme: DialogTheme(
-        backgroundColor: c.surface,
+        backgroundColor: c.canvas,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          side: BorderSide(color: c.borderColor, width: 2.5),
+          borderRadius: BorderRadius.zero,
+          side: BorderSide(color: c.borderColor, width: _hairlineWidth),
         ),
       ),
       bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: c.surface,
+        backgroundColor: c.canvas,
         shape: RoundedRectangleBorder(
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
-          side: BorderSide(color: c.borderColor, width: 2.5),
+          borderRadius: BorderRadius.zero,
+          side: BorderSide(color: c.borderColor, width: _hairlineWidth),
         ),
       ),
       popupMenuTheme: PopupMenuThemeData(
-        color: c.surface,
+        color: c.canvas,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.sm),
-          side: BorderSide(color: c.borderColor, width: 2),
+          borderRadius: BorderRadius.zero,
+          side: BorderSide(color: c.borderColor, width: _hairlineWidth),
         ),
       ),
     );

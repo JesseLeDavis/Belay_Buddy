@@ -1,18 +1,12 @@
 import 'package:belay_buddy/src/common/utils/climbing_tags.dart';
-import 'package:belay_buddy/src/features/auth/data/auth_repository.dart';
-import 'package:belay_buddy/src/features/posts/domain/climbing_post.dart';
 import 'package:belay_buddy/src/features/venues/domain/crag.dart';
 import 'package:belay_buddy/src/features/venues/data/venues_repository.dart';
-import 'package:belay_buddy/src/features/posts/data/posts_repository.dart';
 import 'package:belay_buddy/src/features/home_settings/data/home_settings_repository.dart';
-import 'package:belay_buddy/src/features/venues/presentation/widgets/crag_widgets.dart';
 import 'package:belay_buddy/src/features/venues/presentation/widgets/favorite_notify_row.dart';
 import 'package:belay_buddy/src/features/venues/presentation/widgets/home_base_sheet.dart';
 import 'package:belay_buddy/src/features/venues/presentation/widgets/members_preview_row.dart';
-import 'package:belay_buddy/src/features/venues/presentation/widgets/post_detail_sheet.dart';
 import 'package:belay_buddy/src/common/theme/app_theme.dart';
 import 'package:belay_buddy/src/common/widgets/collage_header.dart';
-import 'package:belay_buddy/src/common/widgets/heatmap_strip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -26,8 +20,6 @@ class CragDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.appColors;
     final cragAsync = ref.watch(cragProvider(cragId));
-    final postsAsync = ref.watch(postsAtCragProvider(cragId));
-    final countsByDate = ref.watch(postCountsByDateProvider(cragId));
 
     return Scaffold(
       backgroundColor: c.background,
@@ -45,13 +37,7 @@ class CragDetailScreen extends ConsumerWidget {
               ),
             );
           }
-          return _buildBody(
-            context,
-            ref,
-            crag,
-            postsAsync,
-            countsByDate,
-          );
+          return _buildBody(context, ref, crag);
         },
         loading: () => Center(
           child: Text(
@@ -78,22 +64,11 @@ class CragDetailScreen extends ConsumerWidget {
 
   // ── Body ───────────────────────────────────────────────────────────────────
 
-  Widget _buildBody(
-    BuildContext context,
-    WidgetRef ref,
-    Crag crag,
-    AsyncValue<List<ClimbingPost>> postsAsync,
-    Map<DateTime, int> countsByDate,
-  ) {
-    final posts = postsAsync.valueOrNull ?? [];
-
+  Widget _buildBody(BuildContext context, WidgetRef ref, Crag crag) {
     return CustomScrollView(
       slivers: [
         _buildAppBar(context, crag),
         SliverToBoxAdapter(child: _buildCragInfo(context, ref, crag)),
-        SliverToBoxAdapter(
-          child: _buildCommunityPanel(context, ref, crag, posts, countsByDate),
-        ),
         const SliverToBoxAdapter(child: SizedBox(height: 100)),
       ],
     );
@@ -103,8 +78,7 @@ class CragDetailScreen extends ConsumerWidget {
 
   SliverAppBar _buildAppBar(BuildContext context, Crag crag) {
     final c = context.appColors;
-    final headerColor =
-        crag.isGym ? c.accentBlue : c.oliveGreen;
+    final headerColor = crag.isGym ? c.accentBlue : c.oliveGreen;
     const expandedHeight = 260.0;
 
     return SliverAppBar(
@@ -358,129 +332,6 @@ class CragDetailScreen extends ConsumerWidget {
     );
   }
 
-  // ── Community Board panel ──────────────────────────────────────────────────
-
-  Widget _buildCommunityPanel(
-    BuildContext context,
-    WidgetRef ref,
-    Crag crag,
-    List<ClimbingPost> posts,
-    Map<DateTime, int> countsByDate,
-  ) {
-    final c = context.appColors;
-
-    // Sort by newest first, take a mixed preview
-    final sorted = [...posts]
-      ..sort((a, b) => (b.createdAt ?? DateTime(2000))
-          .compareTo(a.createdAt ?? DateTime(2000)));
-    final preview = sorted.take(3).toList();
-
-    // Count by type
-    final introCount = posts.where((p) => p.type == PostType.introduction).length;
-    final partnerCount = posts.where((p) => p.type == PostType.partnerRequest).length;
-    final lfCount = posts.where((p) => p.type == PostType.lostFound).length;
-
-    return Container(
-      margin: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: c.surface,
-        borderRadius: BorderRadius.circular(AppRadius.sm),
-        border: Border.all(color: c.borderColor, width: 2.5),
-        boxShadow: [
-          BoxShadow(
-              color: c.shadowColor, offset: const Offset(5, 5), blurRadius: 0)
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Header
-          Container(
-            padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.md, vertical: 12),
-            decoration: BoxDecoration(
-              color: c.dullOrange,
-              border: Border(
-                  bottom: BorderSide(color: c.borderColor, width: 2)),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.forum_outlined, size: 16, color: c.textOnPrimary),
-                const SizedBox(width: AppSpacing.sm),
-                Text(
-                  'COMMUNITY BOARD',
-                  style: GoogleFonts.spaceMono(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: c.textOnPrimary,
-                  ),
-                ),
-                const Spacer(),
-                CountBadge(
-                  label: '${posts.length} POSTS',
-                  color: c.surface,
-                  textColor: c.textPrimary,
-                ),
-              ],
-            ),
-          ),
-
-          // Type summary row
-          Container(
-            padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-            decoration: BoxDecoration(
-              color: c.chipBg,
-              border: Border(
-                  bottom: BorderSide(color: c.darkGrey, width: 1)),
-            ),
-            child: Row(
-              children: [
-                if (introCount > 0) ...[
-                  _TypeBadge(label: '$introCount INTROS', color: c.accentBlue),
-                  const SizedBox(width: 6),
-                ],
-                if (partnerCount > 0) ...[
-                  _TypeBadge(label: '$partnerCount PARTNER', color: c.dullOrange),
-                  const SizedBox(width: 6),
-                ],
-                if (lfCount > 0)
-                  _TypeBadge(label: '$lfCount LOST/FOUND', color: c.amber,
-                      textColor: c.textOnTertiary),
-              ],
-            ),
-          ),
-
-          // Heatmap strip
-          HeatmapStrip(
-            countsByDate: countsByDate,
-            onTap: () => context.push('/crag/${crag.id}/community'),
-          ),
-
-          Divider(height: 1, thickness: 1, color: c.borderColor),
-
-          // Post previews
-          if (preview.isEmpty)
-            _emptyPanelRow(context, 'NO POSTS YET', Icons.forum_outlined)
-          else
-            ...preview.map((post) => _CommunityPreviewRow(
-                  post: post,
-                  onTap: () => _showPostDetail(context, ref, post),
-                )),
-
-          // Footer — go to full community board
-          PanelFooter(
-            label: posts.isEmpty
-                ? 'START THE CONVERSATION'
-                : 'VIEW FULL COMMUNITY BOARD →',
-            onTap: () => context.push('/crag/${crag.id}/community'),
-          ),
-        ],
-      ),
-    );
-  }
-
   // ── FAB ────────────────────────────────────────────────────────────────────
 
   Widget _buildFab(BuildContext context, Crag crag) {
@@ -501,161 +352,12 @@ class CragDetailScreen extends ConsumerWidget {
           borderRadius: const BorderRadius.all(Radius.circular(AppRadius.sm)),
           side: BorderSide(color: c.borderColor, width: 2.5),
         ),
-        onPressed: () => _showPostTypeSheet(context, crag),
+        onPressed: () => context.push('/crag/${crag.id}/post', extra: crag),
         icon: const Icon(Icons.add),
         label: Text(
           'POST',
           style:
               GoogleFonts.spaceMono(fontSize: 14, fontWeight: FontWeight.w700),
-        ),
-      ),
-    );
-  }
-
-  void _showPostTypeSheet(BuildContext context, Crag crag) {
-    showModalBottomSheet(
-      context: context,
-      builder: (_) => PostTypeSheet(crag: crag),
-    );
-  }
-
-  // ── Post detail ────────────────────────────────────────────────────────────
-
-  void _showPostDetail(BuildContext context, WidgetRef ref, ClimbingPost post) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (_) => PostDetailSheet(post: post),
-    );
-  }
-
-  // ── Shared helpers ─────────────────────────────────────────────────────────
-
-  Widget _emptyPanelRow(BuildContext context, String message, IconData icon) {
-    final c = context.appColors;
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-          vertical: AppSpacing.lg, horizontal: AppSpacing.md),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 18, color: c.textDisabled),
-          const SizedBox(width: AppSpacing.sm),
-          Text(
-            message,
-            style: GoogleFonts.spaceMono(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: c.textDisabled,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Helper widgets for community preview ────────────────────────────────────
-
-class _TypeBadge extends StatelessWidget {
-  final String label;
-  final Color color;
-  final Color? textColor;
-
-  const _TypeBadge({required this.label, required this.color, this.textColor});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withAlpha(30),
-        border: Border.all(color: color, width: 1.5),
-        borderRadius: BorderRadius.circular(AppRadius.xs),
-      ),
-      child: Text(
-        label,
-        style: GoogleFonts.spaceMono(
-          fontSize: 9,
-          fontWeight: FontWeight.w700,
-          color: textColor ?? color,
-        ),
-      ),
-    );
-  }
-}
-
-class _CommunityPreviewRow extends ConsumerWidget {
-  final ClimbingPost post;
-  final VoidCallback onTap;
-  const _CommunityPreviewRow({required this.post, required this.onTap});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final c = context.appColors;
-    final userAsync = ref.watch(userByIdProvider(post.userId));
-
-    final typeColor = switch (post.type) {
-      PostType.introduction => c.accentBlue,
-      PostType.partnerRequest => c.dullOrange,
-      PostType.lostFound => c.amber,
-    };
-    final typeIcon = switch (post.type) {
-      PostType.introduction => Icons.person_add,
-      PostType.partnerRequest => Icons.group,
-      PostType.lostFound =>
-        post.lostFoundStatus == LostFoundStatus.lost
-            ? Icons.search
-            : Icons.inventory_2,
-    };
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md, vertical: AppSpacing.sm + 2),
-        decoration: BoxDecoration(
-          border:
-              Border(bottom: BorderSide(color: c.darkGrey, width: 1)),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 4,
-              height: 44,
-              color: typeColor,
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            Icon(typeIcon, size: 16, color: typeColor),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    post.title,
-                    style: GoogleFonts.cabin(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: c.textPrimary,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 2),
-                  userAsync.when(
-                    data: (user) => Text(
-                      user?.displayName ?? 'Unknown',
-                      style: GoogleFonts.spaceMono(
-                          fontSize: 10, color: c.textSecondary),
-                    ),
-                    loading: () => const SizedBox.shrink(),
-                    error: (_, __) => const SizedBox.shrink(),
-                  ),
-                ],
-              ),
-            ),
-          ],
         ),
       ),
     );

@@ -26,25 +26,13 @@ mixin _$ClimbingPost {
   String get title => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
   DateTime get dateTime => throw _privateConstructorUsedError;
-  PostType get type =>
-      throw _privateConstructorUsedError; // Partner request fields
   bool get needsBelay => throw _privateConstructorUsedError;
   bool get offeringBelay => throw _privateConstructorUsedError;
   PartnerNeedType get partnerNeedType => throw _privateConstructorUsedError;
   String? get gradeRange => throw _privateConstructorUsedError;
   DateTime? get expiresAt => throw _privateConstructorUsedError;
   bool get isExpired => throw _privateConstructorUsedError;
-  List<String> get respondentIds =>
-      throw _privateConstructorUsedError; // Introduction fields
-  String? get climbingLevel => throw _privateConstructorUsedError;
-  List<String> get climbingGoals =>
-      throw _privateConstructorUsedError; // Lost & Found fields
-  LostFoundStatus? get lostFoundStatus => throw _privateConstructorUsedError;
-  LostFoundCategory? get lostFoundCategory =>
-      throw _privateConstructorUsedError;
-  String? get itemName => throw _privateConstructorUsedError;
-  String? get locationNote => throw _privateConstructorUsedError;
-  bool get isResolved => throw _privateConstructorUsedError;
+  List<String> get respondentIds => throw _privateConstructorUsedError;
   DateTime? get createdAt => throw _privateConstructorUsedError;
 
   /// Serializes this ClimbingPost to a JSON map.
@@ -70,7 +58,6 @@ abstract class $ClimbingPostCopyWith<$Res> {
       String title,
       String? description,
       DateTime dateTime,
-      PostType type,
       bool needsBelay,
       bool offeringBelay,
       PartnerNeedType partnerNeedType,
@@ -78,13 +65,6 @@ abstract class $ClimbingPostCopyWith<$Res> {
       DateTime? expiresAt,
       bool isExpired,
       List<String> respondentIds,
-      String? climbingLevel,
-      List<String> climbingGoals,
-      LostFoundStatus? lostFoundStatus,
-      LostFoundCategory? lostFoundCategory,
-      String? itemName,
-      String? locationNote,
-      bool isResolved,
       DateTime? createdAt});
 }
 
@@ -109,7 +89,6 @@ class _$ClimbingPostCopyWithImpl<$Res, $Val extends ClimbingPost>
     Object? title = null,
     Object? description = freezed,
     Object? dateTime = null,
-    Object? type = null,
     Object? needsBelay = null,
     Object? offeringBelay = null,
     Object? partnerNeedType = null,
@@ -117,13 +96,6 @@ class _$ClimbingPostCopyWithImpl<$Res, $Val extends ClimbingPost>
     Object? expiresAt = freezed,
     Object? isExpired = null,
     Object? respondentIds = null,
-    Object? climbingLevel = freezed,
-    Object? climbingGoals = null,
-    Object? lostFoundStatus = freezed,
-    Object? lostFoundCategory = freezed,
-    Object? itemName = freezed,
-    Object? locationNote = freezed,
-    Object? isResolved = null,
     Object? createdAt = freezed,
   }) {
     return _then(_value.copyWith(
@@ -151,10 +123,6 @@ class _$ClimbingPostCopyWithImpl<$Res, $Val extends ClimbingPost>
           ? _value.dateTime
           : dateTime // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      type: null == type
-          ? _value.type
-          : type // ignore: cast_nullable_to_non_nullable
-              as PostType,
       needsBelay: null == needsBelay
           ? _value.needsBelay
           : needsBelay // ignore: cast_nullable_to_non_nullable
@@ -183,34 +151,6 @@ class _$ClimbingPostCopyWithImpl<$Res, $Val extends ClimbingPost>
           ? _value.respondentIds
           : respondentIds // ignore: cast_nullable_to_non_nullable
               as List<String>,
-      climbingLevel: freezed == climbingLevel
-          ? _value.climbingLevel
-          : climbingLevel // ignore: cast_nullable_to_non_nullable
-              as String?,
-      climbingGoals: null == climbingGoals
-          ? _value.climbingGoals
-          : climbingGoals // ignore: cast_nullable_to_non_nullable
-              as List<String>,
-      lostFoundStatus: freezed == lostFoundStatus
-          ? _value.lostFoundStatus
-          : lostFoundStatus // ignore: cast_nullable_to_non_nullable
-              as LostFoundStatus?,
-      lostFoundCategory: freezed == lostFoundCategory
-          ? _value.lostFoundCategory
-          : lostFoundCategory // ignore: cast_nullable_to_non_nullable
-              as LostFoundCategory?,
-      itemName: freezed == itemName
-          ? _value.itemName
-          : itemName // ignore: cast_nullable_to_non_nullable
-              as String?,
-      locationNote: freezed == locationNote
-          ? _value.locationNote
-          : locationNote // ignore: cast_nullable_to_non_nullable
-              as String?,
-      isResolved: null == isResolved
-          ? _value.isResolved
-          : isResolved // ignore: cast_nullable_to_non_nullable
-              as bool,
       createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -234,7 +174,6 @@ abstract class _$$ClimbingPostImplCopyWith<$Res>
       String title,
       String? description,
       DateTime dateTime,
-      PostType type,
       bool needsBelay,
       bool offeringBelay,
       PartnerNeedType partnerNeedType,
@@ -242,13 +181,6 @@ abstract class _$$ClimbingPostImplCopyWith<$Res>
       DateTime? expiresAt,
       bool isExpired,
       List<String> respondentIds,
-      String? climbingLevel,
-      List<String> climbingGoals,
-      LostFoundStatus? lostFoundStatus,
-      LostFoundCategory? lostFoundCategory,
-      String? itemName,
-      String? locationNote,
-      bool isResolved,
       DateTime? createdAt});
 }
 
@@ -271,7 +203,6 @@ class __$$ClimbingPostImplCopyWithImpl<$Res>
     Object? title = null,
     Object? description = freezed,
     Object? dateTime = null,
-    Object? type = null,
     Object? needsBelay = null,
     Object? offeringBelay = null,
     Object? partnerNeedType = null,
@@ -279,13 +210,6 @@ class __$$ClimbingPostImplCopyWithImpl<$Res>
     Object? expiresAt = freezed,
     Object? isExpired = null,
     Object? respondentIds = null,
-    Object? climbingLevel = freezed,
-    Object? climbingGoals = null,
-    Object? lostFoundStatus = freezed,
-    Object? lostFoundCategory = freezed,
-    Object? itemName = freezed,
-    Object? locationNote = freezed,
-    Object? isResolved = null,
     Object? createdAt = freezed,
   }) {
     return _then(_$ClimbingPostImpl(
@@ -313,10 +237,6 @@ class __$$ClimbingPostImplCopyWithImpl<$Res>
           ? _value.dateTime
           : dateTime // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      type: null == type
-          ? _value.type
-          : type // ignore: cast_nullable_to_non_nullable
-              as PostType,
       needsBelay: null == needsBelay
           ? _value.needsBelay
           : needsBelay // ignore: cast_nullable_to_non_nullable
@@ -345,34 +265,6 @@ class __$$ClimbingPostImplCopyWithImpl<$Res>
           ? _value._respondentIds
           : respondentIds // ignore: cast_nullable_to_non_nullable
               as List<String>,
-      climbingLevel: freezed == climbingLevel
-          ? _value.climbingLevel
-          : climbingLevel // ignore: cast_nullable_to_non_nullable
-              as String?,
-      climbingGoals: null == climbingGoals
-          ? _value._climbingGoals
-          : climbingGoals // ignore: cast_nullable_to_non_nullable
-              as List<String>,
-      lostFoundStatus: freezed == lostFoundStatus
-          ? _value.lostFoundStatus
-          : lostFoundStatus // ignore: cast_nullable_to_non_nullable
-              as LostFoundStatus?,
-      lostFoundCategory: freezed == lostFoundCategory
-          ? _value.lostFoundCategory
-          : lostFoundCategory // ignore: cast_nullable_to_non_nullable
-              as LostFoundCategory?,
-      itemName: freezed == itemName
-          ? _value.itemName
-          : itemName // ignore: cast_nullable_to_non_nullable
-              as String?,
-      locationNote: freezed == locationNote
-          ? _value.locationNote
-          : locationNote // ignore: cast_nullable_to_non_nullable
-              as String?,
-      isResolved: null == isResolved
-          ? _value.isResolved
-          : isResolved // ignore: cast_nullable_to_non_nullable
-              as bool,
       createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -391,7 +283,6 @@ class _$ClimbingPostImpl implements _ClimbingPost {
       required this.title,
       this.description,
       required this.dateTime,
-      this.type = PostType.partnerRequest,
       this.needsBelay = false,
       this.offeringBelay = false,
       this.partnerNeedType = PartnerNeedType.belay,
@@ -399,16 +290,8 @@ class _$ClimbingPostImpl implements _ClimbingPost {
       this.expiresAt,
       this.isExpired = false,
       final List<String> respondentIds = const [],
-      this.climbingLevel,
-      final List<String> climbingGoals = const [],
-      this.lostFoundStatus,
-      this.lostFoundCategory,
-      this.itemName,
-      this.locationNote,
-      this.isResolved = false,
       this.createdAt})
-      : _respondentIds = respondentIds,
-        _climbingGoals = climbingGoals;
+      : _respondentIds = respondentIds;
 
   factory _$ClimbingPostImpl.fromJson(Map<String, dynamic> json) =>
       _$$ClimbingPostImplFromJson(json);
@@ -425,10 +308,6 @@ class _$ClimbingPostImpl implements _ClimbingPost {
   final String? description;
   @override
   final DateTime dateTime;
-  @override
-  @JsonKey()
-  final PostType type;
-// Partner request fields
   @override
   @JsonKey()
   final bool needsBelay;
@@ -454,36 +333,12 @@ class _$ClimbingPostImpl implements _ClimbingPost {
     return EqualUnmodifiableListView(_respondentIds);
   }
 
-// Introduction fields
-  @override
-  final String? climbingLevel;
-  final List<String> _climbingGoals;
-  @override
-  @JsonKey()
-  List<String> get climbingGoals {
-    if (_climbingGoals is EqualUnmodifiableListView) return _climbingGoals;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_climbingGoals);
-  }
-
-// Lost & Found fields
-  @override
-  final LostFoundStatus? lostFoundStatus;
-  @override
-  final LostFoundCategory? lostFoundCategory;
-  @override
-  final String? itemName;
-  @override
-  final String? locationNote;
-  @override
-  @JsonKey()
-  final bool isResolved;
   @override
   final DateTime? createdAt;
 
   @override
   String toString() {
-    return 'ClimbingPost(id: $id, userId: $userId, cragId: $cragId, title: $title, description: $description, dateTime: $dateTime, type: $type, needsBelay: $needsBelay, offeringBelay: $offeringBelay, partnerNeedType: $partnerNeedType, gradeRange: $gradeRange, expiresAt: $expiresAt, isExpired: $isExpired, respondentIds: $respondentIds, climbingLevel: $climbingLevel, climbingGoals: $climbingGoals, lostFoundStatus: $lostFoundStatus, lostFoundCategory: $lostFoundCategory, itemName: $itemName, locationNote: $locationNote, isResolved: $isResolved, createdAt: $createdAt)';
+    return 'ClimbingPost(id: $id, userId: $userId, cragId: $cragId, title: $title, description: $description, dateTime: $dateTime, needsBelay: $needsBelay, offeringBelay: $offeringBelay, partnerNeedType: $partnerNeedType, gradeRange: $gradeRange, expiresAt: $expiresAt, isExpired: $isExpired, respondentIds: $respondentIds, createdAt: $createdAt)';
   }
 
   @override
@@ -499,7 +354,6 @@ class _$ClimbingPostImpl implements _ClimbingPost {
                 other.description == description) &&
             (identical(other.dateTime, dateTime) ||
                 other.dateTime == dateTime) &&
-            (identical(other.type, type) || other.type == type) &&
             (identical(other.needsBelay, needsBelay) ||
                 other.needsBelay == needsBelay) &&
             (identical(other.offeringBelay, offeringBelay) ||
@@ -514,51 +368,28 @@ class _$ClimbingPostImpl implements _ClimbingPost {
                 other.isExpired == isExpired) &&
             const DeepCollectionEquality()
                 .equals(other._respondentIds, _respondentIds) &&
-            (identical(other.climbingLevel, climbingLevel) ||
-                other.climbingLevel == climbingLevel) &&
-            const DeepCollectionEquality()
-                .equals(other._climbingGoals, _climbingGoals) &&
-            (identical(other.lostFoundStatus, lostFoundStatus) ||
-                other.lostFoundStatus == lostFoundStatus) &&
-            (identical(other.lostFoundCategory, lostFoundCategory) ||
-                other.lostFoundCategory == lostFoundCategory) &&
-            (identical(other.itemName, itemName) ||
-                other.itemName == itemName) &&
-            (identical(other.locationNote, locationNote) ||
-                other.locationNote == locationNote) &&
-            (identical(other.isResolved, isResolved) ||
-                other.isResolved == isResolved) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hashAll([
-        runtimeType,
-        id,
-        userId,
-        cragId,
-        title,
-        description,
-        dateTime,
-        type,
-        needsBelay,
-        offeringBelay,
-        partnerNeedType,
-        gradeRange,
-        expiresAt,
-        isExpired,
-        const DeepCollectionEquality().hash(_respondentIds),
-        climbingLevel,
-        const DeepCollectionEquality().hash(_climbingGoals),
-        lostFoundStatus,
-        lostFoundCategory,
-        itemName,
-        locationNote,
-        isResolved,
-        createdAt
-      ]);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      userId,
+      cragId,
+      title,
+      description,
+      dateTime,
+      needsBelay,
+      offeringBelay,
+      partnerNeedType,
+      gradeRange,
+      expiresAt,
+      isExpired,
+      const DeepCollectionEquality().hash(_respondentIds),
+      createdAt);
 
   /// Create a copy of ClimbingPost
   /// with the given fields replaced by the non-null parameter values.
@@ -584,7 +415,6 @@ abstract class _ClimbingPost implements ClimbingPost {
       required final String title,
       final String? description,
       required final DateTime dateTime,
-      final PostType type,
       final bool needsBelay,
       final bool offeringBelay,
       final PartnerNeedType partnerNeedType,
@@ -592,13 +422,6 @@ abstract class _ClimbingPost implements ClimbingPost {
       final DateTime? expiresAt,
       final bool isExpired,
       final List<String> respondentIds,
-      final String? climbingLevel,
-      final List<String> climbingGoals,
-      final LostFoundStatus? lostFoundStatus,
-      final LostFoundCategory? lostFoundCategory,
-      final String? itemName,
-      final String? locationNote,
-      final bool isResolved,
       final DateTime? createdAt}) = _$ClimbingPostImpl;
 
   factory _ClimbingPost.fromJson(Map<String, dynamic> json) =
@@ -617,8 +440,6 @@ abstract class _ClimbingPost implements ClimbingPost {
   @override
   DateTime get dateTime;
   @override
-  PostType get type; // Partner request fields
-  @override
   bool get needsBelay;
   @override
   bool get offeringBelay;
@@ -631,21 +452,7 @@ abstract class _ClimbingPost implements ClimbingPost {
   @override
   bool get isExpired;
   @override
-  List<String> get respondentIds; // Introduction fields
-  @override
-  String? get climbingLevel;
-  @override
-  List<String> get climbingGoals; // Lost & Found fields
-  @override
-  LostFoundStatus? get lostFoundStatus;
-  @override
-  LostFoundCategory? get lostFoundCategory;
-  @override
-  String? get itemName;
-  @override
-  String? get locationNote;
-  @override
-  bool get isResolved;
+  List<String> get respondentIds;
   @override
   DateTime? get createdAt;
 
