@@ -1,5 +1,6 @@
 import 'package:belay_buddy/src/features/venues/domain/crag.dart';
 import 'package:belay_buddy/src/features/auth/presentation/login_screen.dart';
+import 'package:belay_buddy/src/features/now/presentation/now_screen.dart';
 import 'package:belay_buddy/src/features/venues/presentation/crag_detail_screen.dart';
 import 'package:belay_buddy/src/features/posts/presentation/create_post_screen.dart';
 import 'package:belay_buddy/src/features/venues/presentation/map_screen.dart';
@@ -17,7 +18,7 @@ import 'package:google_fonts/google_fonts.dart';
 // ============================================================
 
 final appRouter = GoRouter(
-  initialLocation: '/',
+  initialLocation: '/now',
   routes: [
     // Auth
     GoRoute(
@@ -32,6 +33,10 @@ final appRouter = GoRouter(
         child: child,
       ),
       routes: [
+        GoRoute(
+          path: '/now',
+          builder: (context, state) => const NowScreen(),
+        ),
         GoRoute(
           path: '/',
           builder: (context, state) => const MapScreen(),
@@ -99,7 +104,16 @@ class ScaffoldWithNavBar extends StatelessWidget {
 
   const ScaffoldWithNavBar({super.key, required this.child, required this.location});
 
+  // NOW is the target home; MAP is kept during the redesign so existing
+  // surfaces are reachable. Tabs collapse to NOW + CHATS + ME-avatar in a
+  // future IA-flip PR.
   static const _tabs = [
+    (
+      path: '/now',
+      icon: Icons.circle_outlined,
+      activeIcon: Icons.circle,
+      label: 'NOW',
+    ),
     (path: '/', icon: Icons.map_outlined, activeIcon: Icons.map, label: 'MAP'),
     (
       path: '/messages',
@@ -116,9 +130,10 @@ class ScaffoldWithNavBar extends StatelessWidget {
   ];
 
   int get _selectedIndex {
-    if (location.startsWith('/messages')) return 1;
-    if (location.startsWith('/profile')) return 2;
-    return 0;
+    if (location.startsWith('/now')) return 0;
+    if (location.startsWith('/messages')) return 2;
+    if (location.startsWith('/profile')) return 3;
+    return 1;
   }
 
   @override
