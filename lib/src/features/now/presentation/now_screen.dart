@@ -1,4 +1,6 @@
 import 'package:belay_buddy/src/common/theme/app_theme.dart';
+import 'package:belay_buddy/src/features/now/data/now_repository.dart';
+import 'package:belay_buddy/src/features/now/domain/now_session.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,17 +22,16 @@ class NowScreen extends ConsumerStatefulWidget {
 }
 
 class _NowScreenState extends ConsumerState<NowScreen> {
-  // Initials of climbers the user has confirmed with this session.
-  // Persists only in-memory for the preview; replaced by a provider when
-  // the model lands.
+  // User ids of climbers the user has confirmed with this session.
+  // In-memory only for the preview; will become a provider on Firebase wire-up.
   final Set<String> _confirmed = {};
 
-  void _toggleConfirm(String initial) {
+  void _toggleConfirm(String userId) {
     setState(() {
-      if (_confirmed.contains(initial)) {
-        _confirmed.remove(initial);
+      if (_confirmed.contains(userId)) {
+        _confirmed.remove(userId);
       } else {
-        _confirmed.add(initial);
+        _confirmed.add(userId);
       }
     });
   }
@@ -38,10 +39,12 @@ class _NowScreenState extends ConsumerState<NowScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
+    final sessions = ref.watch(tonightSessionsProvider);
+    final radar = ref.watch(radarChipsProvider);
 
+    // Venue header is still local — a venueProvider lands with the IA flip
+    // when ME → Change home gym becomes the source of truth.
     const venue = _Venue(name: 'Movement Bldr', timeLabel: 'TUE 5:42p');
-    final radar = _mockRadar();
-    final sessions = _mockSessions();
 
     return Scaffold(
       backgroundColor: c.canvas,
@@ -53,18 +56,15 @@ class _NowScreenState extends ConsumerState<NowScreen> {
             const SliverToBoxAdapter(
                 child: _SectionHeader(text: 'Tonight at your gym')),
             SliverToBoxAdapter(
-              child: _CatchRadarRow(
-                chips: radar,
-                confirmed: _confirmed,
-              ),
+              child: _CatchRadarRow(chips: radar, confirmed: _confirmed),
             ),
             SliverToBoxAdapter(child: _hairline(c)),
             SliverList.builder(
               itemCount: sessions.length,
               itemBuilder: (context, i) => _SessionCard(
                 session: sessions[i],
-                isConfirmedByMe: _confirmed.contains(sessions[i].initial),
-                onConfirm: () => _toggleConfirm(sessions[i].initial),
+                isConfirmedByMe: _confirmed.contains(sessions[i].userId),
+                onConfirm: () => _toggleConfirm(sessions[i].userId),
               ),
             ),
             const SliverToBoxAdapter(child: SizedBox(height: 24)),
@@ -167,7 +167,7 @@ class _SectionHeader extends StatelessWidget {
 // ─── Catch radar row ────────────────────────────────────────────────────────
 
 class _CatchRadarRow extends StatelessWidget {
-  final List<_RadarChip> chips;
+  final List<RadarChip> chips;
   final Set<String> confirmed;
   const _CatchRadarRow({required this.chips, required this.confirmed});
 
@@ -190,7 +190,7 @@ class _CatchRadarRow extends StatelessWidget {
 }
 
 class _RadarBubble extends StatelessWidget {
-  final _RadarChip chip;
+  final RadarChip chip;
   final bool confirmedByMe;
   const _RadarBubble({required this.chip, required this.confirmedByMe});
 
@@ -200,8 +200,8 @@ class _RadarBubble extends StatelessWidget {
     // confirmedByMe collapses to the confirmed visual regardless of the chip's
     // underlying state — once you've said you're in, the live pip becomes a
     // check.
-    final isLive = chip.status == _Status.live && !confirmedByMe;
-    final isConfirmed = chip.status == _Status.confirmed || confirmedByMe;
+    final isLive = chip.status == SessionStatus.live && !confirmedByMe;
+    final isConfirmed = chip.status == SessionStatus.confirmed || confirmedByMe;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -254,7 +254,7 @@ class _RadarBubble extends StatelessWidget {
 // ─── Session card ───────────────────────────────────────────────────────────
 
 class _SessionCard extends StatelessWidget {
-  final _Session session;
+  final NowSession session;
   final bool isConfirmedByMe;
   final VoidCallback onConfirm;
   const _SessionCard({
@@ -268,8 +268,8 @@ class _SessionCard extends StatelessWidget {
     final c = context.appColors;
     // A card the user has just confirmed with reads as confirmed, replacing
     // its original live/expected state.
-    final isLive = session.status == _Status.live && !isConfirmedByMe;
-    final isConfirmed = session.status == _Status.confirmed || isConfirmedByMe;
+    final isLive = session.status == SessionStatus.live && !isConfirmedByMe;
+    final isConfirmed = session.status == SessionStatus.confirmed || isConfirmedByMe;
 
     final firstName = session.name.split(' ').first;
 
@@ -362,7 +362,7 @@ class _SessionCard extends StatelessWidget {
 }
 
 class _SessionHeaderRow extends StatelessWidget {
-  final _Session session;
+  final NowSession session;
   final bool isConfirmed;
   const _SessionHeaderRow({required this.session, required this.isConfirmed});
 
@@ -557,81 +557,9 @@ class _LinkAction extends StatelessWidget {
   }
 }
 
-// ─── Mock data (PR #2 only — replace with provider in next pass) ────────────
-
-enum _Status { live, confirmed, expected }
-
+// Local venue header data. A venueProvider lands with the IA flip.
 class _Venue {
   final String name;
   final String timeLabel;
   const _Venue({required this.name, required this.timeLabel});
 }
-
-class _RadarChip {
-  final String initial;
-  final String name;
-  final String timeLabel;
-  final _Status status;
-  const _RadarChip({
-    required this.initial,
-    required this.name,
-    required this.timeLabel,
-    required this.status,
-  });
-}
-
-class _Session {
-  final String initial;
-  final String name;
-  final String timeLabel;
-  final String subtitle;
-  final String? note;
-  final _Status status;
-  const _Session({
-    required this.initial,
-    required this.name,
-    required this.timeLabel,
-    required this.subtitle,
-    this.note,
-    required this.status,
-  });
-}
-
-List<_RadarChip> _mockRadar() => const [
-      _RadarChip(initial: 'm', name: 'Maya', timeLabel: 'HERE', status: _Status.live),
-      _RadarChip(initial: 'd', name: 'Dev', timeLabel: '6p', status: _Status.confirmed),
-      _RadarChip(initial: 's', name: 'Sam', timeLabel: '7p', status: _Status.expected),
-      _RadarChip(initial: 'p', name: 'Priya', timeLabel: '7:30', status: _Status.expected),
-    ];
-
-List<_Session> _mockSessions() => const [
-      _Session(
-        initial: 'm',
-        name: 'Maya K.',
-        timeLabel: 'til 8:30p',
-        subtitle: 'on the wall now',
-        status: _Status.live,
-      ),
-      _Session(
-        initial: 'd',
-        name: 'Dev R.',
-        timeLabel: 'landing 6:00p',
-        subtitle: '',
-        note: 'bringing the kilter board beta from sunday',
-        status: _Status.confirmed,
-      ),
-      _Session(
-        initial: 's',
-        name: 'Sam T.',
-        timeLabel: 'around 7p',
-        subtitle: 'usually Tuesdays',
-        status: _Status.expected,
-      ),
-      _Session(
-        initial: 'p',
-        name: 'Priya M.',
-        timeLabel: 'around 7:30p',
-        subtitle: 'usually Tuesdays',
-        status: _Status.expected,
-      ),
-    ];
