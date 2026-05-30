@@ -51,7 +51,7 @@ class MessagesScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   Text(
-                    'Tap a post to start chatting',
+                    'Messages with climbers will appear here',
                     style: GoogleFonts.cabin(
                       fontSize: 14,
                       color: c.textDisabled,
@@ -155,7 +155,7 @@ class _ConversationCard extends StatelessWidget {
               child: Row(
                 children: [
                   Text(
-                    isUnread ? '\u25CF NEW MESSAGE' : 'MESSAGE',
+                    isUnread ? 'NEW MESSAGE' : 'MESSAGE',
                     style: GoogleFonts.spaceMono(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,

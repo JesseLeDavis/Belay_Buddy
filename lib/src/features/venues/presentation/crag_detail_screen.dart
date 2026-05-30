@@ -256,7 +256,7 @@ class CragDetailScreen extends ConsumerWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: c.borderColor,
+                      color: c.darkGrey,
                       borderRadius: BorderRadius.circular(AppRadius.sm),
                       border: Border.all(color: c.borderColor, width: 1.5),
                     ),
@@ -265,7 +265,7 @@ class CragDetailScreen extends ConsumerWidget {
                       style: GoogleFonts.spaceMono(
                         fontSize: 9,
                         fontWeight: FontWeight.w700,
-                        color: c.background,
+                        color: c.textPrimary,
                       ),
                     ),
                   ),
@@ -295,14 +295,9 @@ class CragDetailScreen extends ConsumerWidget {
   }
 
   void _showHomeBaseSheet(BuildContext context, WidgetRef ref, Crag crag) {
-    final c = context.appColors;
     showModalBottomSheet(
       context: context,
-      backgroundColor: c.surface,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.vertical(top: Radius.circular(AppRadius.lg))),
       builder: (_) => HomeBaseSheet(crag: crag),
     );
   }
@@ -518,13 +513,8 @@ class CragDetailScreen extends ConsumerWidget {
   }
 
   void _showPostTypeSheet(BuildContext context, Crag crag) {
-    final c = context.appColors;
     showModalBottomSheet(
       context: context,
-      backgroundColor: c.surface,
-      shape: const RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.vertical(top: Radius.circular(AppRadius.lg))),
       builder: (_) => PostTypeSheet(crag: crag),
     );
   }
@@ -532,14 +522,9 @@ class CragDetailScreen extends ConsumerWidget {
   // ── Post detail ────────────────────────────────────────────────────────────
 
   void _showPostDetail(BuildContext context, WidgetRef ref, ClimbingPost post) {
-    final c = context.appColors;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: c.surface,
-      shape: const RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.vertical(top: Radius.circular(AppRadius.lg))),
       builder: (_) => PostDetailSheet(post: post),
     );
   }

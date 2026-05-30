@@ -23,11 +23,7 @@ class HomeBaseSheet extends ConsumerWidget {
         crag.isGym ? c.accentBlue : c.oliveGreen;
     final label = crag.isGym ? 'GYM' : 'CRAG';
 
-    return Container(
-      decoration: BoxDecoration(
-        color: c.surface,
-        border: Border(top: BorderSide(color: c.borderColor, width: 3)),
-      ),
+    return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).padding.bottom + AppSpacing.lg,
       ),

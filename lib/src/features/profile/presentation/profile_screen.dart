@@ -46,41 +46,47 @@ class ProfileScreen extends ConsumerWidget {
           ),
         ),
         actions: [
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              IconButton(
-                icon: Icon(Icons.notifications_outlined,
-                    color: c.borderColor),
-                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => const NotificationsScreen(),
-                )),
-              ),
-              if (unreadCount > 0)
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Container(
-                    width: 16,
-                    height: 16,
-                    decoration: BoxDecoration(
-                      color: c.dullOrange,
-                      border:
-                          Border.all(color: c.borderColor, width: 1.5),
-                      borderRadius: BorderRadius.circular(AppRadius.sm),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '$unreadCount',
-                        style: GoogleFonts.spaceMono(
-                            fontSize: 8,
-                            fontWeight: FontWeight.w700,
-                            color: c.textOnPrimary),
+          Semantics(
+            label: unreadCount > 0
+                ? 'Notifications, $unreadCount unread'
+                : 'Notifications',
+            button: true,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.notifications_outlined,
+                      color: c.borderColor),
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const NotificationsScreen(),
+                  )),
+                ),
+                if (unreadCount > 0)
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      width: 16,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: c.dullOrange,
+                        border:
+                            Border.all(color: c.borderColor, width: 1.5),
+                        borderRadius: BorderRadius.circular(AppRadius.sm),
+                      ),
+                      child: Center(
+                        child: Text(
+                          '$unreadCount',
+                          style: GoogleFonts.spaceMono(
+                              fontSize: 8,
+                              fontWeight: FontWeight.w700,
+                              color: c.textOnPrimary),
+                        ),
                       ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
           const SizedBox(width: AppSpacing.xs),
         ],
@@ -327,13 +333,13 @@ class _ThemeModeToggle extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.smMd, vertical: 10),
-            color: c.borderColor,
+            color: c.darkGrey,
             child: Text(
               'APPEARANCE',
               style: GoogleFonts.spaceMono(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
-                color: c.background,
+                color: c.textPrimary,
               ),
             ),
           ),

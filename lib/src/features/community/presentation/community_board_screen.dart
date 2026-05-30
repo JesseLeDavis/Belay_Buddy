@@ -4,6 +4,7 @@ import 'package:belay_buddy/src/features/connections/data/connections_repository
 import 'package:belay_buddy/src/features/posts/data/posts_repository.dart';
 import 'package:belay_buddy/src/features/posts/domain/climbing_post.dart';
 import 'package:belay_buddy/src/features/venues/data/venues_repository.dart';
+import 'package:belay_buddy/src/features/venues/presentation/widgets/post_detail_sheet.dart';
 import 'package:belay_buddy/src/common/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -69,6 +70,15 @@ class CommunityBoardScreen extends ConsumerWidget {
                             color: c.textDisabled,
                           ),
                         ),
+                        const SizedBox(height: AppSpacing.sm),
+                        Text(
+                          'TAP + TO START THE CONVERSATION',
+                          style: GoogleFonts.spaceMono(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: c.dullOrange,
+                          ),
+                        ),
                       ],
                     ),
                   )
@@ -109,21 +119,35 @@ class CommunityBoardScreen extends ConsumerWidget {
                     const BorderRadius.all(Radius.circular(AppRadius.sm)),
                 side: BorderSide(color: c.borderColor, width: 2.5),
               ),
-              onPressed: () => context.push(
-                '/crag/${crag.id}/post',
-                extra: {
-                  'crag': crag,
-                  'postType': switch (filter) {
-                    PostType.introduction => 'introduction',
-                    PostType.lostFound => 'lostFound',
-                    PostType.partnerRequest => 'partnerRequest',
-                    null => 'partnerRequest',
-                  },
-                },
-              ),
+              onPressed: () {
+                if (filter == null) {
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (_) => PostTypeSheet(crag: crag),
+                  );
+                } else {
+                  context.push(
+                    '/crag/${crag.id}/post',
+                    extra: {
+                      'crag': crag,
+                      'postType': switch (filter) {
+                        PostType.introduction => 'introduction',
+                        PostType.lostFound => 'lostFound',
+                        PostType.partnerRequest => 'partnerRequest',
+                      },
+                    },
+                  );
+                }
+              },
               icon: const Icon(Icons.add),
               label: Text(
-                'POST',
+                filter == null
+                    ? 'POST'
+                    : 'NEW ${switch (filter) {
+                        PostType.introduction => 'INTRO',
+                        PostType.partnerRequest => 'PARTNER',
+                        PostType.lostFound => 'L&F',
+                      }}',
                 style: GoogleFonts.spaceMono(
                     fontSize: 14, fontWeight: FontWeight.w700),
               ),
@@ -169,7 +193,7 @@ class _FilterBar extends StatelessWidget {
             _FilterChip(
               label: 'ALL',
               count: total,
-              color: c.dullOrange,
+              color: c.darkGrey,
               isSelected: selected == null,
               onTap: () => onChanged(null),
             ),
@@ -191,7 +215,7 @@ class _FilterBar extends StatelessWidget {
             ),
             const SizedBox(width: AppSpacing.sm),
             _FilterChip(
-              label: 'LOST & FOUND',
+              label: 'LOST/FOUND',
               count: typeCounts[PostType.lostFound] ?? 0,
               color: c.amber,
               isSelected: selected == PostType.lostFound,
@@ -252,7 +276,9 @@ class _FilterChip extends StatelessWidget {
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 color: isSelected
-                    ? (color == c.amber ? c.textOnTertiary : c.textOnPrimary)
+                    ? (color == c.amber || color == c.darkGrey
+                        ? c.textPrimary
+                        : c.textOnPrimary)
                     : c.textPrimary,
               ),
             ),
@@ -262,7 +288,9 @@ class _FilterChip extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? c.surface.withAlpha(60)
+                      ? (color == c.amber || color == c.darkGrey
+                          ? c.borderColor.withAlpha(40)
+                          : c.surface.withAlpha(60))
                       : c.borderColor,
                   borderRadius: BorderRadius.circular(AppRadius.xs),
                 ),
@@ -272,8 +300,8 @@ class _FilterChip extends StatelessWidget {
                     fontSize: 9,
                     fontWeight: FontWeight.w700,
                     color: isSelected
-                        ? (color == c.amber
-                            ? c.textOnTertiary
+                        ? (color == c.amber || color == c.darkGrey
+                            ? c.textPrimary
                             : c.textOnPrimary)
                         : c.background,
                   ),

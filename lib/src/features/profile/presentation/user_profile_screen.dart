@@ -152,7 +152,7 @@ class _UserProfileBodyState extends ConsumerState<_UserProfileBody> {
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       content: Text(
-                        'Messaging coming soon!',
+                        'Messaging coming soon',
                         style:
                             GoogleFonts.cabin(color: c.textOnPrimary, fontSize: 14),
                       ),

@@ -93,14 +93,9 @@ class FavoriteNotifyRow extends ConsumerWidget {
   }
 
   void _showVenueNotifySheet(BuildContext context, Crag crag) {
-    final c = context.appColors;
     showModalBottomSheet(
       context: context,
-      backgroundColor: c.surface,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
-      ),
       builder: (_) => VenueNotifySheet(crag: crag),
     );
   }
@@ -120,11 +115,7 @@ class VenueNotifySheet extends ConsumerWidget {
         crag.isGym ? c.accentBlue : c.oliveGreen;
     final label = crag.isGym ? 'GYM' : 'CRAG';
 
-    return Container(
-      decoration: BoxDecoration(
-        color: c.surface,
-        border: Border(top: BorderSide(color: c.borderColor, width: 3)),
-      ),
+    return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).padding.bottom + AppSpacing.lg,
       ),

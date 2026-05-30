@@ -35,13 +35,21 @@ class FindClimbersScreen extends ConsumerWidget {
         data: (users) {
           if (users.isEmpty) {
             return Center(
-              child: Text(
-                'NO CLIMBERS FOUND',
-                style: GoogleFonts.spaceMono(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: c.textDisabled,
-                ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.people_outline,
+                      size: 64, color: c.textDisabled),
+                  const SizedBox(height: AppSpacing.md),
+                  Text(
+                    'NO CLIMBERS FOUND',
+                    style: GoogleFonts.spaceMono(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: c.textDisabled,
+                    ),
+                  ),
+                ],
               ),
             );
           }

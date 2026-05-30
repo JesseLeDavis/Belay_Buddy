@@ -94,22 +94,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         shape: Border(
           bottom: BorderSide(color: c.borderColor, width: 3),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.search, color: c.textPrimary),
-            tooltip: 'Search crags',
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    'Crag search coming soon',
-                    style: GoogleFonts.cabin(color: c.textOnPrimary, fontSize: 14),
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
       ),
       body: cragsAsync.when(
         data: (crags) {

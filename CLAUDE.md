@@ -36,7 +36,7 @@ lib/
     │   ├── theme/
     │   │   └── app_theme.dart      # AppColors, AppSpacing constants
     │   ├── utils/                  # climbing_tags, map_markers, seed_data
-    │   └── widgets/                # retro_button, heatmap_strip, post_card, collage_header
+    │   └── widgets/                # retro_button, heatmap_strip, collage_header
     └── features/
         ├── auth/
         │   ├── domain/             # app_user.dart (Freezed)
@@ -45,7 +45,7 @@ lib/
         ├── venues/
         │   ├── domain/             # crag.dart, header_config.dart (Freezed)
         │   ├── data/               # venues_repository.dart (crag + header providers)
-        │   └── presentation/       # map_screen, crag_detail_screen, crag_schedule_screen
+        │   └── presentation/       # map_screen, crag_detail_screen
         ├── posts/
         │   ├── domain/             # climbing_post.dart (Freezed)
         │   ├── data/               # posts_repository.dart (post + heatmap providers)
@@ -107,9 +107,9 @@ posts/          (lost & found items are now stored as posts with type=lostFound,
 ```
 
 ## Known TODOs
-- **CragScheduleScreen** — stub "COMING SOON"; needs full calendar heatmap + day-filtered session list
 - **Firebase init** — `Firebase.initializeApp()` not called in main.dart; swap providers when ready to go live
 - **Post expiration Cloud Functions** — `onCreate` trigger for `expiresAt`, scheduled sweep to set `isExpired: true`
-- **ProfileScreen** — currently read-only; needs edit capability (bio, experience level, styles)
 - **Messaging** — chat UI built, send action is mocked (snackbar); needs real Firestore wiring
 - **Crag search** — search icon in map app bar is a stub; needs text filter wired to crag list
+- **Create post submit** — `_submitPost` shows snackbar but does not persist; needs Firestore write
+- **Action buttons (Connect / Interest / Lost & Found claim)** — local `setState` + snackbar; need Firestore writes + notification creation

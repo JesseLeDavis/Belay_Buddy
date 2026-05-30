@@ -18,18 +18,13 @@ class NotificationsScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: c.background,
       appBar: AppBar(
-        backgroundColor: c.borderColor,
         title: Text(
           'NOTIFICATIONS',
           style: GoogleFonts.spaceMono(
-            fontSize: 18,
+            fontSize: 22,
             fontWeight: FontWeight.w700,
-            color: c.background,
+            color: c.borderColor,
           ),
-        ),
-        iconTheme: IconThemeData(color: c.background),
-        shape: Border(
-          bottom: BorderSide(color: c.dullOrange, width: 3),
         ),
       ),
       body: notifAsync.when(

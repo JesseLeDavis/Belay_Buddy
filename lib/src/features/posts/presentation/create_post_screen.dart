@@ -114,7 +114,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          '$typeLabel posted to ${widget.crag.name}',
+          '$typeLabel preview — saving posts coming soon',
           style: GoogleFonts.cabin(
               color: context.appColors.textOnPrimary, fontSize: 14),
         ),
@@ -385,7 +385,9 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
           style: OutlinedButton.styleFrom(
             foregroundColor: c.textPrimary,
             side: BorderSide(color: c.borderColor, width: 2),
-            shape: const RoundedRectangleBorder(),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.sm),
+            ),
           ),
           icon: const Icon(Icons.calendar_today),
           label: Text(

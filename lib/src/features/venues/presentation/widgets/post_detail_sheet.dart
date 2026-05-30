@@ -25,13 +25,7 @@ class PostDetailSheet extends ConsumerWidget {
       maxChildSize: 0.9,
       expand: false,
       builder: (context, scrollController) {
-        return Container(
-          decoration: BoxDecoration(
-            color: c.surface,
-            border:
-                Border(top: BorderSide(color: c.borderColor, width: 3)),
-          ),
-          child: SingleChildScrollView(
+        return SingleChildScrollView(
             controller: scrollController,
             child: Padding(
               padding: EdgeInsets.only(
@@ -183,7 +177,6 @@ class PostDetailSheet extends ConsumerWidget {
                 ],
               ),
             ),
-          ),
         );
       },
     );
@@ -269,18 +262,20 @@ class _PostActionButtonsState extends ConsumerState<_PostActionButtons> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        FilledButton.icon(
-          style: FilledButton.styleFrom(
-            backgroundColor: c.borderColor,
-            foregroundColor: c.background,
+        OutlinedButton.icon(
+          style: OutlinedButton.styleFrom(
+            foregroundColor: c.textPrimary,
+            side: BorderSide(color: c.borderColor, width: 2.5),
             shape: RoundedRectangleBorder(
-                side: BorderSide(color: c.borderColor, width: 2.5)),
+              borderRadius: BorderRadius.circular(AppRadius.sm),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 14),
           ),
           onPressed: () {
             Navigator.of(context).pop();
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text(
-                'Message sent to $posterName',
+                'Messaging coming soon',
                 style: GoogleFonts.cabin(color: c.textOnPrimary, fontSize: 14),
               ),
             ));
@@ -390,11 +385,7 @@ class PostTypeSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
-    return Container(
-      decoration: BoxDecoration(
-        color: c.surface,
-        border: Border(top: BorderSide(color: c.borderColor, width: 3)),
-      ),
+    return Padding(
       padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).padding.bottom + AppSpacing.md),
       child: Column(
