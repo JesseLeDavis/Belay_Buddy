@@ -6,7 +6,6 @@ import 'package:belay_buddy/src/features/venues/presentation/widgets/favorite_no
 import 'package:belay_buddy/src/features/venues/presentation/widgets/home_base_sheet.dart';
 import 'package:belay_buddy/src/features/venues/presentation/widgets/members_preview_row.dart';
 import 'package:belay_buddy/src/common/theme/app_theme.dart';
-import 'package:belay_buddy/src/common/widgets/collage_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -74,68 +73,50 @@ class CragDetailScreen extends ConsumerWidget {
     );
   }
 
-  // ── App bar ────────────────────────────────────────────────────────────────
-
+  // ── App bar — Chalk & Static. Flat canvas, hairline divider, inkk title.
+  // Crag pages become bottom sheets in the IA-flip PR; this is interim.
   SliverAppBar _buildAppBar(BuildContext context, Crag crag) {
     final c = context.appColors;
-    final headerColor = crag.isGym ? c.accentBlue : c.oliveGreen;
-    const expandedHeight = 260.0;
-
     return SliverAppBar(
-      expandedHeight: expandedHeight,
       pinned: true,
-      backgroundColor: headerColor,
+      elevation: 0,
+      backgroundColor: c.canvas,
+      foregroundColor: c.ink,
+      surfaceTintColor: Colors.transparent,
       leading: BackButton(
-        color: c.textOnPrimary,
+        color: c.ink,
         onPressed: () => context.canPop() ? context.pop() : context.go('/'),
       ),
       shape: Border(
-        bottom: BorderSide(color: c.borderColor, width: 3),
+        bottom: BorderSide(color: c.borderColor, width: 1.5),
       ),
-      flexibleSpace: LayoutBuilder(
-        builder: (context, constraints) {
-          final topPadding = MediaQuery.of(context).padding.top;
-          final collapsedHeight = kToolbarHeight + topPadding;
-          final scrollFraction = (1 -
-                  (constraints.maxHeight - collapsedHeight) /
-                      (expandedHeight - collapsedHeight + topPadding))
-              .clamp(0.0, 1.0);
-
-          return FlexibleSpaceBar(
-            centerTitle: true,
-            titlePadding: const EdgeInsets.only(bottom: 16),
-            title: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  crag.name,
-                  style: GoogleFonts.spaceMono(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: c.textOnPrimary,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                if (scrollFraction < 0.7)
-                  Opacity(
-                    opacity: (1 - scrollFraction / 0.7).clamp(0.0, 1.0),
-                    child: Text(
-                      crag.region ?? 'Unknown region',
-                      style: GoogleFonts.spaceMono(
-                        fontSize: 10,
-                        color: c.textOnPrimary.withAlpha(204),
-                      ),
-                    ),
-                  ),
-              ],
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            crag.name,
+            style: GoogleFonts.inter(
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+              color: c.ink,
+              height: 1.1,
             ),
-            background: CollageHeader(
-              cragId: crag.id,
-              isGym: crag.isGym,
-              scrollFraction: scrollFraction,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          if (crag.region != null)
+            Text(
+              crag.region!,
+              style: GoogleFonts.jetBrainsMono(
+                fontSize: 11,
+                color: c.textSecondary,
+                letterSpacing: -0.1,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-          );
-        },
+        ],
       ),
     );
   }
