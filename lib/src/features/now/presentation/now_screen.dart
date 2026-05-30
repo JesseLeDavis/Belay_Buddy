@@ -1,6 +1,7 @@
 import 'package:belay_buddy/src/common/theme/app_theme.dart';
 import 'package:belay_buddy/src/features/now/data/now_repository.dart';
 import 'package:belay_buddy/src/features/now/domain/now_session.dart';
+import 'package:belay_buddy/src/features/venues/data/venues_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -75,10 +76,12 @@ class _NowScreenState extends ConsumerState<NowScreen> {
               ),
             const SliverToBoxAdapter(child: SizedBox(height: 16)),
             const SliverToBoxAdapter(child: _DemoModeToggle()),
-            const SliverToBoxAdapter(child: SizedBox(height: 24)),
+            const SliverToBoxAdapter(child: SizedBox(height: 96)),
           ],
         ),
       ),
+      floatingActionButton: const _PostFab(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
@@ -754,6 +757,40 @@ class _RecurringIntentSheet extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ─── + POST FAB ────────────────────────────────────────────────────────────
+
+/// Center FAB. Ink, not lime — posting isn't reachability, it's an action.
+/// Tap → CreatePostScreen pre-filled with the user's home gym.
+class _PostFab extends ConsumerWidget {
+  const _PostFab();
+
+  // Home gym is hardcoded until home_settings becomes the source of truth.
+  static const _homeCragId = 'gym_movement_denver';
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.appColors;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () async {
+        final crag = await ref.read(cragProvider(_homeCragId).future);
+        if (crag == null || !context.mounted) return;
+        context.push('/crag/${crag.id}/post', extra: crag);
+      },
+      child: Container(
+        width: 56,
+        height: 56,
+        decoration: BoxDecoration(
+          color: c.ink,
+          border: Border.all(color: c.ink, width: 1.5),
+        ),
+        alignment: Alignment.center,
+        child: Icon(Icons.add, color: c.canvas, size: 22),
       ),
     );
   }
