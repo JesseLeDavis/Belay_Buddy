@@ -12,14 +12,33 @@ import 'package:google_fonts/google_fonts.dart';
 /// Brand rule: lime appears only when a real human is reachable.
 /// Live ring, lime left-bar, lime "say you're coming" CTA, lime checkmark on
 /// confirmed pairs. Wave buttons (chalk-blue ring, expected) use ink.
-class NowScreen extends ConsumerWidget {
+class NowScreen extends ConsumerStatefulWidget {
   const NowScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<NowScreen> createState() => _NowScreenState();
+}
+
+class _NowScreenState extends ConsumerState<NowScreen> {
+  // Initials of climbers the user has confirmed with this session.
+  // Persists only in-memory for the preview; replaced by a provider when
+  // the model lands.
+  final Set<String> _confirmed = {};
+
+  void _toggleConfirm(String initial) {
+    setState(() {
+      if (_confirmed.contains(initial)) {
+        _confirmed.remove(initial);
+      } else {
+        _confirmed.add(initial);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final c = context.appColors;
 
-    // Hardcoded — wired in a later PR.
     const venue = _Venue(name: 'Movement Bldr', timeLabel: 'TUE 5:42p');
     final radar = _mockRadar();
     final sessions = _mockSessions();
@@ -33,11 +52,20 @@ class NowScreen extends ConsumerWidget {
             SliverToBoxAdapter(child: _hairline(c)),
             const SliverToBoxAdapter(
                 child: _SectionHeader(text: 'Tonight at your gym')),
-            SliverToBoxAdapter(child: _CatchRadarRow(chips: radar)),
+            SliverToBoxAdapter(
+              child: _CatchRadarRow(
+                chips: radar,
+                confirmed: _confirmed,
+              ),
+            ),
             SliverToBoxAdapter(child: _hairline(c)),
             SliverList.builder(
               itemCount: sessions.length,
-              itemBuilder: (context, i) => _SessionCard(session: sessions[i]),
+              itemBuilder: (context, i) => _SessionCard(
+                session: sessions[i],
+                isConfirmedByMe: _confirmed.contains(sessions[i].initial),
+                onConfirm: () => _toggleConfirm(sessions[i].initial),
+              ),
             ),
             const SliverToBoxAdapter(child: SizedBox(height: 24)),
           ],
@@ -140,7 +168,8 @@ class _SectionHeader extends StatelessWidget {
 
 class _CatchRadarRow extends StatelessWidget {
   final List<_RadarChip> chips;
-  const _CatchRadarRow({required this.chips});
+  final Set<String> confirmed;
+  const _CatchRadarRow({required this.chips, required this.confirmed});
 
   @override
   Widget build(BuildContext context) {
@@ -151,7 +180,10 @@ class _CatchRadarRow extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(20, 6, 20, 8),
         itemCount: chips.length,
         separatorBuilder: (_, __) => const SizedBox(width: 18),
-        itemBuilder: (context, i) => _RadarBubble(chip: chips[i]),
+        itemBuilder: (context, i) => _RadarBubble(
+          chip: chips[i],
+          confirmedByMe: confirmed.contains(chips[i].initial),
+        ),
       ),
     );
   }
@@ -159,13 +191,17 @@ class _CatchRadarRow extends StatelessWidget {
 
 class _RadarBubble extends StatelessWidget {
   final _RadarChip chip;
-  const _RadarBubble({required this.chip});
+  final bool confirmedByMe;
+  const _RadarBubble({required this.chip, required this.confirmedByMe});
 
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
-    final isLive = chip.status == _Status.live;
-    final isConfirmed = chip.status == _Status.confirmed;
+    // confirmedByMe collapses to the confirmed visual regardless of the chip's
+    // underlying state — once you've said you're in, the live pip becomes a
+    // check.
+    final isLive = chip.status == _Status.live && !confirmedByMe;
+    final isConfirmed = chip.status == _Status.confirmed || confirmedByMe;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -219,13 +255,23 @@ class _RadarBubble extends StatelessWidget {
 
 class _SessionCard extends StatelessWidget {
   final _Session session;
-  const _SessionCard({required this.session});
+  final bool isConfirmedByMe;
+  final VoidCallback onConfirm;
+  const _SessionCard({
+    required this.session,
+    required this.isConfirmedByMe,
+    required this.onConfirm,
+  });
 
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
-    final isLive = session.status == _Status.live;
-    final isConfirmed = session.status == _Status.confirmed;
+    // A card the user has just confirmed with reads as confirmed, replacing
+    // its original live/expected state.
+    final isLive = session.status == _Status.live && !isConfirmedByMe;
+    final isConfirmed = session.status == _Status.confirmed || isConfirmedByMe;
+
+    final firstName = session.name.split(' ').first;
 
     return Container(
       decoration: BoxDecoration(
@@ -237,7 +283,7 @@ class _SessionCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Left rail — lime if reachable, chalk-blue if expected
+            // Left rail — lime if reachable, chalk-blue if expected.
             Container(
               width: 3,
               color: isLive || isConfirmed ? c.lime : c.chalkBlue,
@@ -248,24 +294,18 @@ class _SessionCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _SessionHeaderRow(session: session),
-                    const SizedBox(height: 4),
-                    Text(
-                      session.subtitle,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        color: c.textSecondary,
-                        height: 1.3,
-                      ),
+                    _SessionHeaderRow(
+                      session: session,
+                      isConfirmed: isConfirmed,
                     ),
-                    if (session.tags != null) ...[
-                      const SizedBox(height: 2),
+                    if (session.subtitle.isNotEmpty) ...[
+                      const SizedBox(height: 4),
                       Text(
-                        session.tags!,
-                        style: GoogleFonts.jetBrainsMono(
-                          fontSize: 11,
+                        session.subtitle,
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
                           color: c.textSecondary,
-                          letterSpacing: -0.1,
+                          height: 1.3,
                         ),
                       ),
                     ],
@@ -281,15 +321,34 @@ class _SessionCard extends StatelessWidget {
                         ),
                       ),
                     ],
-                    if (isLive) ...[
+                    if (isConfirmedByMe) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        '$firstName knows.',
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          color: c.ink,
+                          height: 1.3,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      _LimeButton(
+                        label: 'you’re in · ${session.timeLabel}',
+                        onTap: onConfirm,
+                      ),
+                    ] else if (isLive) ...[
                       const SizedBox(height: 14),
-                      const _LimeButton(label: 'say you’re coming  →'),
+                      _LimeButton(
+                        label: 'say you’re coming  →',
+                        onTap: onConfirm,
+                      ),
                     ] else if (isConfirmed) ...[
                       const SizedBox(height: 10),
                       const _LinkAction(label: 'chat  →'),
                     ] else ...[
                       const SizedBox(height: 10),
-                      const _LinkAction(label: 'wave  →'),
+                      _LinkAction(label: 'wave  →', onTap: onConfirm),
                     ],
                   ],
                 ),
@@ -304,12 +363,12 @@ class _SessionCard extends StatelessWidget {
 
 class _SessionHeaderRow extends StatelessWidget {
   final _Session session;
-  const _SessionHeaderRow({required this.session});
+  final bool isConfirmed;
+  const _SessionHeaderRow({required this.session, required this.isConfirmed});
 
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
-    final isConfirmed = session.status == _Status.confirmed;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -440,26 +499,31 @@ class _LimeCheck extends StatelessWidget {
 
 class _LimeButton extends StatelessWidget {
   final String label;
-  const _LimeButton({required this.label});
+  final VoidCallback? onTap;
+  const _LimeButton({required this.label, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
     return Align(
       alignment: Alignment.centerLeft,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(
-          color: c.lime,
-          border: Border.all(color: c.ink, width: 1.5),
-        ),
-        child: Text(
-          label,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: c.ink,
-            letterSpacing: -0.1,
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            color: c.lime,
+            border: Border.all(color: c.ink, width: 1.5),
+          ),
+          child: Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: c.ink,
+              letterSpacing: -0.1,
+            ),
           ),
         ),
       ),
@@ -469,19 +533,24 @@ class _LimeButton extends StatelessWidget {
 
 class _LinkAction extends StatelessWidget {
   final String label;
-  const _LinkAction({required this.label});
+  final VoidCallback? onTap;
+  const _LinkAction({required this.label, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
     return Align(
       alignment: Alignment.centerRight,
-      child: Text(
-        label,
-        style: GoogleFonts.inter(
-          fontSize: 13,
-          fontWeight: FontWeight.w500,
-          color: c.ink,
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: c.ink,
+          ),
         ),
       ),
     );
@@ -516,7 +585,6 @@ class _Session {
   final String name;
   final String timeLabel;
   final String subtitle;
-  final String? tags;
   final String? note;
   final _Status status;
   const _Session({
@@ -524,7 +592,6 @@ class _Session {
     required this.name,
     required this.timeLabel,
     required this.subtitle,
-    this.tags,
     this.note,
     required this.status,
   });
@@ -543,7 +610,6 @@ List<_Session> _mockSessions() => const [
         name: 'Maya K.',
         timeLabel: 'til 8:30p',
         subtitle: 'on the wall now',
-        tags: 'slab • 5.10s',
         status: _Status.live,
       ),
       _Session(
@@ -559,7 +625,6 @@ List<_Session> _mockSessions() => const [
         name: 'Sam T.',
         timeLabel: 'around 7p',
         subtitle: 'usually Tuesdays',
-        tags: 'overhang • projecting 5.11',
         status: _Status.expected,
       ),
       _Session(
@@ -567,7 +632,6 @@ List<_Session> _mockSessions() => const [
         name: 'Priya M.',
         timeLabel: 'around 7:30p',
         subtitle: 'usually Tuesdays',
-        tags: 'ropes • 5.9–5.10',
         status: _Status.expected,
       ),
     ];
