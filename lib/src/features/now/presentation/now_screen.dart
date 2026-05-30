@@ -41,6 +41,7 @@ class _NowScreenState extends ConsumerState<NowScreen> {
     final c = context.appColors;
     final sessions = ref.watch(tonightSessionsProvider);
     final radar = ref.watch(radarChipsProvider);
+    final forwardLoaded = ref.watch(forwardLoadedDayProvider);
 
     // Venue header is still local — a venueProvider lands with the IA flip
     // when ME → Change home gym becomes the source of truth.
@@ -67,6 +68,12 @@ class _NowScreenState extends ConsumerState<NowScreen> {
                 onConfirm: () => _toggleConfirm(sessions[i].userId),
               ),
             ),
+            if (forwardLoaded != null)
+              SliverToBoxAdapter(
+                child: _ForwardLoadBlock(day: forwardLoaded),
+              ),
+            const SliverToBoxAdapter(child: SizedBox(height: 16)),
+            const SliverToBoxAdapter(child: _DemoModeToggle()),
             const SliverToBoxAdapter(child: SizedBox(height: 24)),
           ],
         ),
@@ -562,4 +569,221 @@ class _Venue {
   final String name;
   final String timeLabel;
   const _Venue({required this.name, required this.timeLabel});
+}
+
+// ─── Forward-load block (sparse-night Version B) ───────────────────────────
+
+class _ForwardLoadBlock extends StatelessWidget {
+  final ForwardLoadedDay day;
+  const _ForwardLoadBlock({required this.day});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.appColors;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Thinking past tonight?',
+            style: GoogleFonts.inter(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: c.textSecondary,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+            decoration: BoxDecoration(
+              color: c.canvas,
+              border: Border.all(color: c.borderColor, width: 1.5),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      '${day.dayLabel}  ${day.windowLabel}',
+                      style: GoogleFonts.jetBrainsMono(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: c.ink,
+                        letterSpacing: -0.2,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      '${day.usualCount} climbers usual',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: c.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Container(height: 1.5, color: c.borderColor),
+                const SizedBox(height: 12),
+                _PeekRow(peek: day.peek),
+                const SizedBox(height: 14),
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => _showRecurringIntentSheet(context, day),
+                  child: Text(
+                    day.cta,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: c.ink,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showRecurringIntentSheet(BuildContext context, ForwardLoadedDay day) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (sheetContext) => _RecurringIntentSheet(day: day),
+    );
+  }
+}
+
+class _PeekRow extends StatelessWidget {
+  final List<RadarChip> peek;
+  const _PeekRow({required this.peek});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.appColors;
+    return SizedBox(
+      height: 28,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: peek.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (context, i) {
+          final chip = peek[i];
+          final isReachable = chip.status == SessionStatus.live ||
+              chip.status == SessionStatus.confirmed;
+          return Container(
+            width: 26,
+            height: 26,
+            decoration: BoxDecoration(
+              color: isReachable ? c.lime : c.canvas,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: isReachable ? c.ink : c.chalkBlue,
+                width: 1.5,
+              ),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              chip.initial,
+              style: GoogleFonts.jetBrainsMono(
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+                color: c.ink,
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _RecurringIntentSheet extends StatelessWidget {
+  final ForwardLoadedDay day;
+  const _RecurringIntentSheet({required this.day});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.appColors;
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '${day.windowLabel} sound right?',
+              style: GoogleFonts.inter(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: c.ink,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'we’ll show you on Thursdays in this window.',
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                color: c.textSecondary,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                _LimeButton(
+                  label: 'yes',
+                  onTap: () => Navigator.of(context).pop(),
+                ),
+                const SizedBox(width: 12),
+                _LinkAction(
+                  label: 'tweak',
+                  onTap: () => Navigator.of(context).pop(),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Dev: density toggle (remove when real data lands) ─────────────────────
+
+class _DemoModeToggle extends ConsumerWidget {
+  const _DemoModeToggle();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.appColors;
+    final mode = ref.watch(nowDemoModeProvider);
+    return Center(
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          final next = mode == NowDemoMode.dense
+              ? NowDemoMode.sparse
+              : NowDemoMode.dense;
+          ref.read(nowDemoModeProvider.notifier).state = next;
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+          child: Text(
+            'preview · ${mode == NowDemoMode.dense ? 'dense' : 'sparse'}',
+            style: GoogleFonts.jetBrainsMono(
+              fontSize: 11,
+              color: c.textDisabled,
+              letterSpacing: -0.1,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
