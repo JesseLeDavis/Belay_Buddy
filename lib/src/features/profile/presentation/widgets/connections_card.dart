@@ -2,6 +2,7 @@ import 'package:belay_buddy/src/features/auth/domain/app_user.dart';
 import 'package:belay_buddy/src/features/connections/data/connections_repository.dart';
 import 'package:belay_buddy/src/features/notifications/presentation/notifications_screen.dart';
 import 'package:belay_buddy/src/common/theme/app_theme.dart';
+import 'package:belay_buddy/src/common/widgets/route_line_trace.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -113,7 +114,7 @@ class _ConnectionRow extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: () => context.push('/profile/${user.uid}'),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(vertical: 10),
         child: Row(
           children: [
             Container(
@@ -147,6 +148,11 @@ class _ConnectionRow extends StatelessWidget {
                 ),
               ),
             ),
+            // The Route Line trace — persistent record of the climb that
+            // formed this connection. Each climber's pattern stays stable
+            // across rebuilds (seeded by userId.hashCode).
+            RouteLineTrace(seed: user.uid.hashCode),
+            const SizedBox(width: 10),
             Icon(Icons.chevron_right, size: 18, color: c.textDisabled),
           ],
         ),

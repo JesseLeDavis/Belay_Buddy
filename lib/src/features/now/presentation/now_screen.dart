@@ -3,6 +3,7 @@ import 'package:belay_buddy/src/features/auth/data/auth_repository.dart';
 import 'package:belay_buddy/src/features/now/data/now_repository.dart';
 import 'package:belay_buddy/src/features/now/data/recurring_intents_repository.dart';
 import 'package:belay_buddy/src/features/now/domain/now_session.dart';
+import 'package:belay_buddy/src/features/now/domain/route_pattern.dart';
 import 'package:belay_buddy/src/features/venues/data/venues_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -1166,55 +1167,7 @@ class _RouteLinePainter extends CustomPainter {
     }
   }
 
-  /// A topo-style polyline — straight segments meeting at angular corners,
-  /// the way real climbing routes are drawn on a guidebook. Waypoint pattern
-  /// is picked deterministically by seed (typically `userId.hashCode`), so
-  /// each climber gets their own signature route that stays stable across
-  /// rebuilds. Five variations: gentle, dramatic, top-heavy, busy, traverse.
-  Path _buildPath() {
-    final path = Path()..moveTo(start.dx, start.dy);
-    final delta = end - start;
-    final dist = delta.distance;
-    if (dist < 1) {
-      path.lineTo(end.dx, end.dy);
-      return path;
-    }
-
-    final perp = Offset(-delta.dy, delta.dx) / dist;
-    final beats = _patternFor(seed);
-
-    for (final beat in beats) {
-      final p = start + delta * beat.$1 + perp * (dist * beat.$2);
-      path.lineTo(p.dx, p.dy);
-    }
-    path.lineTo(end.dx, end.dy);
-
-    return path;
-  }
-
-  /// (fraction-along-path, perpendicular-bow-as-fraction-of-distance).
-  /// Sign alternates within each pattern; magnitudes vary to give the
-  /// route its character.
-  static const _patterns = <List<(double, double)>>[
-    // 0 — Gentle: balanced bows, no drama. The friendly route.
-    [(0.22, 0.08), (0.45, -0.10), (0.68, 0.07), (0.85, -0.05)],
-    // 1 — Crux middle: small at the start, big swing in the middle, calm at top.
-    [(0.18, 0.05), (0.40, -0.13), (0.55, 0.14), (0.80, -0.06)],
-    // 2 — Top-heavy: long approach, sharper finishing moves.
-    [(0.30, 0.06), (0.55, -0.05), (0.72, 0.11), (0.88, -0.09)],
-    // 3 — Wandering: more beats, smaller throws. Reads as a sustained pitch.
-    [
-      (0.16, 0.06), (0.30, -0.09), (0.46, 0.07),
-      (0.62, -0.08), (0.78, 0.06), (0.90, -0.04),
-    ],
-    // 4 — Traverse: bigger lateral movement, fewer waypoints.
-    [(0.25, 0.13), (0.50, -0.10), (0.78, 0.12)],
-  ];
-
-  static List<(double, double)> _patternFor(int seed) {
-    final i = seed.abs() % _patterns.length;
-    return _patterns[i];
-  }
+  Path _buildPath() => buildRoutePath(start: start, end: end, seed: seed);
 
   @override
   bool shouldRepaint(_RouteLinePainter old) =>
