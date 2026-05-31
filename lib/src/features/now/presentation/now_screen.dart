@@ -1090,19 +1090,54 @@ class _RouteLinePainter extends CustomPainter {
     }
   }
 
-  /// A gentle cubic that bows toward whichever side the path is travelling.
-  /// Real topo contours are never straight lines.
+  /// A meandering line that reads like a topo contour following a real climb.
+  /// Five intermediate waypoints bow alternately off the direct path with
+  /// varying magnitudes, then Catmull-Rom smooths a single C1-continuous
+  /// cubic-bezier spline through every one. The pattern is deterministic —
+  /// the same start/end always produces the same path.
   Path _buildPath() {
     final path = Path()..moveTo(start.dx, start.dy);
     final delta = end - start;
     final dist = delta.distance;
-    // Perpendicular unit vector (rotate 90°).
+    if (dist < 1) {
+      path.lineTo(end.dx, end.dy);
+      return path;
+    }
+
     final perp = Offset(-delta.dy, delta.dx) / dist;
-    // Bow outward by ~12% of the path length, biased toward the longer axis.
-    final bow = perp * (dist * 0.12);
-    final ctrl1 = start + delta * 0.30 + bow;
-    final ctrl2 = start + delta * 0.70 + bow;
-    path.cubicTo(ctrl1.dx, ctrl1.dy, ctrl2.dx, ctrl2.dy, end.dx, end.dy);
+
+    // (fraction-along-path, perpendicular-bow-as-fraction-of-distance).
+    // Alternating signs + varied magnitudes give the route a sense of
+    // having been climbed rather than drawn.
+    const beats = <(double, double)>[
+      (0.14, 0.13),
+      (0.30, -0.18),
+      (0.46, 0.10),
+      (0.62, -0.14),
+      (0.80, 0.16),
+      (0.92, -0.07),
+    ];
+
+    final waypoints = <Offset>[
+      start,
+      for (final beat in beats)
+        start + delta * beat.$1 + perp * (dist * beat.$2),
+      end,
+    ];
+
+    // Catmull-Rom → cubic Bezier, tension = 1/6 (standard uniform).
+    for (var i = 0; i < waypoints.length - 1; i++) {
+      final p0 = i == 0 ? waypoints[i] : waypoints[i - 1];
+      final p1 = waypoints[i];
+      final p2 = waypoints[i + 1];
+      final p3 = i + 2 < waypoints.length ? waypoints[i + 2] : waypoints[i + 1];
+
+      final c1 = p1 + (p2 - p0) / 6;
+      final c2 = p2 - (p3 - p1) / 6;
+
+      path.cubicTo(c1.dx, c1.dy, c2.dx, c2.dy, p2.dx, p2.dy);
+    }
+
     return path;
   }
 
