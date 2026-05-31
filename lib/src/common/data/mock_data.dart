@@ -5,7 +5,8 @@ import 'package:belay_buddy/src/features/venues/domain/crag.dart';
 import 'package:belay_buddy/src/features/messages/domain/message.dart';
 
 /// The mock "current user" ID used throughout the app.
-const String mockCurrentUserId = 'user_1';
+// Tess Wallflower — the redesign's persona. See docs/design-north-star.md.
+const String mockCurrentUserId = 'user_7';
 
 class MockData {
   MockData._();
