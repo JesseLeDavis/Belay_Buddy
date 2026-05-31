@@ -97,37 +97,32 @@ class _NowScreenState extends ConsumerState<NowScreen> {
 
     return Scaffold(
       backgroundColor: c.canvas,
-      body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
+      appBar: _NowAppBar(venue: venue, meAvatarKey: _meAvatarKey),
+      body: CustomScrollView(
+        slivers: [
+          const SliverToBoxAdapter(
+              child: _SectionHeader(text: 'Tonight at your gym')),
+          SliverToBoxAdapter(
+            child: _CatchRadarRow(chips: radar, confirmed: _confirmed),
+          ),
+          SliverToBoxAdapter(child: _hairline(c)),
+          SliverList.builder(
+            itemCount: sessions.length,
+            itemBuilder: (context, i) => _SessionCard(
+              session: sessions[i],
+              isConfirmedByMe: _confirmed.contains(sessions[i].userId),
+              onConfirm: () => _toggleConfirm(sessions[i].userId),
+              avatarKey: _keyFor(sessions[i].userId),
+            ),
+          ),
+          if (forwardLoaded != null)
             SliverToBoxAdapter(
-              child: _TopBar(venue: venue, meAvatarKey: _meAvatarKey),
+              child: _ForwardLoadBlock(day: forwardLoaded),
             ),
-            SliverToBoxAdapter(child: _hairline(c)),
-            const SliverToBoxAdapter(
-                child: _SectionHeader(text: 'Tonight at your gym')),
-            SliverToBoxAdapter(
-              child: _CatchRadarRow(chips: radar, confirmed: _confirmed),
-            ),
-            SliverToBoxAdapter(child: _hairline(c)),
-            SliverList.builder(
-              itemCount: sessions.length,
-              itemBuilder: (context, i) => _SessionCard(
-                session: sessions[i],
-                isConfirmedByMe: _confirmed.contains(sessions[i].userId),
-                onConfirm: () => _toggleConfirm(sessions[i].userId),
-                avatarKey: _keyFor(sessions[i].userId),
-              ),
-            ),
-            if (forwardLoaded != null)
-              SliverToBoxAdapter(
-                child: _ForwardLoadBlock(day: forwardLoaded),
-              ),
-            const SliverToBoxAdapter(child: SizedBox(height: 16)),
-            const SliverToBoxAdapter(child: _DemoModeToggle()),
-            const SliverToBoxAdapter(child: SizedBox(height: 96)),
-          ],
-        ),
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
+          const SliverToBoxAdapter(child: _DemoModeToggle()),
+          const SliverToBoxAdapter(child: SizedBox(height: 96)),
+        ],
       ),
       floatingActionButton: const _PostFab(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -138,19 +133,34 @@ class _NowScreenState extends ConsumerState<NowScreen> {
       Container(height: 1.5, color: c.borderColor);
 }
 
-// ─── Top bar ────────────────────────────────────────────────────────────────
+// ─── App bar ────────────────────────────────────────────────────────────────
+//
+// PreferredSize so the header geometry exactly matches a stock AppBar —
+// shares kToolbarHeight + the 1.5px hairline so the divider lines up with
+// CHATS / ME / every other screen mid-tab-slide.
 
-class _TopBar extends StatelessWidget {
+class _NowAppBar extends StatelessWidget implements PreferredSizeWidget {
   final _Venue venue;
   final Key meAvatarKey;
-  const _TopBar({required this.venue, required this.meAvatarKey});
+  const _NowAppBar({required this.venue, required this.meAvatarKey});
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-      child: Row(
+    return AppBar(
+      backgroundColor: c.canvas,
+      foregroundColor: c.ink,
+      elevation: 0,
+      surfaceTintColor: Colors.transparent,
+      automaticallyImplyLeading: false,
+      titleSpacing: 20,
+      shape: Border(
+        bottom: BorderSide(color: c.borderColor, width: 1.5),
+      ),
+      title: Row(
         children: [
           Text(
             venue.timeLabel,
