@@ -1,7 +1,6 @@
 import 'package:belay_buddy/src/features/posts/domain/climbing_post.dart';
 import 'package:belay_buddy/src/features/venues/domain/crag.dart';
 import 'package:belay_buddy/src/common/theme/app_theme.dart';
-import 'package:belay_buddy/src/common/widgets/retro_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -27,15 +26,15 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
   String? _gradeRange;
 
   static const _levelOptions = [
-    '5.5-5.7',
-    '5.8-5.9',
-    '5.10a-5.10d',
-    '5.11a-5.11d',
-    '5.12a-5.12d',
+    '5.5–5.7',
+    '5.8–5.9',
+    '5.10a–5.10d',
+    '5.11a–5.11d',
+    '5.12a–5.12d',
     '5.13+',
-    'V0-V2',
-    'V3-V5',
-    'V6-V8',
+    'V0–V2',
+    'V3–V5',
+    'V6–V8',
     'V9+',
   ];
 
@@ -53,13 +52,11 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 30)),
     );
-
     if (date != null && mounted) {
       final time = await showTimePicker(
         context: context,
         initialTime: TimeOfDay.fromDateTime(_selectedDateTime),
       );
-
       if (time != null && mounted) {
         setState(() {
           _selectedDateTime = DateTime(
@@ -72,15 +69,15 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
 
   void _submitPost() {
     if (!_formKey.currentState!.validate()) return;
-
     context.pop();
-
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Partner request preview — saving posts coming soon',
-          style: GoogleFonts.cabin(
-              color: context.appColors.textOnPrimary, fontSize: 14),
+          'saving posts coming soon',
+          style: GoogleFonts.inter(
+            color: context.appColors.canvas,
+            fontSize: 14,
+          ),
         ),
       ),
     );
@@ -91,37 +88,37 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
     final c = context.appColors;
 
     return Scaffold(
-      backgroundColor: c.background,
+      backgroundColor: c.canvas,
       appBar: AppBar(
-        backgroundColor: c.dullOrange,
-        foregroundColor: c.textOnPrimary,
+        backgroundColor: c.canvas,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        foregroundColor: c.ink,
         title: Text(
-          'FIND A PARTNER',
-          style: GoogleFonts.spaceMono(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-            color: c.textOnPrimary,
+          'I’m climbing',
+          style: GoogleFonts.inter(
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+            color: c.ink,
           ),
+        ),
+        shape: Border(
+          bottom: BorderSide(color: c.borderColor, width: 1.5),
         ),
       ),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _CragInfoCard(crag: widget.crag),
-              const SizedBox(height: AppSpacing.md),
-              _buildPartnerRequestForm(c),
-              const SizedBox(height: AppSpacing.xl),
-              RetroButton(
-                label: 'POST IT',
-                onPressed: _submitPost,
-                color: c.dullOrange,
-                textColor: c.textOnPrimary,
-              ),
-              const SizedBox(height: AppSpacing.lg),
+              _VenueLine(crag: widget.crag),
+              const SizedBox(height: 28),
+              _buildForm(c),
+              const SizedBox(height: 28),
+              _PrimaryButton(label: 'post it', onTap: _submitPost),
+              const SizedBox(height: 16),
             ],
           ),
         ),
@@ -129,63 +126,43 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
     );
   }
 
-  Widget _buildPartnerRequestForm(AppColorsExtension c) {
+  Widget _buildForm(AppColorsExtension c) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _SectionHeader(label: 'WHAT DO YOU NEED?', color: c.dullOrange),
-        const SizedBox(height: AppSpacing.sm),
+        const _Label(text: 'What do you need?'),
+        const SizedBox(height: 8),
         Row(
           children: PartnerNeedType.values.map((type) {
             final isSelected = _partnerNeedType == type;
             final label = switch (type) {
-              PartnerNeedType.belay => 'BELAY',
-              PartnerNeedType.ropedPartner => 'ROPED',
-              PartnerNeedType.boulderingBuddy => 'BOULDER',
-            };
-            final icon = switch (type) {
-              PartnerNeedType.belay => Icons.safety_check,
-              PartnerNeedType.ropedPartner => Icons.hiking,
-              PartnerNeedType.boulderingBuddy => Icons.terrain,
+              PartnerNeedType.belay => 'belay',
+              PartnerNeedType.ropedPartner => 'roped',
+              PartnerNeedType.boulderingBuddy => 'boulder',
             };
             return Expanded(
               child: Padding(
                 padding: EdgeInsets.only(
-                    right: type != PartnerNeedType.boulderingBuddy
-                        ? AppSpacing.sm
-                        : 0),
+                  right: type != PartnerNeedType.boulderingBuddy ? 8 : 0,
+                ),
                 child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
                   onTap: () => setState(() => _partnerNeedType = type),
                   child: Container(
-                    height: 52,
+                    height: 44,
+                    alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: isSelected ? c.dullOrange : c.surface,
-                      border: Border.all(
-                        color: c.borderColor,
-                        width: isSelected ? 3 : 2,
-                      ),
-                      borderRadius: BorderRadius.circular(AppRadius.sm),
+                      color: isSelected ? c.ink : c.canvas,
+                      border: Border.all(color: c.ink, width: 1.5),
                     ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(icon,
-                            size: 16,
-                            color: isSelected
-                                ? c.textOnPrimary
-                                : c.textPrimary),
-                        const SizedBox(height: 2),
-                        Text(
-                          label,
-                          style: GoogleFonts.spaceMono(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            color: isSelected
-                                ? c.textOnPrimary
-                                : c.textPrimary,
-                          ),
-                        ),
-                      ],
+                    child: Text(
+                      label,
+                      style: GoogleFonts.jetBrainsMono(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: isSelected ? c.canvas : c.ink,
+                        letterSpacing: -0.1,
+                      ),
                     ),
                   ),
                 ),
@@ -193,84 +170,94 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
             );
           }).toList(),
         ),
-        const SizedBox(height: AppSpacing.md),
 
-        _SectionHeader(label: 'WHEN?', color: c.dullOrange),
-        const SizedBox(height: AppSpacing.sm),
-        OutlinedButton.icon(
-          onPressed: _selectDateTime,
-          style: OutlinedButton.styleFrom(
-            foregroundColor: c.textPrimary,
-            side: BorderSide(color: c.borderColor, width: 2),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppRadius.sm),
+        const SizedBox(height: 22),
+        const _Label(text: 'When?'),
+        const SizedBox(height: 8),
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: _selectDateTime,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            decoration: BoxDecoration(
+              color: c.canvas,
+              border: Border.all(color: c.ink, width: 1.5),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.calendar_today, size: 16, color: c.ink),
+                const SizedBox(width: 10),
+                Text(
+                  DateFormat('EEE, MMM d · h:mm a')
+                      .format(_selectedDateTime)
+                      .toLowerCase(),
+                  style: GoogleFonts.jetBrainsMono(
+                    fontSize: 13,
+                    color: c.ink,
+                    letterSpacing: -0.1,
+                  ),
+                ),
+              ],
             ),
           ),
-          icon: const Icon(Icons.calendar_today),
-          label: Text(
-            DateFormat('EEE, MMM d \'at\' h:mm a').format(_selectedDateTime),
-            style: GoogleFonts.spaceMono(fontSize: 12),
-          ),
         ),
-        const SizedBox(height: AppSpacing.md),
 
-        _SectionHeader(label: 'POST TITLE', color: c.dullOrange),
-        const SizedBox(height: AppSpacing.sm),
+        const SizedBox(height: 22),
+        const _Label(text: 'Title'),
+        const SizedBox(height: 8),
         TextFormField(
           controller: _titleController,
-          style: GoogleFonts.cabin(fontSize: 14, color: c.textPrimary),
+          style: GoogleFonts.inter(fontSize: 14, color: c.ink),
           decoration: InputDecoration(
-            hintText: 'e.g., "Looking for belay partner"',
-            hintStyle: GoogleFonts.cabin(fontSize: 14, color: c.textDisabled),
+            hintText: 'looking for a belay partner',
+            hintStyle: GoogleFonts.inter(fontSize: 14, color: c.textDisabled),
           ),
           validator: (v) =>
-              v == null || v.trim().isEmpty ? 'Enter a title' : null,
+              v == null || v.trim().isEmpty ? 'enter a title' : null,
         ),
-        const SizedBox(height: AppSpacing.md),
 
-        _SectionHeader(label: 'GRADE RANGE (OPTIONAL)', color: c.dullOrange),
-        const SizedBox(height: AppSpacing.sm),
+        const SizedBox(height: 22),
+        const _Label(text: 'Grade range (optional)'),
+        const SizedBox(height: 8),
         Wrap(
-          spacing: AppSpacing.sm,
-          runSpacing: AppSpacing.sm,
+          spacing: 6,
+          runSpacing: 6,
           children: _levelOptions.map((level) {
             final isSelected = _gradeRange == level;
             return GestureDetector(
-              onTap: () => setState(
-                  () => _gradeRange = isSelected ? null : level),
+              behavior: HitTestBehavior.opaque,
+              onTap: () =>
+                  setState(() => _gradeRange = isSelected ? null : level),
               child: Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: isSelected ? c.dullOrange : c.surface,
-                  border: Border.all(
-                    color: isSelected ? c.dullOrange : c.borderColor,
-                    width: 2,
-                  ),
-                  borderRadius: BorderRadius.circular(AppRadius.xs),
+                  color: isSelected ? c.ink : c.canvas,
+                  border: Border.all(color: c.ink, width: 1.5),
                 ),
                 child: Text(
                   level,
-                  style: GoogleFonts.spaceMono(
+                  style: GoogleFonts.jetBrainsMono(
                     fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: isSelected ? c.textOnPrimary : c.textPrimary,
+                    fontWeight: FontWeight.w500,
+                    color: isSelected ? c.canvas : c.ink,
+                    letterSpacing: -0.1,
                   ),
                 ),
               ),
             );
           }).toList(),
         ),
-        const SizedBox(height: AppSpacing.md),
 
-        _SectionHeader(label: 'DETAILS (OPTIONAL)', color: c.dullOrange),
-        const SizedBox(height: AppSpacing.sm),
+        const SizedBox(height: 22),
+        const _Label(text: 'Details (optional)'),
+        const SizedBox(height: 8),
         TextFormField(
           controller: _descriptionController,
-          style: GoogleFonts.cabin(fontSize: 14, color: c.textPrimary),
+          style: GoogleFonts.inter(fontSize: 14, color: c.ink),
           decoration: InputDecoration(
-            hintText: 'Add details about your plans...',
-            hintStyle: GoogleFonts.cabin(fontSize: 14, color: c.textDisabled),
+            hintText: 'add anything you want a partner to know…',
+            hintStyle: GoogleFonts.inter(fontSize: 14, color: c.textDisabled),
           ),
           maxLines: 4,
         ),
@@ -279,83 +266,93 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
   }
 }
 
-// ── Shared form widgets ─────────────────────────────────────────────────────
+// ─── Atoms ──────────────────────────────────────────────────────────────────
 
-class _CragInfoCard extends StatelessWidget {
+class _VenueLine extends StatelessWidget {
   final Crag crag;
-  const _CragInfoCard({required this.crag});
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.appColors;
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: c.surface,
-        borderRadius: BorderRadius.circular(AppRadius.sm),
-        border: Border.fromBorderSide(
-          BorderSide(color: c.borderColor, width: 2.5),
-        ),
-        boxShadow: [
-          BoxShadow(
-              color: c.shadowColor,
-              offset: const Offset(5, 5),
-              blurRadius: 0),
-        ],
-      ),
-      child: Row(
-        children: [
-          Icon(crag.isGym ? Icons.fitness_center : Icons.terrain,
-              color: c.textPrimary),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  crag.name,
-                  style: GoogleFonts.spaceMono(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: c.textPrimary,
-                  ),
-                ),
-                if (crag.region != null)
-                  Text(
-                    crag.region!,
-                    style: GoogleFonts.spaceMono(
-                        fontSize: 11, color: c.textSecondary),
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SectionHeader extends StatelessWidget {
-  final String label;
-  final Color color;
-  const _SectionHeader({required this.label, required this.color});
+  const _VenueLine({required this.crag});
 
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
     return Row(
       children: [
-        Container(width: 3, height: 14, color: color),
-        const SizedBox(width: AppSpacing.sm),
-        Text(
-          label,
-          style: GoogleFonts.spaceMono(
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
-            color: c.textPrimary,
+        Icon(
+          crag.isGym ? Icons.fitness_center : Icons.terrain,
+          size: 16,
+          color: c.textSecondary,
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            crag.name,
+            style: GoogleFonts.inter(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: c.ink,
+            ),
           ),
         ),
+        if (crag.region != null)
+          Text(
+            crag.region!,
+            style: GoogleFonts.jetBrainsMono(
+              fontSize: 11,
+              color: c.textSecondary,
+              letterSpacing: -0.1,
+            ),
+          ),
       ],
+    );
+  }
+}
+
+class _Label extends StatelessWidget {
+  final String text;
+  const _Label({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.appColors;
+    return Text(
+      text,
+      style: GoogleFonts.inter(
+        fontSize: 13,
+        fontWeight: FontWeight.w600,
+        color: c.textSecondary,
+        letterSpacing: 0.1,
+      ),
+    );
+  }
+}
+
+class _PrimaryButton extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+  const _PrimaryButton({required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.appColors;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          color: c.ink,
+          border: Border.all(color: c.ink, width: 1.5),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: c.canvas,
+          ),
+        ),
+      ),
     );
   }
 }
