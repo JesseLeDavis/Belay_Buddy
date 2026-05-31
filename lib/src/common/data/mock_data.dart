@@ -131,7 +131,9 @@ class MockData {
       climbingTags: ['gumby', 'fair_weather', 'dawn_patrol', 'belay_bae'],
       favoriteCragIds: [],
       favoriteGymIds: ['gym_movement_denver'],
-      connectionIds: [],
+      // Three past partners — gives the connections list traces something to
+      // render. Each user gets one of the five Route Line patterns by hash.
+      connectionIds: ['user_8', 'user_9', 'user_5'],
       homeGymId: 'gym_movement_denver',
       isHomeVisible: true,
       notifyHomeCatch: false,
