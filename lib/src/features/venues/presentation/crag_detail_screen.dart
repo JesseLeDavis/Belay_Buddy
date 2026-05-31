@@ -21,16 +21,16 @@ class CragDetailScreen extends ConsumerWidget {
     final cragAsync = ref.watch(cragProvider(cragId));
 
     return Scaffold(
-      backgroundColor: c.background,
+      backgroundColor: c.canvas,
       body: cragAsync.when(
         data: (crag) {
           if (crag == null) {
             return Center(
               child: Text(
-                'Crag not found',
-                style: GoogleFonts.spaceMono(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
+                'crag not found',
+                style: GoogleFonts.inter(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
                   color: c.error,
                 ),
               ),
@@ -40,17 +40,18 @@ class CragDetailScreen extends ConsumerWidget {
         },
         loading: () => Center(
           child: Text(
-            'LOADING...',
-            style: GoogleFonts.spaceMono(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
+            'loading…',
+            style: GoogleFonts.jetBrainsMono(
+              fontSize: 12,
               color: c.textSecondary,
             ),
           ),
         ),
         error: (e, _) => Center(
-          child: Text('Error: $e',
-              style: GoogleFonts.cabin(fontSize: 16, color: c.error)),
+          child: Text(
+            'error: $e',
+            style: GoogleFonts.inter(fontSize: 14, color: c.error),
+          ),
         ),
       ),
       floatingActionButton: cragAsync.when(
@@ -73,8 +74,7 @@ class CragDetailScreen extends ConsumerWidget {
     );
   }
 
-  // ── App bar — Chalk & Static. Flat canvas, hairline divider, inkk title.
-  // Crag pages become bottom sheets in the IA-flip PR; this is interim.
+  // ── App bar — flat canvas, hairline divider, ink title.
   SliverAppBar _buildAppBar(BuildContext context, Crag crag) {
     final c = context.appColors;
     return SliverAppBar(
@@ -125,125 +125,84 @@ class CragDetailScreen extends ConsumerWidget {
 
   Widget _buildCragInfo(BuildContext context, WidgetRef ref, Crag crag) {
     final c = context.appColors;
-    final memberCount = ref.watch(homeMemberCountProvider(crag.id));
     final settings = ref.watch(homeSettingsProvider);
     final isHome =
         settings.homeCragId == crag.id || settings.homeGymId == crag.id;
+    final label = crag.isGym ? 'gym' : 'crag';
 
-    return Container(
-      color: c.background,
-      padding: const EdgeInsets.all(AppSpacing.md),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(Icons.location_on,
-                  size: 14, color: c.textSecondary),
-              const SizedBox(width: AppSpacing.xs),
-              Text(
-                crag.region ?? 'Unknown region',
-                style: GoogleFonts.spaceMono(
-                    fontSize: 12, color: c.textSecondary),
-              ),
-            ],
-          ),
-          _buildVibeChips(context, ref, crag.id),
+          // Description
           if (crag.description != null) ...[
-            const SizedBox(height: AppSpacing.sm),
             Text(
               crag.description!,
-              style: GoogleFonts.cabin(
-                  fontSize: 14, color: c.textSecondary, height: 1.4),
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: c.ink,
+                height: 1.4,
+              ),
             ),
+            const SizedBox(height: 14),
           ],
-          const SizedBox(height: AppSpacing.sm),
+
+          // Vibes
+          _buildVibeChips(context, ref, crag.id),
+
+          const SizedBox(height: 14),
 
           // Home base row
           GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () => _showHomeBaseSheet(context, ref, crag),
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.sm, vertical: 8),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
-                color: isHome
-                    ? (crag.isGym ? c.accentBlue : c.oliveGreen)
-                        .withAlpha(20)
-                    : c.chipBg,
-                borderRadius: BorderRadius.circular(AppRadius.sm),
-                border: Border.all(
-                  color: isHome
-                      ? (crag.isGym
-                          ? c.accentBlue
-                          : c.oliveGreen)
-                      : c.darkGrey,
-                  width: 2,
-                ),
+                color: isHome ? c.ink : c.canvas,
+                border: Border.all(color: c.ink, width: 1.5),
               ),
               child: Row(
                 children: [
                   Icon(
                     isHome ? Icons.home : Icons.home_outlined,
                     size: 16,
-                    color: isHome
-                        ? (crag.isGym
-                            ? c.accentBlue
-                            : c.oliveGreen)
-                        : c.textSecondary,
+                    color: isHome ? c.canvas : c.ink,
                   ),
-                  const SizedBox(width: AppSpacing.xs),
+                  const SizedBox(width: 8),
                   Text(
-                    isHome
-                        ? 'YOUR HOME ${crag.isGym ? 'GYM' : 'CRAG'}'
-                        : 'SET AS HOME ${crag.isGym ? 'GYM' : 'CRAG'}',
-                    style: GoogleFonts.spaceMono(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: isHome
-                          ? (crag.isGym
-                              ? c.accentBlue
-                              : c.oliveGreen)
-                          : c.textSecondary,
+                    isHome ? 'your home $label' : 'set as home $label',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: isHome ? c.canvas : c.ink,
                     ),
                   ),
                   const Spacer(),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: c.darkGrey,
-                      borderRadius: BorderRadius.circular(AppRadius.sm),
-                      border: Border.all(color: c.borderColor, width: 1.5),
-                    ),
-                    child: Text(
-                      '$memberCount ${memberCount == 1 ? 'MEMBER' : 'MEMBERS'}',
-                      style: GoogleFonts.spaceMono(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w700,
-                        color: c.textPrimary,
-                      ),
-                    ),
+                  Icon(
+                    Icons.chevron_right,
+                    size: 18,
+                    color: isHome ? c.canvas : c.ink,
                   ),
-                  const SizedBox(width: AppSpacing.xs),
-                  Icon(Icons.chevron_right,
-                      size: 16, color: c.textSecondary),
                 ],
               ),
             ),
           ),
 
-          const SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: 8),
 
           // Members preview row
           MembersPreviewRow(cragId: crag.id, crag: crag),
 
-          const SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: 10),
 
           // Favorite + notification row
           FavoriteNotifyRow(crag: crag),
 
-          const SizedBox(height: AppSpacing.md),
-          Divider(color: c.borderColor, thickness: 1),
+          const SizedBox(height: 18),
+          Container(height: 1.5, color: c.borderColor),
         ],
       ),
     );
@@ -264,52 +223,47 @@ class CragDetailScreen extends ConsumerWidget {
     if (vibeTags.isEmpty) return const SizedBox.shrink();
     final c = context.appColors;
 
-    return Padding(
-      padding: const EdgeInsets.only(top: AppSpacing.sm),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'COMMUNITY VIBE',
-            style: GoogleFonts.spaceMono(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              color: c.textSecondary,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Vibes',
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: c.textSecondary,
+            letterSpacing: 0.1,
           ),
-          const SizedBox(height: AppSpacing.xs),
-          Wrap(
-            spacing: AppSpacing.xs,
-            runSpacing: AppSpacing.xs,
-            children: vibeTags.map((vt) {
-              final tag = ClimbingTags.getById(vt.tagId);
-              if (tag == null) return const SizedBox.shrink();
-              final rotation = ClimbingTags.rotationFor(vt.tagId);
-              return Transform.rotate(
-                angle: rotation * 3.14159 / 180,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: tag.color.withAlpha(30),
-                    border: Border.all(color: tag.color, width: 2),
-                  ),
-                  child: Text(
-                    vt.count > 1
-                        ? '${tag.label} ×${vt.count}'
-                        : tag.label,
-                    style: GoogleFonts.spaceMono(
-                      fontSize: 9,
-                      fontWeight: FontWeight.w700,
-                      color: tag.color,
-                    ),
-                  ),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: vibeTags.map((vt) {
+            final tag = ClimbingTags.getById(vt.tagId);
+            if (tag == null) return const SizedBox.shrink();
+            return Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: c.canvas,
+                border: Border.all(color: c.ink, width: 1.5),
+              ),
+              child: Text(
+                vt.count > 1
+                    ? '${tag.label.toLowerCase()} ×${vt.count}'
+                    : tag.label.toLowerCase(),
+                style: GoogleFonts.jetBrainsMono(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  color: c.ink,
+                  letterSpacing: -0.1,
                 ),
-              );
-            }).toList(),
-          ),
-        ],
-      ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 
@@ -317,28 +271,29 @@ class CragDetailScreen extends ConsumerWidget {
 
   Widget _buildFab(BuildContext context, Crag crag) {
     final c = context.appColors;
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppRadius.sm),
-        boxShadow: [
-          BoxShadow(
-              color: c.shadowColor, offset: const Offset(4, 4), blurRadius: 0)
-        ],
-      ),
-      child: FloatingActionButton.extended(
-        heroTag: 'create_post_fab',
-        backgroundColor: c.dullOrange,
-        foregroundColor: c.textOnPrimary,
-        shape: RoundedRectangleBorder(
-          borderRadius: const BorderRadius.all(Radius.circular(AppRadius.sm)),
-          side: BorderSide(color: c.borderColor, width: 2.5),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => context.push('/crag/${crag.id}/post', extra: crag),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        decoration: BoxDecoration(
+          color: c.ink,
+          border: Border.all(color: c.ink, width: 1.5),
         ),
-        onPressed: () => context.push('/crag/${crag.id}/post', extra: crag),
-        icon: const Icon(Icons.add),
-        label: Text(
-          'POST',
-          style:
-              GoogleFonts.spaceMono(fontSize: 14, fontWeight: FontWeight.w700),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.add, size: 18, color: c.canvas),
+            const SizedBox(width: 8),
+            Text(
+              'post',
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: c.canvas,
+              ),
+            ),
+          ],
         ),
       ),
     );

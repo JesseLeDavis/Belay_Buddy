@@ -2,74 +2,11 @@ import 'package:belay_buddy/src/common/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class CountBadge extends StatelessWidget {
-  final String label;
-  final Color color;
-  final Color? textColor;
-
-  const CountBadge({
-    super.key,
-    required this.label,
-    required this.color,
-    this.textColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.appColors;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(AppRadius.sm),
-        border: Border.all(color: c.borderColor, width: 2),
-      ),
-      child: Text(
-        label,
-        style: GoogleFonts.spaceMono(
-          fontSize: 10,
-          fontWeight: FontWeight.w700,
-          color: textColor ?? c.textOnPrimary,
-        ),
-      ),
-    );
-  }
-}
-
-class PanelFooter extends StatelessWidget {
-  final String label;
-  final VoidCallback onTap;
-
-  const PanelFooter({super.key, required this.label, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.appColors;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: c.chipBg,
-          border: Border(top: BorderSide(color: c.borderColor, width: 1)),
-        ),
-        alignment: Alignment.center,
-        child: Text(
-          label,
-          style: GoogleFonts.spaceMono(
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
-            color: c.borderColor,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
+/// A row in a bottom sheet: leading icon + title/subtitle + trailing widget.
+/// Used by HomeBaseSheet and VenueNotifySheet.
 class SheetTile extends StatelessWidget {
   final IconData icon;
-  final Color iconColor;
+  final Color? iconColor;
   final String title;
   final String subtitle;
   final Widget trailing;
@@ -78,7 +15,7 @@ class SheetTile extends StatelessWidget {
   const SheetTile({
     super.key,
     required this.icon,
-    required this.iconColor,
+    this.iconColor,
     required this.title,
     required this.subtitle,
     required this.trailing,
@@ -91,29 +28,31 @@ class SheetTile extends StatelessWidget {
     return Opacity(
       opacity: enabled ? 1.0 : 0.4,
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+        padding: const EdgeInsets.fromLTRB(20, 14, 20, 14),
         child: Row(
           children: [
-            Icon(icon, size: 20, color: iconColor),
-            const SizedBox(width: AppSpacing.md),
+            Icon(icon, size: 20, color: iconColor ?? c.ink),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.spaceMono(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: c.borderColor,
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: c.ink,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: GoogleFonts.cabin(
-                        fontSize: 12, color: c.textSecondary),
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: c.textSecondary,
+                      height: 1.3,
+                    ),
                   ),
                 ],
               ),

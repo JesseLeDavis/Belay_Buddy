@@ -17,27 +17,19 @@ class FavoriteNotifyRow extends ConsumerWidget {
     final notifyPrefs = ref.watch(venueNotifyPrefsProvider(crag.id));
     final hasNotifications =
         notifyPrefs.notifyCatch || notifyPrefs.notifyConnections;
-    final accentColor =
-        crag.isGym ? c.accentBlue : c.oliveGreen;
 
     return Row(
       children: [
         Expanded(
           child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () =>
                 ref.read(favoritesProvider.notifier).toggleFavorite(crag.id),
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.sm, vertical: 8),
+              padding: const EdgeInsets.symmetric(vertical: 10),
               decoration: BoxDecoration(
-                color: isFav
-                    ? c.accentBlue.withAlpha(25)
-                    : c.chipBg,
-                borderRadius: BorderRadius.circular(AppRadius.sm),
-                border: Border.all(
-                  color: isFav ? c.accentBlue : c.darkGrey,
-                  width: 2,
-                ),
+                color: isFav ? c.ink : c.canvas,
+                border: Border.all(color: c.ink, width: 1.5),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -45,18 +37,15 @@ class FavoriteNotifyRow extends ConsumerWidget {
                   Icon(
                     isFav ? Icons.star : Icons.star_outline,
                     size: 16,
-                    color:
-                        isFav ? c.accentBlue : c.textSecondary,
+                    color: isFav ? c.canvas : c.ink,
                   ),
-                  const SizedBox(width: AppSpacing.xs),
+                  const SizedBox(width: 6),
                   Text(
-                    isFav ? 'FAVORITED' : 'FAVORITE',
-                    style: GoogleFonts.spaceMono(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: isFav
-                          ? c.accentBlue
-                          : c.textSecondary,
+                    isFav ? 'favorited' : 'favorite',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: isFav ? c.canvas : c.ink,
                     ),
                   ),
                 ],
@@ -64,27 +53,22 @@ class FavoriteNotifyRow extends ConsumerWidget {
             ),
           ),
         ),
-        const SizedBox(width: AppSpacing.sm),
+        const SizedBox(width: 10),
         GestureDetector(
+          behavior: HitTestBehavior.opaque,
           onTap: () => _showVenueNotifySheet(context, crag),
           child: Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: hasNotifications
-                  ? accentColor.withAlpha(20)
-                  : c.chipBg,
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-              border: Border.all(
-                color: hasNotifications ? accentColor : c.darkGrey,
-                width: 2,
-              ),
+              color: c.canvas,
+              border: Border.all(color: c.ink, width: 1.5),
             ),
             child: Icon(
               hasNotifications
-                  ? Icons.notifications_active
+                  ? Icons.notifications_active_outlined
                   : Icons.notifications_none,
               size: 18,
-              color: hasNotifications ? accentColor : c.textSecondary,
+              color: c.ink,
             ),
           ),
         ),
@@ -111,87 +95,68 @@ class VenueNotifySheet extends ConsumerWidget {
     final isFav = ref.watch(isFavoriteProvider(crag.id));
     final notifyPrefs = ref.watch(venueNotifyPrefsProvider(crag.id));
     final favNotifier = ref.read(favoritesProvider.notifier);
-    final accentColor =
-        crag.isGym ? c.accentBlue : c.oliveGreen;
-    final label = crag.isGym ? 'GYM' : 'CRAG';
+    final label = crag.isGym ? 'gym' : 'crag';
 
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).padding.bottom + AppSpacing.lg,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.md, vertical: 14),
-            decoration: BoxDecoration(
-              color: accentColor,
-              border: Border(
-                  bottom: BorderSide(color: c.borderColor, width: 2)),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.notifications, size: 18, color: c.textOnPrimary),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: Text(
-                    'NOTIFICATIONS · ${crag.name.toUpperCase()}',
-                    style: GoogleFonts.spaceMono(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: c.textOnPrimary,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (!isFav) ...[
-            Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 14, 0, 14),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
               child: Container(
-                padding: const EdgeInsets.all(AppSpacing.md),
-                decoration: BoxDecoration(
-                  color: c.amber.withAlpha(20),
-                  borderRadius: BorderRadius.circular(AppRadius.sm),
-                  border: Border.all(color: c.amber, width: 2),
+                width: 36,
+                height: 3,
+                color: c.borderColor,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
+              child: Text(
+                'Notify me about ${crag.name}',
+                style: GoogleFonts.inter(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: c.ink,
                 ),
+              ),
+            ),
+            if (!isFav) ...[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
                 child: Row(
                   children: [
-                    Icon(Icons.star_outline,
-                        size: 18, color: c.amber),
-                    const SizedBox(width: AppSpacing.sm),
                     Expanded(
                       child: Text(
-                        'Favorite this $label to enable notifications',
-                        style: GoogleFonts.cabin(
+                        'Favorite this $label to enable notifications.',
+                        style: GoogleFonts.inter(
                           fontSize: 13,
                           color: c.textSecondary,
                           height: 1.4,
                         ),
                       ),
                     ),
-                    const SizedBox(width: AppSpacing.sm),
+                    const SizedBox(width: 12),
                     GestureDetector(
+                      behavior: HitTestBehavior.opaque,
                       onTap: () => favNotifier.toggleFavorite(crag.id),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.sm, vertical: 4),
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
-                          color: c.amber,
-                          borderRadius: BorderRadius.circular(AppRadius.sm),
-                          border:
-                              Border.all(color: c.borderColor, width: 2),
+                          color: c.ink,
+                          border: Border.all(color: c.ink, width: 1.5),
                         ),
                         child: Text(
-                          'FAVORITE',
-                          style: GoogleFonts.spaceMono(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            color: c.textOnTertiary,
+                          'favorite',
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: c.canvas,
                           ),
                         ),
                       ),
@@ -199,51 +164,51 @@ class VenueNotifySheet extends ConsumerWidget {
                   ],
                 ),
               ),
-            ),
-          ] else ...[
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.md, AppSpacing.md, AppSpacing.md, 0),
-              child: Text(
-                'Get notified about activity at this ${label.toLowerCase()}, '
-                'even if it\'s not your home ${label.toLowerCase()}.',
-                style: GoogleFonts.cabin(
-                    fontSize: 13, color: c.textSecondary, height: 1.4),
+            ] else ...[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
+                child: Text(
+                  'Get notified about activity at this $label, '
+                  'even if it’s not your home $label.',
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    color: c.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+            ],
+            Container(height: 1.5, color: c.borderColor),
+            SheetTile(
+              icon: Icons.pan_tool_outlined,
+              title: 'Catch needed',
+              subtitle:
+                  'When someone at this $label needs a belay partner',
+              enabled: isFav,
+              trailing: Switch(
+                value: notifyPrefs.notifyCatch,
+                activeColor: c.ink,
+                onChanged: isFav
+                    ? (_) => favNotifier.toggleNotifyCatch(crag.id)
+                    : null,
               ),
             ),
-            const SizedBox(height: AppSpacing.sm),
+            Container(height: 1.5, color: c.borderColor),
+            SheetTile(
+              icon: Icons.person_add_outlined,
+              title: 'New members',
+              subtitle: 'When someone new joins this $label',
+              enabled: isFav,
+              trailing: Switch(
+                value: notifyPrefs.notifyConnections,
+                activeColor: c.ink,
+                onChanged: isFav
+                    ? (_) => favNotifier.toggleNotifyConnections(crag.id)
+                    : null,
+              ),
+            ),
           ],
-          SheetTile(
-            icon: Icons.pan_tool_outlined,
-            iconColor: c.dullOrange,
-            title: 'CATCH / BELAY NEEDED',
-            subtitle:
-                'Alert when someone at this ${label.toLowerCase()} needs a partner',
-            enabled: isFav,
-            trailing: Switch(
-              value: notifyPrefs.notifyCatch,
-              activeColor: c.dullOrange,
-              onChanged:
-                  isFav ? (_) => favNotifier.toggleNotifyCatch(crag.id) : null,
-            ),
-          ),
-          Divider(height: 1, thickness: 1, color: c.darkGrey),
-          SheetTile(
-            icon: Icons.person_add_outlined,
-            iconColor: c.accentBlue,
-            title: 'NEW MEMBERS',
-            subtitle:
-                'Alert when someone new joins this ${label.toLowerCase()}',
-            enabled: isFav,
-            trailing: Switch(
-              value: notifyPrefs.notifyConnections,
-              activeColor: c.accentBlue,
-              onChanged: isFav
-                  ? (_) => favNotifier.toggleNotifyConnections(crag.id)
-                  : null,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

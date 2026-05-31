@@ -10,12 +10,15 @@ import 'package:google_fonts/google_fonts.dart';
 class MembersPreviewRow extends ConsumerWidget {
   final String cragId;
   final Crag crag;
-  const MembersPreviewRow({super.key, required this.cragId, required this.crag});
+  const MembersPreviewRow({
+    super.key,
+    required this.cragId,
+    required this.crag,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.appColors;
-    final avatarColors = [c.dullOrange, c.accentBlue, c.oliveGreen, c.amber];
     final visible = ref.watch(visibleHomeMembersProvider(cragId));
     final memberCount = ref.watch(homeMemberCountProvider(cragId));
 
@@ -26,82 +29,62 @@ class MembersPreviewRow extends ConsumerWidget {
     final extra = memberCount - shown.length;
 
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () => _showMembersCarousel(context, cragId, crag),
-      child: Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 8),
-        decoration: BoxDecoration(
-          color: c.chipBg,
-          borderRadius: BorderRadius.circular(AppRadius.sm),
-          border: Border.all(color: c.darkGrey, width: 2),
-        ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(
           children: [
             SizedBox(
-              width: shown.length * 24.0 + 8,
-              height: 32,
+              width: shown.length * 22.0 + 10,
+              height: 30,
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
                   for (var i = 0; i < shown.length; i++)
                     Positioned(
-                      left: i * 22.0,
-                      child: Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: avatarColors[
-                              shown[i].uid.hashCode % avatarColors.length],
-                          shape: BoxShape.circle,
-                          border:
-                              Border.all(color: c.surface, width: 2.5),
-                        ),
-                        child: Center(
-                          child: Text(
-                            shown[i].displayName.isNotEmpty
-                                ? shown[i].displayName[0].toUpperCase()
-                                : '?',
-                            style: GoogleFonts.spaceMono(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: c.textOnPrimary,
-                            ),
-                          ),
-                        ),
+                      left: i * 20.0,
+                      child: _AvatarDot(
+                        initial: shown[i].displayName.isNotEmpty
+                            ? shown[i].displayName[0].toLowerCase()
+                            : '?',
                       ),
                     ),
                 ],
               ),
             ),
-            const SizedBox(width: AppSpacing.xs),
+            const SizedBox(width: 10),
             Expanded(
-              child: Text(
-                '$memberCount ${memberCount == 1 ? 'MEMBER' : 'MEMBERS'}',
-                style: GoogleFonts.spaceMono(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: c.borderColor,
+              child: RichText(
+                text: TextSpan(
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    color: c.ink,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: '$memberCount',
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    TextSpan(
+                      text:
+                          ' ${memberCount == 1 ? 'member' : 'members'}${extra > 0 ? ' · +$extra more' : ''}',
+                      style: TextStyle(color: c.textSecondary),
+                    ),
+                  ],
                 ),
               ),
             ),
-            if (extra > 0)
-              Text(
-                '+$extra more',
-                style: GoogleFonts.cabin(
-                    fontSize: 12, color: c.textSecondary),
-              ),
-            const SizedBox(width: AppSpacing.xs),
             Text(
-              'SEE ALL',
-              style: GoogleFonts.spaceMono(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                color: c.accentBlue,
+              'see all  →',
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: c.ink,
               ),
             ),
-            const SizedBox(width: 2),
-            Icon(Icons.chevron_right,
-                size: 14, color: c.accentBlue),
           ],
         ),
       ),
@@ -114,6 +97,34 @@ class MembersPreviewRow extends ConsumerWidget {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (_) => MembersCarouselSheet(cragId: cragId, crag: crag),
+    );
+  }
+}
+
+class _AvatarDot extends StatelessWidget {
+  final String initial;
+  const _AvatarDot({required this.initial});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.appColors;
+    return Container(
+      width: 30,
+      height: 30,
+      decoration: BoxDecoration(
+        color: c.canvas,
+        shape: BoxShape.circle,
+        border: Border.all(color: c.ink, width: 1.5),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        initial,
+        style: GoogleFonts.jetBrainsMono(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          color: c.ink,
+        ),
+      ),
     );
   }
 }
