@@ -62,8 +62,11 @@ class _NowScreenState extends ConsumerState<NowScreen> {
       final cardBox = cardCtx.findRenderObject() as RenderBox?;
       if (meBox == null || cardBox == null) return;
 
-      final start = meBox.localToGlobal(meBox.size.center(Offset.zero));
-      final end = cardBox.localToGlobal(cardBox.size.center(Offset.zero));
+      // Draw direction: bottom-up. The route starts at the climber's
+      // avatar and climbs up to the ME avatar — the way climbing routes are
+      // drawn in a topo guidebook.
+      final start = cardBox.localToGlobal(cardBox.size.center(Offset.zero));
+      final end = meBox.localToGlobal(meBox.size.center(Offset.zero));
       final ink = context.appColors.ink;
 
       late OverlayEntry entry;
@@ -1090,11 +1093,10 @@ class _RouteLinePainter extends CustomPainter {
     }
   }
 
-  /// A meandering line that reads like a topo contour following a real climb.
-  /// Five intermediate waypoints bow alternately off the direct path with
-  /// varying magnitudes, then Catmull-Rom smooths a single C1-continuous
-  /// cubic-bezier spline through every one. The pattern is deterministic —
-  /// the same start/end always produces the same path.
+  /// A topo-style polyline — straight segments meeting at angular corners,
+  /// the way real climbing routes are drawn on a guidebook. Waypoints bow
+  /// alternately off the direct path; connections are sharp `lineTo`s.
+  /// Deterministic — same start/end always produces the same path.
   Path _buildPath() {
     final path = Path()..moveTo(start.dx, start.dy);
     final delta = end - start;
@@ -1107,36 +1109,20 @@ class _RouteLinePainter extends CustomPainter {
     final perp = Offset(-delta.dy, delta.dx) / dist;
 
     // (fraction-along-path, perpendicular-bow-as-fraction-of-distance).
-    // Alternating signs + varied magnitudes give the route a sense of
-    // having been climbed rather than drawn.
+    // Smaller magnitudes than the curved version — sharp corners read as
+    // bigger swings, so the bows can be subtler.
     const beats = <(double, double)>[
-      (0.14, 0.13),
-      (0.30, -0.18),
-      (0.46, 0.10),
-      (0.62, -0.14),
-      (0.80, 0.16),
-      (0.92, -0.07),
+      (0.22, 0.08),
+      (0.45, -0.10),
+      (0.68, 0.07),
+      (0.85, -0.05),
     ];
 
-    final waypoints = <Offset>[
-      start,
-      for (final beat in beats)
-        start + delta * beat.$1 + perp * (dist * beat.$2),
-      end,
-    ];
-
-    // Catmull-Rom → cubic Bezier, tension = 1/6 (standard uniform).
-    for (var i = 0; i < waypoints.length - 1; i++) {
-      final p0 = i == 0 ? waypoints[i] : waypoints[i - 1];
-      final p1 = waypoints[i];
-      final p2 = waypoints[i + 1];
-      final p3 = i + 2 < waypoints.length ? waypoints[i + 2] : waypoints[i + 1];
-
-      final c1 = p1 + (p2 - p0) / 6;
-      final c2 = p2 - (p3 - p1) / 6;
-
-      path.cubicTo(c1.dx, c1.dy, c2.dx, c2.dy, p2.dx, p2.dy);
+    for (final beat in beats) {
+      final p = start + delta * beat.$1 + perp * (dist * beat.$2);
+      path.lineTo(p.dx, p.dy);
     }
+    path.lineTo(end.dx, end.dy);
 
     return path;
   }
