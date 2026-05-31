@@ -783,21 +783,76 @@ class _RecurringIntentSheet extends ConsumerWidget {
     'SUN': DateTime.sunday,
   };
 
+  // (label, startMinute, endMinute). The first matching the forward-load
+  // day's suggested window gets the ink-filled "suggested" treatment.
+  static const _presets = <(String, int, int)>[
+    ('5–8p', 17 * 60, 20 * 60),
+    ('6–9p', 18 * 60, 21 * 60),
+    ('7–10p', 19 * 60, 22 * 60),
+    ('morning · 8–11a', 8 * 60, 11 * 60),
+    ('evening · 5–10p', 17 * 60, 22 * 60),
+  ];
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.appColors;
     final weekday = _weekdayFromLabel[day.dayLabel] ?? DateTime.thursday;
     final plural = _pluralFor(day.dayLabel);
 
+    void writeIntent(int startMinute, int endMinute) {
+      final me = ref.read(currentUserNotifierProvider);
+      final cragId = me?.homeGymId ?? me?.homeCragId;
+      if (me != null && cragId != null) {
+        ref.read(recurringIntentsProvider.notifier).add(
+              userId: me.uid,
+              cragId: cragId,
+              weekday: weekday,
+              startMinute: startMinute,
+              endMinute: endMinute,
+            );
+      }
+      Navigator.of(context).pop();
+    }
+
+    Future<void> pickCustom() async {
+      final startTod = await showTimePicker(
+        context: context,
+        initialTime: const TimeOfDay(hour: 17, minute: 0),
+        helpText: 'start',
+      );
+      if (startTod == null || !context.mounted) return;
+      final endTod = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay(
+          hour: (startTod.hour + 3) % 24,
+          minute: startTod.minute,
+        ),
+        helpText: 'end',
+      );
+      if (endTod == null || !context.mounted) return;
+      writeIntent(
+        startTod.hour * 60 + startTod.minute,
+        endTod.hour * 60 + endTod.minute,
+      );
+    }
+
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+        padding: const EdgeInsets.fromLTRB(20, 22, 20, 22),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Center(
+              child: Container(
+                width: 36,
+                height: 3,
+                color: c.borderColor,
+              ),
+            ),
+            const SizedBox(height: 18),
             Text(
-              '${day.windowLabel} sound right?',
+              'When on $plural?',
               style: GoogleFonts.inter(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -806,39 +861,38 @@ class _RecurringIntentSheet extends ConsumerWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              'we’ll show you on $plural in this window.',
+              'pick a window — we’ll show you here every $plural.',
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: c.textSecondary,
                 height: 1.4,
               ),
             ),
-            const SizedBox(height: 20),
-            Row(
+            const SizedBox(height: 18),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
               children: [
-                _LimeButton(
-                  label: 'yes',
-                  onTap: () {
-                    final me = ref.read(currentUserNotifierProvider);
-                    final cragId = me?.homeGymId ?? me?.homeCragId;
-                    if (me != null && cragId != null) {
-                      ref.read(recurringIntentsProvider.notifier).add(
-                            userId: me.uid,
-                            cragId: cragId,
-                            weekday: weekday,
-                            startMinute: _parseStart(day.windowLabel),
-                            endMinute: _parseEnd(day.windowLabel),
-                          );
-                    }
-                    Navigator.of(context).pop();
-                  },
-                ),
-                const SizedBox(width: 12),
-                _LinkAction(
-                  label: 'tweak',
-                  onTap: () => Navigator.of(context).pop(),
-                ),
+                for (final preset in _presets)
+                  _WindowChip(
+                    label: preset.$1,
+                    suggested: preset.$1 == day.windowLabel,
+                    onTap: () => writeIntent(preset.$2, preset.$3),
+                  ),
               ],
+            ),
+            const SizedBox(height: 18),
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: pickCustom,
+              child: Text(
+                'custom time  →',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: c.ink,
+                ),
+              ),
             ),
           ],
         ),
@@ -866,28 +920,41 @@ class _RecurringIntentSheet extends ConsumerWidget {
         return '$dayLabel days';
     }
   }
+}
 
-  // "5–8p" → 17:00 / 20:00. Both endpoints share the same am/pm if only the
-  // end has it.
-  static int _parseStart(String window) => _parseEndpoint(window, start: true);
-  static int _parseEnd(String window) => _parseEndpoint(window, start: false);
+class _WindowChip extends StatelessWidget {
+  final String label;
+  final bool suggested;
+  final VoidCallback onTap;
+  const _WindowChip({
+    required this.label,
+    required this.suggested,
+    required this.onTap,
+  });
 
-  static int _parseEndpoint(String window, {required bool start}) {
-    final parts = window.split('–');
-    if (parts.length != 2) return 17 * 60;
-    final endRaw = parts[1].trim().toLowerCase();
-    final pm = endRaw.endsWith('p');
-    final raw = (start ? parts[0] : parts[1]).trim().toLowerCase();
-    final cleaned = raw.replaceAll(RegExp(r'[ap]'), '');
-    final segs = cleaned.split(':');
-    final hour12 = int.tryParse(segs.first) ?? 5;
-    final mins = segs.length > 1 ? int.tryParse(segs[1]) ?? 0 : 0;
-    // If the endpoint doesn't carry its own am/pm marker, inherit from the
-    // end of the window (e.g. "5–8p" — both are pm).
-    final rawHasMarker = raw.endsWith('a') || raw.endsWith('p');
-    final isPm = rawHasMarker ? raw.endsWith('p') : pm;
-    final h24 = (hour12 % 12) + (isPm ? 12 : 0);
-    return h24 * 60 + mins;
+  @override
+  Widget build(BuildContext context) {
+    final c = context.appColors;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: suggested ? c.ink : c.canvas,
+          border: Border.all(color: c.ink, width: 1.5),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.jetBrainsMono(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: suggested ? c.canvas : c.ink,
+            letterSpacing: -0.1,
+          ),
+        ),
+      ),
+    );
   }
 }
 
