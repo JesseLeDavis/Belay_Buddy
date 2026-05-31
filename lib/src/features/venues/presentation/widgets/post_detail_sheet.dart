@@ -24,148 +24,146 @@ class PostDetailSheet extends ConsumerWidget {
       maxChildSize: 0.9,
       expand: false,
       builder: (context, scrollController) {
-        return SingleChildScrollView(
+        return Container(
+          decoration: BoxDecoration(
+            color: c.canvas,
+            border: Border(
+              top: BorderSide(color: c.borderColor, width: 1.5),
+            ),
+          ),
+          child: SingleChildScrollView(
             controller: scrollController,
-            child: Padding(
-              padding: EdgeInsets.only(
-                left: AppSpacing.md,
-                right: AppSpacing.md,
-                top: AppSpacing.sm,
-                bottom:
-                    MediaQuery.of(context).viewInsets.bottom + AppSpacing.xl,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Center(
-                    child: Container(
-                        width: 40,
-                        height: 4,
-                        color: c.borderColor.withAlpha(80)),
+            padding: EdgeInsets.only(
+              left: 20,
+              right: 20,
+              top: 14,
+              bottom: MediaQuery.of(context).viewInsets.bottom + 32,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 3,
+                    color: c.borderColor,
                   ),
-                  const SizedBox(height: AppSpacing.md),
+                ),
+                const SizedBox(height: 18),
+                Text(
+                  post.title,
+                  style: GoogleFonts.inter(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: c.ink,
+                    height: 1.25,
+                  ),
+                ),
+                if (post.description != null &&
+                    post.description!.isNotEmpty) ...[
+                  const SizedBox(height: 10),
                   Text(
-                    post.title,
-                    style: GoogleFonts.spaceMono(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: c.textPrimary,
+                    post.description!,
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      color: c.textSecondary,
+                      height: 1.5,
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.md),
-                  if (post.description != null &&
-                      post.description!.isNotEmpty) ...[
+                ],
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    Icon(Icons.schedule, size: 14, color: c.textSecondary),
+                    const SizedBox(width: 6),
                     Text(
-                      post.description!,
-                      style: GoogleFonts.cabin(
-                          fontSize: 14,
-                          color: c.textSecondary,
-                          height: 1.5),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                  ],
-                  Row(
-                    children: [
-                      Icon(Icons.schedule,
-                          size: 16, color: c.amber),
-                      const SizedBox(width: AppSpacing.xs),
-                      Text(
-                        _formatFullDateTime(post.dateTime),
-                        style: GoogleFonts.spaceMono(
-                            fontSize: 12, color: c.textSecondary),
+                      _formatFullDateTime(post.dateTime).toLowerCase(),
+                      style: GoogleFonts.jetBrainsMono(
+                        fontSize: 12,
+                        color: c.textSecondary,
+                        letterSpacing: -0.1,
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
+                    ),
+                  ],
+                ),
+                if (post.needsBelay || post.offeringBelay) ...[
+                  const SizedBox(height: 12),
                   Wrap(
-                    spacing: AppSpacing.sm,
-                    runSpacing: AppSpacing.sm,
+                    spacing: 6,
+                    runSpacing: 6,
                     children: [
                       if (post.needsBelay)
-                        _detailChip(context, 'NEED BELAY', c.accentBlue),
+                        const _Chip(label: 'needs belay'),
                       if (post.offeringBelay)
-                        _detailChip(context, 'CAN BELAY', c.oliveGreen),
+                        const _Chip(label: 'can belay'),
                     ],
                   ),
-                  const SizedBox(height: AppSpacing.lg),
-                  Divider(color: c.borderColor, thickness: 1),
-                  const SizedBox(height: AppSpacing.sm),
-                  userAsync.when(
-                    data: (user) => GestureDetector(
-                      onTap: user != null
-                          ? () {
-                              Navigator.of(context).pop();
-                              context.push('/profile/${user.uid}');
-                            }
-                          : null,
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: c.borderColor,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Center(
-                              child: Text(
-                                user?.displayName.isNotEmpty == true
-                                    ? user!.displayName[0].toUpperCase()
-                                    : '?',
-                                style: GoogleFonts.spaceMono(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  color: c.background,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: AppSpacing.sm),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  user?.displayName ?? 'Unknown Climber',
-                                  style: GoogleFonts.cabin(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w700,
-                                    color: c.textPrimary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    loading: () => const SizedBox(height: 40),
-                    error: (_, __) => Text('Unknown Climber',
-                        style: GoogleFonts.cabin(
-                            fontSize: 16, color: c.textDisabled)),
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  _PostActionButtons(post: post, userAsync: userAsync),
                 ],
-              ),
+                const SizedBox(height: 22),
+                Container(height: 1.5, color: c.borderColor),
+                const SizedBox(height: 14),
+                userAsync.when(
+                  data: (user) => GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: user != null
+                        ? () {
+                            Navigator.of(context).pop();
+                            context.push('/profile/${user.uid}');
+                          }
+                        : null,
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: c.canvas,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: c.ink, width: 1.5),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            user?.displayName.isNotEmpty == true
+                                ? user!.displayName[0].toLowerCase()
+                                : '?',
+                            style: GoogleFonts.jetBrainsMono(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: c.ink,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            user?.displayName ?? 'Unknown climber',
+                            style: GoogleFonts.inter(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: c.ink,
+                            ),
+                          ),
+                        ),
+                        Icon(Icons.chevron_right, size: 18, color: c.ink),
+                      ],
+                    ),
+                  ),
+                  loading: () => const SizedBox(height: 40),
+                  error: (_, __) => Text(
+                    'Unknown climber',
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      color: c.textDisabled,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 22),
+                _PostActionButtons(post: post, userAsync: userAsync),
+              ],
             ),
+          ),
         );
       },
-    );
-  }
-
-  Widget _detailChip(BuildContext context, String label, Color color) {
-    final c = context.appColors;
-    return Container(
-      padding:
-          const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 4),
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppRadius.sm),
-          border: Border.all(color: c.borderColor, width: 2),
-          color: color),
-      child: Text(label,
-          style: GoogleFonts.spaceMono(
-              fontSize: 11, fontWeight: FontWeight.w700, color: c.textOnPrimary)),
     );
   }
 
@@ -176,14 +174,39 @@ class PostDetailSheet extends ConsumerWidget {
       final f = dt.difference(now);
       if (f.inMinutes < 60) return 'in ${f.inMinutes}m';
       if (f.inHours < 24) return 'in ${f.inHours}h';
-      return DateFormat('EEE, MMM d \'at\' h:mm a').format(dt);
+      return DateFormat('EEE, MMM d · h:mm a').format(dt);
     } else {
       if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
       if (diff.inHours < 24) return '${diff.inHours}h ago';
-      return DateFormat('EEE, MMM d \'at\' h:mm a').format(dt);
+      return DateFormat('EEE, MMM d · h:mm a').format(dt);
     }
   }
+}
 
+class _Chip extends StatelessWidget {
+  final String label;
+  const _Chip({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.appColors;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: c.canvas,
+        border: Border.all(color: c.ink, width: 1.5),
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.jetBrainsMono(
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
+          color: c.ink,
+          letterSpacing: -0.1,
+        ),
+      ),
+    );
+  }
 }
 
 class _PostActionButtons extends ConsumerStatefulWidget {
@@ -205,126 +228,148 @@ class _PostActionButtonsState extends ConsumerState<_PostActionButtons> {
     final currentUserId = ref.watch(currentUserIdSyncProvider);
     final isOwnPost = widget.post.userId == currentUserId;
     final isConnected = ref.watch(isConnectedProvider(widget.post.userId));
-    final posterName = widget.userAsync.asData?.value?.displayName ?? 'CLIMBER';
+    final posterName =
+        widget.userAsync.asData?.value?.displayName.split(' ').first ?? 'them';
 
     if (isOwnPost) return const SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        OutlinedButton.icon(
-          style: OutlinedButton.styleFrom(
-            foregroundColor: c.textPrimary,
-            side: BorderSide(color: c.borderColor, width: 2.5),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-            ),
-            padding: const EdgeInsets.symmetric(vertical: 14),
-          ),
-          onPressed: () {
+        _SecondaryButton(
+          label: 'message $posterName',
+          icon: Icons.chat_bubble_outline,
+          onTap: () {
             Navigator.of(context).pop();
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text(
-                'Messaging coming soon',
-                style: GoogleFonts.cabin(color: c.textOnPrimary, fontSize: 14),
+                'messaging coming soon',
+                style: GoogleFonts.inter(color: c.canvas, fontSize: 14),
               ),
             ));
           },
-          icon: const Icon(Icons.chat_bubble_outline),
-          label: Text(
-            'MESSAGE ${posterName.toUpperCase()}',
-            style: GoogleFonts.spaceMono(
-                fontSize: 13, fontWeight: FontWeight.w700),
-          ),
         ),
-        const SizedBox(height: AppSpacing.sm),
+        const SizedBox(height: 8),
         if (!isConnected)
-          GestureDetector(
-            onTap: _connectRequestSent
-                ? null
-                : () {
-                    setState(() => _connectRequestSent = true);
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text(
-                        'Connection request sent to $posterName',
-                        style: GoogleFonts.cabin(
-                            color: c.textOnPrimary, fontSize: 14),
-                      ),
-                      backgroundColor: c.accentBlue,
-                    ));
-                  },
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              decoration: BoxDecoration(
-                color: _connectRequestSent
-                    ? c.chipBg
-                    : c.accentBlue,
-                borderRadius: BorderRadius.circular(AppRadius.sm),
-                border: Border.all(color: c.borderColor, width: 2.5),
-                boxShadow: _connectRequestSent
-                    ? null
-                    : [
-                        BoxShadow(
-                            color: c.shadowColor,
-                            offset: const Offset(4, 4),
-                            blurRadius: 0)
-                      ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    _connectRequestSent
-                        ? Icons.hourglass_empty
-                        : Icons.person_add_outlined,
-                    size: 16,
-                    color: _connectRequestSent
-                        ? c.textSecondary
-                        : c.textOnPrimary,
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Text(
-                    _connectRequestSent
-                        ? 'REQUEST SENT'
-                        : 'CONNECT WITH ${posterName.toUpperCase()}',
-                    style: GoogleFonts.spaceMono(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: _connectRequestSent
-                          ? c.textSecondary
-                          : c.textOnPrimary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          _PrimaryButton(
+            label: _connectRequestSent
+                ? 'request sent'
+                : 'connect with $posterName',
+            icon: _connectRequestSent
+                ? Icons.hourglass_empty
+                : Icons.person_add_outlined,
+            enabled: !_connectRequestSent,
+            onTap: () {
+              setState(() => _connectRequestSent = true);
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text(
+                  'connection request sent to $posterName',
+                  style: GoogleFonts.inter(color: c.canvas, fontSize: 14),
+                ),
+              ));
+            },
           )
         else
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            decoration: BoxDecoration(
-              color: c.oliveGreen,
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-              border: Border.all(color: c.borderColor, width: 2.5),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.check, size: 16, color: c.textOnPrimary),
-                const SizedBox(width: AppSpacing.sm),
-                Text(
-                  'CONNECTED WITH ${posterName.toUpperCase()}',
-                  style: GoogleFonts.spaceMono(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: c.textOnPrimary,
-                  ),
-                ),
-              ],
-            ),
+          _PrimaryButton(
+            label: 'connected with $posterName',
+            icon: Icons.check,
+            enabled: false,
+            onTap: () {},
           ),
       ],
     );
   }
 }
 
+class _SecondaryButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final VoidCallback onTap;
+  const _SecondaryButton({
+    required this.label,
+    required this.icon,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.appColors;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          color: c.canvas,
+          border: Border.all(color: c.ink, width: 1.5),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 16, color: c.ink),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: c.ink,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PrimaryButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool enabled;
+  final VoidCallback onTap;
+  const _PrimaryButton({
+    required this.label,
+    required this.icon,
+    required this.enabled,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.appColors;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: enabled ? onTap : null,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          color: enabled ? c.ink : c.canvas,
+          border: Border.all(
+            color: enabled ? c.ink : c.textDisabled,
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: enabled ? c.canvas : c.textDisabled,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: enabled ? c.canvas : c.textDisabled,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

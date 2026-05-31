@@ -10,7 +10,11 @@ import 'package:google_fonts/google_fonts.dart';
 class MembersCarouselSheet extends ConsumerStatefulWidget {
   final String cragId;
   final Crag crag;
-  const MembersCarouselSheet({super.key, required this.cragId, required this.crag});
+  const MembersCarouselSheet({
+    super.key,
+    required this.cragId,
+    required this.crag,
+  });
 
   @override
   ConsumerState<MembersCarouselSheet> createState() =>
@@ -41,179 +45,154 @@ class _MembersCarouselSheetState extends ConsumerState<MembersCarouselSheet> {
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
-    final avatarColors = [c.dullOrange, c.accentBlue, c.oliveGreen, c.amber];
     final visible = ref.watch(visibleHomeMembersProvider(widget.cragId));
     final memberCount = ref.watch(homeMemberCountProvider(widget.cragId));
     final hiddenCount = memberCount - visible.length;
-    final accentColor =
-        widget.crag.isGym ? c.accentBlue : c.oliveGreen;
     final screenWidth = MediaQuery.of(context).size.width;
     final edgeInset = (screenWidth - _slotWidth) / 2;
 
     return Container(
       decoration: BoxDecoration(
-        color: c.background,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+        color: c.canvas,
         border: Border(
-          top: BorderSide(color: c.borderColor, width: 3),
-          left: BorderSide(color: c.borderColor, width: 3),
-          right: BorderSide(color: c.borderColor, width: 3),
+          top: BorderSide(color: c.borderColor, width: 1.5),
         ),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(height: AppSpacing.sm),
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: c.darkGrey,
-                borderRadius: BorderRadius.circular(2),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 14),
+            Center(
+              child: Container(
+                width: 36,
+                height: 3,
+                color: c.borderColor,
               ),
             ),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-            child: Row(
-              children: [
-                Text(
-                  'LOCALS',
-                  style: GoogleFonts.spaceMono(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: c.borderColor,
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: accentColor,
-                    borderRadius: BorderRadius.circular(AppRadius.sm),
-                    border: Border.all(color: c.borderColor, width: 1.5),
-                  ),
-                  child: Text(
-                    '$memberCount',
-                    style: GoogleFonts.spaceMono(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: c.textOnPrimary,
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
+              child: Row(
+                children: [
+                  Text(
+                    'Locals',
+                    style: GoogleFonts.inter(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: c.ink,
                     ),
                   ),
-                ),
-                if (hiddenCount > 0) ...[
-                  const Spacer(),
+                  const SizedBox(width: 8),
                   Text(
-                    '$hiddenCount private',
-                    style: GoogleFonts.cabin(
-                        fontSize: 12, color: c.textDisabled),
+                    '$memberCount',
+                    style: GoogleFonts.jetBrainsMono(
+                      fontSize: 12,
+                      color: c.textDisabled,
+                      letterSpacing: -0.1,
+                    ),
                   ),
-                ],
-              ],
-            ),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          SizedBox(
-            height: 160,
-            child: ListView.builder(
-              controller: _scrollCtrl,
-              scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(),
-              padding: EdgeInsets.symmetric(horizontal: edgeInset),
-              itemCount: visible.length,
-              itemBuilder: (context, i) {
-                final user = visible[i];
-                final scale = _scaleFor(i, screenWidth, edgeInset);
-                final opacity = (0.4 + 0.6 * scale).clamp(0.0, 1.0);
-                final color =
-                    avatarColors[user.uid.hashCode % avatarColors.length];
-
-                final t = ((scale - 0.6) / 0.4).clamp(0.0, 1.0);
-                final avatarSize = 48.0 + 32.0 * t;
-                final fontSize = 16.0 + 14.0 * t;
-
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    context.push('/profile/${user.uid}');
-                  },
-                  child: SizedBox(
-                    width: _slotWidth,
-                    child: Opacity(
-                      opacity: opacity,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 80),
-                            width: avatarSize,
-                            height: avatarSize,
-                            decoration: BoxDecoration(
-                              color: color,
-                              borderRadius:
-                                  BorderRadius.circular(AppRadius.sm),
-                              border: Border.all(
-                                  color: c.borderColor, width: 2.5),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: color.withAlpha(
-                                      (120 * scale).round().clamp(0, 255)),
-                                  offset: Offset(4 * scale, 4 * scale),
-                                  blurRadius: 0,
-                                ),
-                              ],
-                            ),
-                            child: Center(
-                              child: Text(
-                                user.displayName.isNotEmpty
-                                    ? user.displayName[0].toUpperCase()
-                                    : '?',
-                                style: GoogleFonts.spaceMono(
-                                  fontSize: fontSize,
-                                  fontWeight: FontWeight.w700,
-                                  color: c.textOnPrimary,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: AppSpacing.sm),
-                          Text(
-                            user.displayName.split(' ').first,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.spaceMono(
-                              fontSize: scale > 0.85 ? 12 : 10,
-                              fontWeight: FontWeight.w700,
-                              color: c.borderColor,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          if (user.climbingTags.isNotEmpty)
-                            Text(
-                              _firstTagLabel(user.climbingTags.first),
-                              overflow: TextOverflow.ellipsis,
-                              style: GoogleFonts.spaceMono(
-                                fontSize: 8,
-                                fontWeight: FontWeight.w700,
-                                color: scale > 0.85
-                                    ? c.textSecondary
-                                    : c.textDisabled,
-                              ),
-                            ),
-                        ],
+                  if (hiddenCount > 0) ...[
+                    const Spacer(),
+                    Text(
+                      '$hiddenCount private',
+                      style: GoogleFonts.jetBrainsMono(
+                        fontSize: 11,
+                        color: c.textDisabled,
+                        letterSpacing: -0.1,
                       ),
                     ),
-                  ),
-                );
-              },
+                  ],
+                ],
+              ),
             ),
-          ),
-          SizedBox(
-              height: MediaQuery.of(context).padding.bottom + AppSpacing.lg),
-        ],
+            const SizedBox(height: 18),
+            SizedBox(
+              height: 150,
+              child: ListView.builder(
+                controller: _scrollCtrl,
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.symmetric(horizontal: edgeInset),
+                itemCount: visible.length,
+                itemBuilder: (context, i) {
+                  final user = visible[i];
+                  final scale = _scaleFor(i, screenWidth, edgeInset);
+                  final opacity = (0.45 + 0.55 * scale).clamp(0.0, 1.0);
+                  final t = ((scale - 0.6) / 0.4).clamp(0.0, 1.0);
+                  final avatarSize = 48.0 + 28.0 * t;
+                  final fontSize = 18.0 + 12.0 * t;
+
+                  return GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      context.push('/profile/${user.uid}');
+                    },
+                    child: SizedBox(
+                      width: _slotWidth,
+                      child: Opacity(
+                        opacity: opacity,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 80),
+                              width: avatarSize,
+                              height: avatarSize,
+                              decoration: BoxDecoration(
+                                color: c.canvas,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: c.ink, width: 1.5),
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                user.displayName.isNotEmpty
+                                    ? user.displayName[0].toLowerCase()
+                                    : '?',
+                                style: GoogleFonts.jetBrainsMono(
+                                  fontSize: fontSize,
+                                  fontWeight: FontWeight.w500,
+                                  color: c.ink,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              user.displayName.split(' ').first,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.inter(
+                                fontSize: scale > 0.85 ? 13 : 12,
+                                fontWeight: FontWeight.w600,
+                                color: c.ink,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            if (user.climbingTags.isNotEmpty)
+                              Text(
+                                _firstTagLabel(user.climbingTags.first)
+                                    .toLowerCase(),
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.jetBrainsMono(
+                                  fontSize: 10,
+                                  color: scale > 0.85
+                                      ? c.textSecondary
+                                      : c.textDisabled,
+                                  letterSpacing: -0.1,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 18),
+          ],
+        ),
       ),
     );
   }
@@ -232,6 +211,6 @@ class _MembersCarouselSheetState extends ConsumerState<MembersCarouselSheet> {
 
   String _firstTagLabel(String tagId) {
     final tag = ClimbingTags.getById(tagId);
-    return tag?.label ?? tagId.toUpperCase();
+    return tag?.label ?? tagId;
   }
 }
