@@ -16,265 +16,198 @@ class NotificationsScreen extends ConsumerWidget {
     final notifAsync = ref.watch(notificationsProvider);
 
     return Scaffold(
-      backgroundColor: c.background,
+      backgroundColor: c.canvas,
       appBar: AppBar(
+        backgroundColor: c.canvas,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        foregroundColor: c.ink,
         title: Text(
-          'NOTIFICATIONS',
-          style: GoogleFonts.spaceMono(
+          'Activity',
+          style: GoogleFonts.inter(
             fontSize: 22,
-            fontWeight: FontWeight.w700,
-            color: c.borderColor,
+            fontWeight: FontWeight.w600,
+            color: c.ink,
           ),
+        ),
+        shape: Border(
+          bottom: BorderSide(color: c.borderColor, width: 1.5),
         ),
       ),
       body: notifAsync.when(
         data: (notifications) {
           if (notifications.isEmpty) {
             return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.notifications_none,
-                      size: 64, color: c.textDisabled),
-                  const SizedBox(height: AppSpacing.md),
-                  Text(
-                    'NO NOTIFICATIONS',
-                    style: GoogleFonts.spaceMono(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: c.textDisabled,
-                    ),
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Text(
+                  'No activity yet.',
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: c.textSecondary,
                   ),
-                ],
+                ),
               ),
             );
           }
 
-          final unread =
-              notifications.where((n) => !n.isRead).toList();
-          final read =
-              notifications.where((n) => n.isRead).toList();
+          final unread = notifications.where((n) => !n.isRead).toList();
+          final read = notifications.where((n) => n.isRead).toList();
 
           return ListView(
+            padding: EdgeInsets.zero,
             children: [
               if (unread.isNotEmpty) ...[
-                _SectionHeader(label: 'NEW · ${unread.length}'),
-                ...unread.map((n) => _NotifTile(notif: n)),
+                _SectionLabel(text: 'new · ${unread.length}'),
+                ...unread.map((n) => _NotifRow(notif: n)),
               ],
               if (read.isNotEmpty) ...[
-                const _SectionHeader(label: 'EARLIER'),
-                ...read.map((n) => _NotifTile(notif: n)),
+                const _SectionLabel(text: 'earlier'),
+                ...read.map((n) => _NotifRow(notif: n)),
               ],
-              const SizedBox(height: AppSpacing.xl),
+              const SizedBox(height: 32),
             ],
           );
         },
         loading: () => Center(
           child: Text(
-            'LOADING...',
-            style: GoogleFonts.spaceMono(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: c.textSecondary),
+            'loading…',
+            style: GoogleFonts.jetBrainsMono(
+              fontSize: 12,
+              color: c.textSecondary,
+            ),
           ),
         ),
         error: (e, _) => Center(
-          child: Text('Error: $e',
-              style: GoogleFonts.cabin(fontSize: 16, color: c.error)),
+          child: Text(
+            'error: $e',
+            style: GoogleFonts.inter(fontSize: 14, color: c.error),
+          ),
         ),
       ),
     );
   }
 }
 
-class _SectionHeader extends StatelessWidget {
-  final String label;
-  const _SectionHeader({required this.label});
+class _SectionLabel extends StatelessWidget {
+  final String text;
+  const _SectionLabel({required this.text});
 
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
     return Container(
-      padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-      decoration: BoxDecoration(
-        color: c.chipBg,
-        border: Border(
-          bottom: BorderSide(color: c.borderColor, width: 1),
-        ),
-      ),
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 8),
       child: Text(
-        label,
-        style: GoogleFonts.spaceMono(
-          fontSize: 10,
-          fontWeight: FontWeight.w700,
+        text,
+        style: GoogleFonts.jetBrainsMono(
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
           color: c.textDisabled,
+          letterSpacing: -0.1,
         ),
       ),
     );
   }
 }
 
-class _NotifTile extends ConsumerWidget {
+class _NotifRow extends ConsumerWidget {
   final ClimbingNotification notif;
-  const _NotifTile({required this.notif});
+  const _NotifRow({required this.notif});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.appColors;
-    final (icon, accentColor, title, subtitle) = _content(c);
+    final (title, subtitle) = _content();
 
     return Container(
       decoration: BoxDecoration(
-        color: c.surface,
         border: Border(
-          bottom: BorderSide(color: c.darkGrey, width: 1),
+          bottom: BorderSide(color: c.borderColor, width: 1.5),
         ),
       ),
+      padding: const EdgeInsets.fromLTRB(20, 14, 20, 14),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Unread indicator
-          Container(
-            width: 4,
-            height: 72,
-            color: notif.isRead ? Colors.transparent : accentColor,
+          _AvatarDot(
+            initial: notif.fromUserName.isNotEmpty
+                ? notif.fromUserName[0].toLowerCase()
+                : '?',
           ),
-          const SizedBox(width: AppSpacing.sm),
-          // Icon
-          Padding(
-            padding: const EdgeInsets.only(top: 16),
-            child: Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: accentColor,
-                border: Border.all(color: c.borderColor, width: 2),
-                borderRadius: BorderRadius.circular(AppRadius.sm),
-              ),
-              child: Icon(icon, size: 18, color: c.textOnPrimary),
-            ),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          // Content
+          const SizedBox(width: 12),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.spaceMono(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: c.textPrimary,
-                    ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: notif.isRead
+                        ? FontWeight.w500
+                        : FontWeight.w600,
+                    color: c.ink,
+                    height: 1.35,
                   ),
+                ),
+                if (subtitle != null) ...[
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: GoogleFonts.cabin(
-                        fontSize: 13, color: c.textSecondary),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    _timeAgo(notif.createdAt),
-                    style: GoogleFonts.spaceMono(
-                        fontSize: 10, color: c.textDisabled),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          // Action
-          if (notif.type == NotificationType.connectionRequest)
-            Padding(
-              padding: const EdgeInsets.all(AppSpacing.sm),
-              child: _AcceptButton(notif: notif),
-            )
-          else if (notif.type == NotificationType.catchNeeded &&
-              notif.cragId != null)
-            Padding(
-              padding: const EdgeInsets.all(AppSpacing.sm),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.of(context).pop();
-                  context.go('/crag/${notif.cragId}');
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sm, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: c.dullOrange,
-                    border:
-                        Border.all(color: c.borderColor, width: 2),
-                    borderRadius: BorderRadius.circular(AppRadius.sm),
-                    boxShadow: [
-                      BoxShadow(
-                          color: c.shadowColor,
-                          offset: const Offset(4, 4),
-                          blurRadius: 0)
-                    ],
-                  ),
-                  child: Text(
-                    'VIEW',
-                    style: GoogleFonts.spaceMono(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color: c.textOnPrimary,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: c.textSecondary,
+                      height: 1.3,
                     ),
                   ),
+                ],
+                const SizedBox(height: 4),
+                Text(
+                  _timeAgo(notif.createdAt),
+                  style: GoogleFonts.jetBrainsMono(
+                    fontSize: 10,
+                    color: c.textDisabled,
+                    letterSpacing: -0.1,
+                  ),
                 ),
-              ),
+              ],
             ),
+          ),
+          const SizedBox(width: 8),
+          _ActionFor(notif: notif),
         ],
       ),
     );
   }
 
-  (IconData, Color, String, String) _content(AppColorsExtension c) {
+  (String, String?) _content() {
     switch (notif.type) {
       case NotificationType.catchNeeded:
         return (
-          Icons.pan_tool_outlined,
-          c.dullOrange,
-          '${notif.fromUserName} needs a catch',
-          notif.cragName != null
-              ? 'Posted at ${notif.cragName}'
-              : 'Posted a session',
+          '${notif.fromUserName} needs a catch.',
+          notif.cragName != null ? 'at ${notif.cragName}' : null,
         );
       case NotificationType.connectionRequest:
         return (
-          Icons.person_add_outlined,
-          c.accentBlue,
-          '${notif.fromUserName} wants to connect',
-          'Tap to accept or view their profile',
+          '${notif.fromUserName} wants to connect.',
+          null,
         );
       case NotificationType.connectionAccepted:
         return (
-          Icons.handshake_outlined,
-          c.oliveGreen,
-          '${notif.fromUserName} accepted your request',
-          'You\'re now connected',
+          '${notif.fromUserName} accepted.',
+          'you’re connected.',
         );
       case NotificationType.partnerInterest:
         return (
-          Icons.emoji_people,
-          c.dullOrange,
-          '${notif.fromUserName} is interested in your session',
-          notif.cragName != null
-              ? 'At ${notif.cragName}'
-              : 'Tap to view',
+          '${notif.fromUserName} is interested in your session.',
+          notif.cragName != null ? 'at ${notif.cragName}' : null,
         );
       case NotificationType.lostFoundClaim:
         return (
-          Icons.inventory_2_outlined,
-          c.amber,
-          '${notif.fromUserName} responded to your item',
-          notif.cragName != null
-              ? 'At ${notif.cragName}'
-              : 'Tap to view',
+          '${notif.fromUserName} responded.',
+          notif.cragName,
         );
     }
   }
@@ -285,13 +218,34 @@ class _NotifTile extends ConsumerWidget {
     if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
     if (diff.inHours < 24) return '${diff.inHours}h ago';
     if (diff.inDays == 1) return 'yesterday';
-    return DateFormat('MMM d').format(dt);
+    return DateFormat('MMM d').format(dt).toLowerCase();
+  }
+}
+
+class _ActionFor extends StatelessWidget {
+  final ClimbingNotification notif;
+  const _ActionFor({required this.notif});
+
+  @override
+  Widget build(BuildContext context) {
+    if (notif.type == NotificationType.connectionRequest) {
+      return const _AcceptButton();
+    }
+    if (notif.type == NotificationType.catchNeeded && notif.cragId != null) {
+      return _LinkAction(
+        label: 'view  →',
+        onTap: () {
+          Navigator.of(context).pop();
+          context.go('/crag/${notif.cragId}');
+        },
+      );
+    }
+    return const SizedBox.shrink();
   }
 }
 
 class _AcceptButton extends StatefulWidget {
-  final ClimbingNotification notif;
-  const _AcceptButton({required this.notif});
+  const _AcceptButton();
 
   @override
   State<_AcceptButton> createState() => _AcceptButtonState();
@@ -303,49 +257,79 @@ class _AcceptButtonState extends State<_AcceptButton> {
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
-    if (_accepted) {
-      return Container(
-        padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.sm, vertical: 6),
-        decoration: BoxDecoration(
-          color: c.oliveGreen,
-          border: Border.all(color: c.borderColor, width: 2),
-          borderRadius: BorderRadius.circular(AppRadius.sm),
-        ),
-        child: Text(
-          'CONNECTED',
-          style: GoogleFonts.spaceMono(
-            fontSize: 10,
-            fontWeight: FontWeight.w700,
-            color: c.textOnPrimary,
-          ),
-        ),
-      );
-    }
-
     return GestureDetector(
-      onTap: () => setState(() => _accepted = true),
+      behavior: HitTestBehavior.opaque,
+      onTap: _accepted ? null : () => setState(() => _accepted = true),
       child: Container(
-        padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.sm, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: c.accentBlue,
-          border: Border.all(color: c.borderColor, width: 2),
-          borderRadius: BorderRadius.circular(AppRadius.sm),
-          boxShadow: [
-            BoxShadow(
-                color: c.shadowColor,
-                offset: const Offset(4, 4),
-                blurRadius: 0)
-          ],
+          color: _accepted ? c.canvas : c.ink,
+          border: Border.all(
+            color: _accepted ? c.textDisabled : c.ink,
+            width: 1.5,
+          ),
         ),
         child: Text(
-          'ACCEPT',
-          style: GoogleFonts.spaceMono(
-            fontSize: 10,
-            fontWeight: FontWeight.w700,
-            color: c.textOnPrimary,
+          _accepted ? 'connected' : 'accept',
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: _accepted ? c.textDisabled : c.canvas,
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LinkAction extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+  const _LinkAction({required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.appColors;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+        child: Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: c.ink,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AvatarDot extends StatelessWidget {
+  final String initial;
+  const _AvatarDot({required this.initial});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.appColors;
+    return Container(
+      width: 36,
+      height: 36,
+      decoration: BoxDecoration(
+        color: c.canvas,
+        shape: BoxShape.circle,
+        border: Border.all(color: c.ink, width: 1.5),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        initial,
+        style: GoogleFonts.jetBrainsMono(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: c.ink,
         ),
       ),
     );
