@@ -35,7 +35,14 @@ final appRouter = GoRouter(
       routes: [
         GoRoute(
           path: '/now',
-          builder: (context, state) => const NowScreen(),
+          // NOW is the "left" tab. Selecting it slides in from the left,
+          // CHATS slides out to the right. Direction is fixed by tab
+          // identity — no prev-state tracking needed.
+          pageBuilder: (context, state) => _slidePage(
+            state: state,
+            child: const NowScreen(),
+            fromLeft: true,
+          ),
         ),
         GoRoute(
           path: '/',
@@ -64,7 +71,12 @@ final appRouter = GoRouter(
         ),
         GoRoute(
           path: '/messages',
-          builder: (context, state) => const MessagesScreen(),
+          // CHATS is the "right" tab. Selecting it slides in from the right.
+          pageBuilder: (context, state) => _slidePage(
+            state: state,
+            child: const MessagesScreen(),
+            fromLeft: false,
+          ),
           routes: [
             GoRoute(
               path: ':conversationId',
@@ -95,21 +107,52 @@ final appRouter = GoRouter(
 );
 
 // ============================================================
-// Shell scaffold — bottom nav
+// Per-tab slide transitions (take 3 — and the one that worked)
 // ============================================================
 //
-// Directional tab transitions were attempted twice and reverted twice:
-// 1. AnimatedSwitcher + Stack of full-screen Scaffolds — threw an exception
-//    mid-swap, likely Hero tag collision or layout assertion.
-// 2. animations package's PageTransitionSwitcher + SharedAxisTransition —
-//    direction logic relies on State surviving GoRouter rebuilds; the State
-//    appeared to be recreated each navigation so initState reset _prevIndex
-//    and every swap read as "going forward."
-//
-// Both root causes are about widget identity across GoRouter ShellRoute
-// rebuilds, not the transition mechanism itself. Future attempt: lift the
-// _prevIndex tracker out of this State (Riverpod provider keyed on
-// location) so it survives shell rebuilds, then re-try PageTransitionSwitcher.
+// Previous attempts tried to compute slide direction from prev/current tab
+// index, which kept getting tripped up by ShellRoute state recreation.
+// This one bypasses the problem entirely: direction is fixed by tab
+// identity, not navigation history. NOW always slides in from the left
+// (because it's the "left" tab); CHATS always slides in from the right.
+// No state, no exceptions.
+
+CustomTransitionPage<void> _slidePage({
+  required GoRouterState state,
+  required Widget child,
+  required bool fromLeft,
+}) {
+  return CustomTransitionPage<void>(
+    key: state.pageKey,
+    child: child,
+    transitionDuration: const Duration(milliseconds: 220),
+    reverseTransitionDuration: const Duration(milliseconds: 220),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      final inX = fromLeft ? -1.0 : 1.0;
+      // Incoming: slide from the tab's side to center.
+      final enter = SlideTransition(
+        position: animation.drive(
+          Tween<Offset>(begin: Offset(inX, 0), end: Offset.zero)
+              .chain(CurveTween(curve: Curves.easeOutCubic)),
+        ),
+        child: child,
+      );
+      // Outgoing: when something is pushed over this tab, slide it off in
+      // the OPPOSITE direction so the two pages appear to slide together.
+      return SlideTransition(
+        position: secondaryAnimation.drive(
+          Tween<Offset>(begin: Offset.zero, end: Offset(-inX, 0))
+              .chain(CurveTween(curve: Curves.easeOutCubic)),
+        ),
+        child: enter,
+      );
+    },
+  );
+}
+
+// ============================================================
+// Shell scaffold — bottom nav
+// ============================================================
 
 class ScaffoldWithNavBar extends StatelessWidget {
   final Widget child;
