@@ -97,6 +97,19 @@ final appRouter = GoRouter(
 // ============================================================
 // Shell scaffold — bottom nav
 // ============================================================
+//
+// Directional tab transitions were attempted twice and reverted twice:
+// 1. AnimatedSwitcher + Stack of full-screen Scaffolds — threw an exception
+//    mid-swap, likely Hero tag collision or layout assertion.
+// 2. animations package's PageTransitionSwitcher + SharedAxisTransition —
+//    direction logic relies on State surviving GoRouter rebuilds; the State
+//    appeared to be recreated each navigation so initState reset _prevIndex
+//    and every swap read as "going forward."
+//
+// Both root causes are about widget identity across GoRouter ShellRoute
+// rebuilds, not the transition mechanism itself. Future attempt: lift the
+// _prevIndex tracker out of this State (Riverpod provider keyed on
+// location) so it survives shell rebuilds, then re-try PageTransitionSwitcher.
 
 class ScaffoldWithNavBar extends StatelessWidget {
   final Widget child;
