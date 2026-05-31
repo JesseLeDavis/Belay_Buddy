@@ -20,6 +20,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final _messageController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    _messageController.addListener(() => setState(() {}));
+  }
+
+  @override
   void dispose() {
     _messageController.dispose();
     super.dispose();
@@ -28,13 +34,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   void _sendMessage() {
     final text = _messageController.text.trim();
     if (text.isEmpty) return;
-
     _messageController.clear();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Message sent',
-          style: GoogleFonts.cabin(color: context.appColors.textOnPrimary, fontSize: 14),
+          'sending coming soon',
+          style: GoogleFonts.inter(
+            color: context.appColors.canvas,
+            fontSize: 14,
+          ),
         ),
         duration: const Duration(seconds: 1),
       ),
@@ -47,10 +55,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final messagesAsync = ref.watch(messagesProvider(widget.conversationId));
     final currentUserId = ref.watch(currentUserIdSyncProvider);
 
-    // Figure out the other user's name for the title
-    final conversation = MockData.conversations.where(
-      (conv) => conv.id == widget.conversationId,
-    );
+    final conversation =
+        MockData.conversations.where((conv) => conv.id == widget.conversationId);
     String otherName = 'Chat';
     if (conversation.isNotEmpty) {
       final otherUserId = conversation.first.participantIds.firstWhere(
@@ -61,50 +67,48 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
 
     return Scaffold(
-      backgroundColor: c.background,
+      backgroundColor: c.canvas,
       appBar: AppBar(
+        backgroundColor: c.canvas,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        foregroundColor: c.ink,
         title: Text(
-          otherName.toUpperCase(),
-          style: GoogleFonts.spaceMono(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: c.borderColor,
+          otherName,
+          style: GoogleFonts.inter(
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+            color: c.ink,
           ),
+        ),
+        shape: Border(
+          bottom: BorderSide(color: c.borderColor, width: 1.5),
         ),
       ),
       body: Column(
         children: [
-          // Messages list
           Expanded(
             child: messagesAsync.when(
               data: (messages) {
                 if (messages.isEmpty) {
                   return Center(
                     child: Text(
-                      'NO MESSAGES YET',
-                      style: GoogleFonts.spaceMono(
+                      'no messages yet',
+                      style: GoogleFonts.inter(
                         fontSize: 13,
-                        fontWeight: FontWeight.w700,
                         color: c.textDisabled,
                       ),
                     ),
                   );
                 }
-
                 return ListView.builder(
                   reverse: true,
-                  padding: const EdgeInsets.all(AppSpacing.md),
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
                     final msg = messages[index];
                     final isMe = msg.senderId == currentUserId;
-                    final senderUser =
-                        MockData.getUserById(msg.senderId);
-                    final senderName =
-                        senderUser?.displayName ?? 'Unknown';
-
                     return _ChatBubble(
-                      senderName: senderName,
                       text: msg.text,
                       timestamp: msg.timestamp,
                       isMe: isMe,
@@ -114,87 +118,24 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               },
               loading: () => Center(
                 child: Text(
-                  'LOADING...',
-                  style: GoogleFonts.spaceMono(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: c.textSecondary),
+                  'loading…',
+                  style: GoogleFonts.jetBrainsMono(
+                    fontSize: 12,
+                    color: c.textSecondary,
+                  ),
                 ),
               ),
               error: (error, _) => Center(
                 child: Text(
-                  'Error: $error',
-                  style: GoogleFonts.cabin(
-                      fontSize: 16, color: c.error),
+                  'error: $error',
+                  style: GoogleFonts.inter(fontSize: 14, color: c.error),
                 ),
               ),
             ),
           ),
-
-          // Input bar
-          Container(
-            padding: const EdgeInsets.all(AppSpacing.sm),
-            decoration: BoxDecoration(
-              color: c.chipBg,
-              border: Border(
-                top: BorderSide(color: c.borderColor, width: 3),
-              ),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    style: GoogleFonts.cabin(
-                      fontSize: 14,
-                      color: c.textPrimary,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: 'Type a message...',
-                      hintStyle: GoogleFonts.cabin(
-                        fontSize: 14,
-                        color: c.textDisabled,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppRadius.sm),
-                        borderSide: BorderSide(
-                            color: c.borderColor, width: 2),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppRadius.sm),
-                        borderSide: BorderSide(
-                            color: c.borderColor, width: 2),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppRadius.sm),
-                        borderSide: BorderSide(
-                            color: c.dullOrange, width: 2.5),
-                      ),
-                      filled: true,
-                      fillColor: c.surface,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.md,
-                        vertical: AppSpacing.sm,
-                      ),
-                    ),
-                    onSubmitted: (_) => _sendMessage(),
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Container(
-                  decoration: BoxDecoration(
-                    color: c.dullOrange,
-                    borderRadius: BorderRadius.circular(AppRadius.sm),
-                    border: Border.all(
-                        color: c.borderColor, width: 2),
-                  ),
-                  child: IconButton(
-                    icon: Icon(Icons.send, color: c.textOnPrimary),
-                    onPressed: _sendMessage,
-                  ),
-                ),
-              ],
-            ),
+          _InputBar(
+            controller: _messageController,
+            onSend: _sendMessage,
           ),
         ],
       ),
@@ -203,13 +144,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 }
 
 class _ChatBubble extends StatelessWidget {
-  final String senderName;
   final String text;
   final DateTime timestamp;
   final bool isMe;
 
   const _ChatBubble({
-    required this.senderName,
     required this.text,
     required this.timestamp,
     required this.isMe,
@@ -218,94 +157,38 @@ class _ChatBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
-    final bubbleColor = isMe ? c.dullOrange : c.surface;
-
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.md + 4),
+      padding: const EdgeInsets.only(bottom: 14),
       child: Column(
         crossAxisAlignment:
             isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              // Shadow layer (hard offset, drawn behind)
-              Positioned(
-                top: 3,
-                left: 3,
-                right: -3,
-                bottom: -3,
-                child: Container(color: c.shadowColor),
+          Container(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.74,
+            ),
+            decoration: BoxDecoration(
+              color: isMe ? c.ink : c.canvas,
+              border: Border.all(color: c.ink, width: 1.5),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Text(
+              text,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: isMe ? c.canvas : c.ink,
+                height: 1.4,
               ),
-
-              // Tail — behind the bubble so the bottom border hides the seam
-              Positioned(
-                bottom: -10,
-                left: isMe ? null : 12,
-                right: isMe ? 12 : null,
-                child: CustomPaint(
-                  size: const Size(16, 12),
-                  painter: _TailPainter(
-                    isMe: isMe,
-                    color: bubbleColor,
-                    borderColor: c.borderColor,
-                    shadowColor: c.shadowColor,
-                  ),
-                ),
-              ),
-
-              // Bubble
-              Container(
-                constraints: BoxConstraints(
-                  maxWidth: MediaQuery.of(context).size.width * 0.72,
-                ),
-                decoration: BoxDecoration(
-                  color: bubbleColor,
-                  borderRadius: BorderRadius.only(
-                    topLeft: const Radius.circular(AppRadius.md),
-                    topRight: const Radius.circular(AppRadius.md),
-                    bottomLeft: Radius.circular(isMe ? AppRadius.md : AppRadius.xs),
-                    bottomRight: Radius.circular(isMe ? AppRadius.xs : AppRadius.md),
-                  ),
-                  border: Border.all(color: c.borderColor, width: 2),
-                ),
-                padding: const EdgeInsets.all(AppSpacing.smMd),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      senderName.toUpperCase(),
-                      style: GoogleFonts.spaceMono(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: isMe
-                            ? c.textOnPrimary.withAlpha(200)
-                            : c.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      text,
-                      style: GoogleFonts.cabin(
-                        fontSize: 14,
-                        color: isMe ? c.textOnPrimary : c.textPrimary,
-                        height: 1.4,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      DateFormat('h:mm a').format(timestamp),
-                      style: GoogleFonts.spaceMono(
-                        fontSize: 9,
-                        color: isMe
-                            ? c.textOnPrimary.withAlpha(150)
-                            : c.textDisabled,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            DateFormat('h:mm a').format(timestamp).toLowerCase(),
+            style: GoogleFonts.jetBrainsMono(
+              fontSize: 10,
+              color: c.textDisabled,
+              letterSpacing: -0.1,
+            ),
           ),
         ],
       ),
@@ -313,74 +196,91 @@ class _ChatBubble extends StatelessWidget {
   }
 }
 
-class _TailPainter extends CustomPainter {
-  final bool isMe;
-  final Color color;
-  final Color borderColor;
-  final Color shadowColor;
-
-  const _TailPainter({
-    required this.isMe,
-    required this.color,
-    required this.borderColor,
-    required this.shadowColor,
-  });
-
-  Path _buildTailPath(Size size, {double dx = 0, double dy = 0}) {
-    final path = Path();
-    if (isMe) {
-      path.moveTo(dx, dy);
-      path.lineTo(size.width + dx, dy);
-      path.lineTo(size.width + dx, size.height + dy);
-      path.close();
-    } else {
-      path.moveTo(dx, dy);
-      path.lineTo(size.width + dx, dy);
-      path.lineTo(dx, size.height + dy);
-      path.close();
-    }
-    return path;
-  }
+class _InputBar extends StatelessWidget {
+  final TextEditingController controller;
+  final VoidCallback onSend;
+  const _InputBar({required this.controller, required this.onSend});
 
   @override
-  void paint(Canvas canvas, Size size) {
-    // Hard-offset shadow (matches bubble shadow)
-    canvas.drawPath(
-      _buildTailPath(size, dx: 3, dy: 3),
-      Paint()
-        ..color = shadowColor
-        ..style = PaintingStyle.fill,
+  Widget build(BuildContext context) {
+    final c = context.appColors;
+    final hasText = controller.text.trim().isNotEmpty;
+    return Container(
+      decoration: BoxDecoration(
+        color: c.canvas,
+        border: Border(
+          top: BorderSide(color: c.borderColor, width: 1.5),
+        ),
+      ),
+      padding: const EdgeInsets.fromLTRB(16, 10, 12, 16),
+      child: SafeArea(
+        top: false,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(
+              child: TextField(
+                controller: controller,
+                style: GoogleFonts.inter(fontSize: 14, color: c.ink),
+                minLines: 1,
+                maxLines: 4,
+                decoration: InputDecoration(
+                  isDense: true,
+                  hintText: 'message…',
+                  hintStyle: GoogleFonts.inter(
+                    fontSize: 14,
+                    color: c.textDisabled,
+                  ),
+                  filled: true,
+                  fillColor: c.canvas,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.zero,
+                    borderSide:
+                        BorderSide(color: c.borderColor, width: 1.5),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.zero,
+                    borderSide:
+                        BorderSide(color: c.borderColor, width: 1.5),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.zero,
+                    borderSide:
+                        BorderSide(color: c.borderColor, width: 1.5),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                ),
+                onSubmitted: (_) => onSend(),
+              ),
+            ),
+            const SizedBox(width: 8),
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: hasText ? onSend : null,
+              child: Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: hasText ? c.ink : c.canvas,
+                  border: Border.all(
+                    color: hasText ? c.ink : c.textDisabled,
+                    width: 1.5,
+                  ),
+                ),
+                alignment: Alignment.center,
+                child: Icon(
+                  Icons.arrow_upward,
+                  size: 18,
+                  color: hasText ? c.canvas : c.textDisabled,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
-
-    // Fill
-    canvas.drawPath(
-      _buildTailPath(size),
-      Paint()
-        ..color = color
-        ..style = PaintingStyle.fill,
-    );
-
-    // Border — only the two outer edges (top edge hidden by bubble)
-    final borderPaint = Paint()
-      ..color = borderColor
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2
-      ..strokeJoin = StrokeJoin.miter;
-
-    final outerPath = Path();
-    if (isMe) {
-      outerPath.moveTo(0, 0);
-      outerPath.lineTo(size.width, size.height);
-      outerPath.lineTo(size.width, 0);
-    } else {
-      outerPath.moveTo(size.width, 0);
-      outerPath.lineTo(0, size.height);
-      outerPath.lineTo(0, 0);
-    }
-    canvas.drawPath(outerPath, borderPaint);
   }
-
-  @override
-  bool shouldRepaint(_TailPainter old) =>
-      old.isMe != isMe || old.color != color || old.borderColor != borderColor;
 }

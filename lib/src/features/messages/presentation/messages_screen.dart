@@ -17,53 +17,29 @@ class MessagesScreen extends ConsumerWidget {
     final currentUserId = ref.watch(currentUserIdSyncProvider);
 
     return Scaffold(
-      backgroundColor: c.background,
+      backgroundColor: c.canvas,
       appBar: AppBar(
+        backgroundColor: c.canvas,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
         title: Text(
-          'MESSAGES',
-          style: GoogleFonts.spaceMono(
+          'Chats',
+          style: GoogleFonts.inter(
             fontSize: 22,
-            fontWeight: FontWeight.w700,
-            color: c.borderColor,
+            fontWeight: FontWeight.w600,
+            color: c.ink,
           ),
+        ),
+        shape: Border(
+          bottom: BorderSide(color: c.borderColor, width: 1.5),
         ),
       ),
       body: conversationsAsync.when(
         data: (conversations) {
-          if (conversations.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.chat_bubble_outline,
-                    size: 64,
-                    color: c.textDisabled,
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  Text(
-                    'NO CONVERSATIONS',
-                    style: GoogleFonts.spaceMono(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: c.textDisabled,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    'Messages with climbers will appear here',
-                    style: GoogleFonts.cabin(
-                      fontSize: 14,
-                      color: c.textDisabled,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
+          if (conversations.isEmpty) return _EmptyState();
 
           return ListView.builder(
-            padding: const EdgeInsets.all(AppSpacing.md),
+            padding: EdgeInsets.zero,
             itemCount: conversations.length,
             itemBuilder: (context, index) {
               final conv = conversations[index];
@@ -72,37 +48,30 @@ class MessagesScreen extends ConsumerWidget {
                 orElse: () => conv.participantIds.first,
               );
               final otherUser = MockData.getUserById(otherUserId);
-              final isUnread =
-                  conv.isReadByUser[currentUserId] == false;
+              final isUnread = conv.isReadByUser[currentUserId] == false;
 
-              return Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                child: _ConversationCard(
-                  displayName: otherUser?.displayName ?? 'Unknown',
-                  lastMessage: conv.lastMessage ?? '',
-                  isUnread: isUnread,
-                  onTap: () {
-                    context.push('/messages/${conv.id}');
-                  },
-                ),
+              return _ConversationRow(
+                displayName: otherUser?.displayName ?? 'Unknown',
+                lastMessage: conv.lastMessage ?? '',
+                isUnread: isUnread,
+                onTap: () => context.push('/messages/${conv.id}'),
               );
             },
           );
         },
         loading: () => Center(
           child: Text(
-            'LOADING...',
-            style: GoogleFonts.spaceMono(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
+            'loading…',
+            style: GoogleFonts.jetBrainsMono(
+              fontSize: 12,
               color: c.textSecondary,
             ),
           ),
         ),
         error: (error, _) => Center(
           child: Text(
-            'Error: $error',
-            style: GoogleFonts.cabin(fontSize: 16, color: c.error),
+            'error: $error',
+            style: GoogleFonts.inter(fontSize: 14, color: c.error),
           ),
         ),
       ),
@@ -110,13 +79,50 @@ class MessagesScreen extends ConsumerWidget {
   }
 }
 
-class _ConversationCard extends StatelessWidget {
+class _EmptyState extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final c = context.appColors;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'No chats yet.',
+              style: GoogleFonts.inter(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: c.ink,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'When you say you’re coming to someone’s session, '
+              'or they to yours, the conversation lands here.',
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: c.textSecondary,
+                height: 1.4,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ConversationRow extends StatelessWidget {
   final String displayName;
   final String lastMessage;
   final bool isUnread;
   final VoidCallback onTap;
 
-  const _ConversationCard({
+  const _ConversationRow({
     required this.displayName,
     required this.lastMessage,
     required this.isUnread,
@@ -127,106 +133,91 @@ class _ConversationCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.appColors;
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: c.surface,
-          borderRadius: BorderRadius.circular(AppRadius.sm),
-          border: Border.all(color: c.borderColor, width: 2.5),
-          boxShadow: [
-            BoxShadow(
-              color: c.shadowColor,
-              offset: const Offset(4, 4),
-              blurRadius: 0,
-            ),
-          ],
+          border: Border(
+            bottom: BorderSide(color: c.borderColor, width: 1.5),
+          ),
         ),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Colored top strip
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.smMd,
-                vertical: 8,
-              ),
-              color: isUnread ? c.amber : c.oliveGreen,
-              child: Row(
+            _AvatarDot(
+              initial: displayName.isNotEmpty
+                  ? displayName[0].toLowerCase()
+                  : '?',
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    isUnread ? 'NEW MESSAGE' : 'MESSAGE',
-                    style: GoogleFonts.spaceMono(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color: isUnread ? c.textOnTertiary : c.textOnPrimary,
+                    displayName,
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: isUnread ? FontWeight.w700 : FontWeight.w500,
+                      color: c.ink,
                     ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    lastMessage,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight:
+                          isUnread ? FontWeight.w500 : FontWeight.w400,
+                      color: isUnread ? c.ink : c.textSecondary,
+                      height: 1.3,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
             ),
-            // Body
-            Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: Row(
-                children: [
-                  // Avatar
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: c.borderColor,
-                      border: Border.all(
-                          color: c.borderColor, width: 2),
-                    ),
-                    child: Center(
-                      child: Text(
-                        displayName.isNotEmpty
-                            ? displayName[0].toUpperCase()
-                            : '?',
-                        style: GoogleFonts.spaceMono(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: c.background,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          displayName,
-                          style: GoogleFonts.cabin(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: c.textPrimary,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          lastMessage,
-                          style: GoogleFonts.cabin(
-                            fontSize: 13,
-                            color: c.textSecondary,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(
-                    Icons.chevron_right,
-                    color: c.textPrimary,
-                  ),
-                ],
+            if (isUnread)
+              Container(
+                width: 8,
+                height: 8,
+                margin: const EdgeInsets.only(left: 12),
+                decoration: BoxDecoration(
+                  color: c.ink,
+                  shape: BoxShape.circle,
+                ),
               ),
-            ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AvatarDot extends StatelessWidget {
+  final String initial;
+  const _AvatarDot({required this.initial});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.appColors;
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: c.canvas,
+        shape: BoxShape.circle,
+        border: Border.all(color: c.ink, width: 1.5),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        initial,
+        style: GoogleFonts.jetBrainsMono(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          color: c.ink,
         ),
       ),
     );
