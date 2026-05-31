@@ -95,10 +95,10 @@ final appRouter = GoRouter(
 );
 
 // ============================================================
-// Shell scaffold — bottom nav + directional tab transitions
+// Shell scaffold — bottom nav
 // ============================================================
 
-class ScaffoldWithNavBar extends StatefulWidget {
+class ScaffoldWithNavBar extends StatelessWidget {
   final Widget child;
   final String location;
 
@@ -126,80 +126,19 @@ class ScaffoldWithNavBar extends StatefulWidget {
     ),
   ];
 
-  static int _indexFor(String loc) {
-    if (loc.startsWith('/messages')) return 1;
+  int get _selectedIndex {
+    if (location.startsWith('/messages')) return 1;
     return 0; // NOW is the default for /, /now, /crag/*, /profile
   }
 
   @override
-  State<ScaffoldWithNavBar> createState() => _ScaffoldWithNavBarState();
-}
-
-class _ScaffoldWithNavBarState extends State<ScaffoldWithNavBar> {
-  // Tracks the previous tab index so we know which way to slide on rebuild.
-  int _prevIndex = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _prevIndex = ScaffoldWithNavBar._indexFor(widget.location);
-  }
-
-  @override
-  void didUpdateWidget(ScaffoldWithNavBar oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    final oldIndex = ScaffoldWithNavBar._indexFor(oldWidget.location);
-    final newIndex = ScaffoldWithNavBar._indexFor(widget.location);
-    if (oldIndex != newIndex) {
-      _prevIndex = oldIndex;
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final currentIndex = ScaffoldWithNavBar._indexFor(widget.location);
-    final goingRight = currentIndex > _prevIndex;
-
     return Scaffold(
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 220),
-        switchInCurve: Curves.easeOutCubic,
-        switchOutCurve: Curves.easeOutCubic,
-        layoutBuilder: (current, previous) {
-          // Stack so incoming + outgoing slide past each other. StackFit.expand
-          // is critical — without it each child (a full-screen Scaffold)
-          // collapses to its intrinsic size mid-transition.
-          return Stack(
-            fit: StackFit.expand,
-            children: [
-              ...previous,
-              if (current != null) current,
-            ],
-          );
-        },
-        transitionBuilder: (child, animation) {
-          final key = (child.key as ValueKey?)?.value;
-          final isIncoming = key == currentIndex;
-          final sign = goingRight ? 1.0 : -1.0;
-          // Incoming begins off-screen on the direction of travel.
-          // Outgoing ends off-screen on the opposite side.
-          final beginX = isIncoming ? sign : -sign;
-          return SlideTransition(
-            position: animation.drive(
-              Tween<Offset>(begin: Offset(beginX, 0), end: Offset.zero),
-            ),
-            child: child,
-          );
-        },
-        child: KeyedSubtree(
-          key: ValueKey(currentIndex),
-          child: widget.child,
-        ),
-      ),
+      body: child,
       bottomNavigationBar: _NavBar(
-        selectedIndex: currentIndex,
-        tabs: ScaffoldWithNavBar._tabs,
-        onTap: (i) => context.go(ScaffoldWithNavBar._tabs[i].path),
+        selectedIndex: _selectedIndex,
+        tabs: _tabs,
+        onTap: (i) => context.go(_tabs[i].path),
       ),
     );
   }
