@@ -1,6 +1,8 @@
 import 'package:belay_buddy/src/common/data/mock_data.dart';
 import 'package:belay_buddy/src/features/auth/data/auth_repository.dart';
+import 'package:belay_buddy/src/features/now/data/recurring_intents_repository.dart';
 import 'package:belay_buddy/src/features/now/domain/now_session.dart';
+import 'package:belay_buddy/src/features/now/domain/recurring_intent.dart';
 import 'package:belay_buddy/src/features/posts/data/posts_repository.dart';
 import 'package:belay_buddy/src/features/posts/domain/climbing_post.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,11 +16,14 @@ final nowDemoModeProvider =
 
 /// Tonight's sessions at the user's home venue.
 ///
-/// Real partner-request posts at the home crag are transformed into
-/// NowSessions with status derived from time + respondentIds. We then mix
-/// in synthetic "recurring intent" entries for other regulars at the venue
-/// who haven't posted today — until the real recurring-intent windows
-/// model lands.
+/// Two data sources, merged and de-duped by userId:
+/// - Real partner-request posts at the home crag (live/expected by time,
+///   confirmed if the current user is in respondentIds)
+/// - Recurring intent windows that fire today and overlap with tonight
+///   (live if now is inside the window, expected if it's later today)
+///
+/// Posts win over intents for the same userId — a fresh post is a stronger
+/// signal than a standing window.
 final tonightSessionsProvider = Provider<List<NowSession>>((ref) {
   if (ref.watch(nowDemoModeProvider) == NowDemoMode.sparse) {
     return _sparseTonight;
@@ -29,24 +34,27 @@ final tonightSessionsProvider = Provider<List<NowSession>>((ref) {
   if (homeCragId == null) return const [];
 
   final posts = ref.watch(postsAtCragProvider(homeCragId)).valueOrNull ?? [];
+  final intents = ref.watch(tonightIntentsAtCragProvider(homeCragId));
   final currentUserId = currentUser?.uid;
+  final now = DateTime.now();
 
   final fromPosts = posts
       .map((p) => _sessionFromPost(p, currentUserId))
       .whereType<NowSession>()
       .toList();
 
-  // Mix in synthetic recurring intent for regulars who haven't posted —
-  // keeps the feed alive when partner-request density is low.
   final usedUserIds = {
     ...fromPosts.map((s) => s.userId),
     if (currentUserId != null) currentUserId,
   };
-  final synthetic = _syntheticIntent(homeCragId)
-      .where((s) => !usedUserIds.contains(s.userId))
+
+  final fromIntents = intents
+      .where((i) => !usedUserIds.contains(i.userId))
+      .map((i) => _sessionFromIntent(i, now))
+      .whereType<NowSession>()
       .toList();
 
-  return [...fromPosts, ...synthetic]..sort(_sessionOrder);
+  return [...fromPosts, ...fromIntents]..sort(_sessionOrder);
 });
 
 /// Catch-radar bubbles — derived from tonight's sessions.
@@ -149,42 +157,64 @@ String _radarTime(NowSession s) {
   }
 }
 
-// ── Synthetic recurring intent ────────────────────────────────────────────
-//
-// Faked until the real model lands. Per-venue handpicked entries for
-// regulars who use the gym on Tuesday evenings but haven't posted today.
+// ── Intent → session ─────────────────────────────────────────────────────
 
-List<NowSession> _syntheticIntent(String cragId) {
-  return switch (cragId) {
-    'gym_movement_denver' => const [
-        NowSession(
-          userId: 'user_5',
-          initial: 's',
-          name: 'Sam C.',
-          timeLabel: 'til 8:30p',
-          subtitle: 'on the wall now',
-          status: SessionStatus.live,
-        ),
-        NowSession(
-          userId: 'user_1',
-          initial: 'a',
-          name: 'Alex H.',
-          timeLabel: 'around 7p',
-          subtitle: 'usually Tuesdays',
-          status: SessionStatus.expected,
-        ),
-        NowSession(
-          userId: 'user_9',
-          initial: 'k',
-          name: 'Kira P.',
-          timeLabel: 'around 7:30p',
-          subtitle: 'usually Tuesdays',
-          status: SessionStatus.expected,
-        ),
-      ],
-    _ => const [],
-  };
+NowSession? _sessionFromIntent(RecurringIntent intent, DateTime now) {
+  final user = MockData.getUserById(intent.userId);
+  if (user == null) return null;
+
+  final SessionStatus status;
+  final String timeLabel;
+  final String subtitle;
+
+  if (intent.isLiveAt(now)) {
+    status = SessionStatus.live;
+    timeLabel = 'til ${_formatMinute(intent.endMinute)}';
+    subtitle = 'on the wall now';
+  } else if (intent.isExpectedAt(now)) {
+    final m = now.hour * 60 + now.minute;
+    // Only show as expected within the next 6 hours; otherwise it's noise.
+    if (intent.startMinute - m > 6 * 60) return null;
+    status = SessionStatus.expected;
+    timeLabel = 'around ${_formatMinute(intent.startMinute)}';
+    subtitle = 'usually ${_weekdayPlural(intent.weekday)}';
+  } else {
+    return null;
+  }
+
+  return NowSession(
+    userId: user.uid,
+    initial: user.displayName.isNotEmpty
+        ? user.displayName[0].toLowerCase()
+        : '?',
+    name: _shortName(user.displayName),
+    timeLabel: timeLabel,
+    subtitle: subtitle,
+    status: status,
+  );
 }
+
+String _formatMinute(int totalMinutes) {
+  final hour24 = (totalMinutes ~/ 60) % 24;
+  final mins = totalMinutes % 60;
+  final h = hour24 == 0 ? 12 : (hour24 > 12 ? hour24 - 12 : hour24);
+  final m = mins.toString().padLeft(2, '0');
+  final ampm = hour24 < 12 ? 'a' : 'p';
+  return m == '00' ? '$h$ampm' : '$h:$m$ampm';
+}
+
+const _weekdayPlurals = [
+  '', // 0 unused
+  'Mondays',
+  'Tuesdays',
+  'Wednesdays',
+  'Thursdays',
+  'Fridays',
+  'Saturdays',
+  'Sundays',
+];
+
+String _weekdayPlural(int weekday) => _weekdayPlurals[weekday];
 
 // ── Sparse-night demo data (Version B) ────────────────────────────────────
 

@@ -166,9 +166,11 @@ class _ScaffoldWithNavBarState extends State<ScaffoldWithNavBar> {
         switchInCurve: Curves.easeOutCubic,
         switchOutCurve: Curves.easeOutCubic,
         layoutBuilder: (current, previous) {
-          // Stack so incoming + outgoing slide past each other.
+          // Stack so incoming + outgoing slide past each other. StackFit.expand
+          // is critical — without it each child (a full-screen Scaffold)
+          // collapses to its intrinsic size mid-transition.
           return Stack(
-            alignment: Alignment.topCenter,
+            fit: StackFit.expand,
             children: [
               ...previous,
               if (current != null) current,

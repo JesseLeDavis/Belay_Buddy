@@ -1,5 +1,7 @@
 import 'package:belay_buddy/src/common/theme/app_theme.dart';
+import 'package:belay_buddy/src/features/auth/data/auth_repository.dart';
 import 'package:belay_buddy/src/features/now/data/now_repository.dart';
+import 'package:belay_buddy/src/features/now/data/recurring_intents_repository.dart';
 import 'package:belay_buddy/src/features/now/domain/now_session.dart';
 import 'package:belay_buddy/src/features/venues/data/venues_repository.dart';
 import 'package:flutter/material.dart';
@@ -762,13 +764,27 @@ class _PeekRow extends StatelessWidget {
   }
 }
 
-class _RecurringIntentSheet extends StatelessWidget {
+class _RecurringIntentSheet extends ConsumerWidget {
   final ForwardLoadedDay day;
   const _RecurringIntentSheet({required this.day});
 
+  // Maps the forward-load day's mono label back to a real weekday int.
+  static const _weekdayFromLabel = {
+    'MON': DateTime.monday,
+    'TUE': DateTime.tuesday,
+    'WED': DateTime.wednesday,
+    'THU': DateTime.thursday,
+    'FRI': DateTime.friday,
+    'SAT': DateTime.saturday,
+    'SUN': DateTime.sunday,
+  };
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.appColors;
+    final weekday = _weekdayFromLabel[day.dayLabel] ?? DateTime.thursday;
+    final plural = _pluralFor(day.dayLabel);
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
@@ -786,7 +802,7 @@ class _RecurringIntentSheet extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              'we’ll show you on Thursdays in this window.',
+              'we’ll show you on $plural in this window.',
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: c.textSecondary,
@@ -798,7 +814,20 @@ class _RecurringIntentSheet extends StatelessWidget {
               children: [
                 _LimeButton(
                   label: 'yes',
-                  onTap: () => Navigator.of(context).pop(),
+                  onTap: () {
+                    final me = ref.read(currentUserNotifierProvider);
+                    final cragId = me?.homeGymId ?? me?.homeCragId;
+                    if (me != null && cragId != null) {
+                      ref.read(recurringIntentsProvider.notifier).add(
+                            userId: me.uid,
+                            cragId: cragId,
+                            weekday: weekday,
+                            startMinute: _parseStart(day.windowLabel),
+                            endMinute: _parseEnd(day.windowLabel),
+                          );
+                    }
+                    Navigator.of(context).pop();
+                  },
                 ),
                 const SizedBox(width: 12),
                 _LinkAction(
@@ -811,6 +840,50 @@ class _RecurringIntentSheet extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _pluralFor(String dayLabel) {
+    switch (dayLabel) {
+      case 'MON':
+        return 'Mondays';
+      case 'TUE':
+        return 'Tuesdays';
+      case 'WED':
+        return 'Wednesdays';
+      case 'THU':
+        return 'Thursdays';
+      case 'FRI':
+        return 'Fridays';
+      case 'SAT':
+        return 'Saturdays';
+      case 'SUN':
+        return 'Sundays';
+      default:
+        return '$dayLabel days';
+    }
+  }
+
+  // "5–8p" → 17:00 / 20:00. Both endpoints share the same am/pm if only the
+  // end has it.
+  static int _parseStart(String window) => _parseEndpoint(window, start: true);
+  static int _parseEnd(String window) => _parseEndpoint(window, start: false);
+
+  static int _parseEndpoint(String window, {required bool start}) {
+    final parts = window.split('–');
+    if (parts.length != 2) return 17 * 60;
+    final endRaw = parts[1].trim().toLowerCase();
+    final pm = endRaw.endsWith('p');
+    final raw = (start ? parts[0] : parts[1]).trim().toLowerCase();
+    final cleaned = raw.replaceAll(RegExp(r'[ap]'), '');
+    final segs = cleaned.split(':');
+    final hour12 = int.tryParse(segs.first) ?? 5;
+    final mins = segs.length > 1 ? int.tryParse(segs[1]) ?? 0 : 0;
+    // If the endpoint doesn't carry its own am/pm marker, inherit from the
+    // end of the window (e.g. "5–8p" — both are pm).
+    final rawHasMarker = raw.endsWith('a') || raw.endsWith('p');
+    final isPm = rawHasMarker ? raw.endsWith('p') : pm;
+    final h24 = (hour12 % 12) + (isPm ? 12 : 0);
+    return h24 * 60 + mins;
   }
 }
 
