@@ -2,7 +2,6 @@ import 'package:belay_buddy/src/features/auth/domain/app_user.dart';
 import 'package:belay_buddy/src/features/auth/data/auth_repository.dart';
 import 'package:belay_buddy/src/common/utils/climbing_tags.dart';
 import 'package:belay_buddy/src/common/theme/app_theme.dart';
-import 'package:belay_buddy/src/common/widgets/retro_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -48,7 +47,6 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
   void _save() {
     final name = _nameCtrl.text.trim();
     if (name.isEmpty) return;
-
     final bio = _bioCtrl.text.trim();
     ref.read(currentUserNotifierProvider.notifier).updateProfile(
           displayName: name,
@@ -68,174 +66,153 @@ class _EditProfileSheetState extends ConsumerState<EditProfileSheet> {
         maxHeight: MediaQuery.of(context).size.height * 0.85,
       ),
       decoration: BoxDecoration(
-        color: c.background,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+        color: c.canvas,
         border: Border(
-          top: BorderSide(color: c.borderColor, width: 3),
-          left: BorderSide(color: c.borderColor, width: 3),
-          right: BorderSide(color: c.borderColor, width: 3),
+          top: BorderSide(color: c.borderColor, width: 1.5),
         ),
       ),
       padding: EdgeInsets.only(bottom: bottomInset),
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Drag handle
             Center(
               child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: c.darkGrey,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: AppSpacing.md),
-
-            // Title
-            Text(
-              'EDIT PROFILE',
-              style: GoogleFonts.spaceMono(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
+                width: 36,
+                height: 3,
                 color: c.borderColor,
               ),
             ),
-            const SizedBox(height: AppSpacing.lg),
-
-            // Name field
+            const SizedBox(height: 18),
             Text(
-              'DISPLAY NAME',
-              style: GoogleFonts.spaceMono(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                color: c.textSecondary,
+              'Edit profile',
+              style: GoogleFonts.inter(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: c.ink,
               ),
             ),
-            const SizedBox(height: AppSpacing.xs),
+            const SizedBox(height: 22),
+
+            // Name
+            const _FieldLabel(text: 'Display name'),
+            const SizedBox(height: 6),
             TextField(
               controller: _nameCtrl,
-              style: GoogleFonts.cabin(fontSize: 15, color: c.textPrimary),
-              decoration: const InputDecoration(hintText: 'Your name'),
+              style: GoogleFonts.inter(fontSize: 15, color: c.ink),
+              decoration: const InputDecoration(hintText: 'your name'),
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: 18),
 
-            // Bio field
-            Text(
-              'BIO',
-              style: GoogleFonts.spaceMono(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                color: c.textSecondary,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xs),
+            // Bio
+            const _FieldLabel(text: 'Bio'),
+            const SizedBox(height: 6),
             TextField(
               controller: _bioCtrl,
-              style: GoogleFonts.cabin(fontSize: 15, color: c.textPrimary),
+              style: GoogleFonts.inter(fontSize: 15, color: c.ink),
               maxLines: 3,
               decoration: const InputDecoration(
-                hintText: 'Tell others about your climbing...',
+                hintText: 'a sentence about your climbing',
               ),
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: 18),
 
-            // Tag sticker picker
+            // Tags
             Row(
               children: [
+                const _FieldLabel(text: 'Vibes'),
+                const SizedBox(width: 8),
                 Text(
-                  'VIBE CHECK',
-                  style: GoogleFonts.spaceMono(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    color: c.textSecondary,
+                  '${_selectedTags.length}',
+                  style: GoogleFonts.jetBrainsMono(
+                    fontSize: 11,
+                    color: c.textDisabled,
+                    letterSpacing: -0.1,
                   ),
                 ),
-                const SizedBox(width: AppSpacing.sm),
-                if (_selectedTags.isNotEmpty)
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                    decoration: BoxDecoration(
-                      color: c.oliveGreen,
-                      borderRadius: BorderRadius.circular(AppRadius.xs),
-                    ),
-                    child: Text(
-                      '${_selectedTags.length}',
-                      style: GoogleFonts.spaceMono(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w700,
-                        color: c.textOnPrimary,
-                      ),
-                    ),
-                  ),
               ],
             ),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: 8),
             Wrap(
               spacing: 6,
               runSpacing: 6,
               children: ClimbingTags.all.map((tag) {
                 final selected = _selectedTags.contains(tag.id);
                 return GestureDetector(
+                  behavior: HitTestBehavior.opaque,
                   onTap: () => _toggleTag(tag.id),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 100),
+                  child: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sm + 2,
-                      vertical: AppSpacing.xs + 2,
+                      horizontal: 10,
+                      vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: selected ? tag.color : c.chipBg,
+                      color: selected ? c.ink : c.canvas,
                       border: Border.all(
-                        color: selected ? tag.color : c.darkGrey,
-                        width: 2,
+                        color: selected ? c.ink : c.textDisabled,
+                        width: 1.5,
                       ),
-                      borderRadius: BorderRadius.circular(AppRadius.xs),
-                      boxShadow: selected
-                          ? [
-                              BoxShadow(
-                                color: tag.color.withAlpha(80),
-                                offset: const Offset(2, 2),
-                                blurRadius: 0,
-                              ),
-                            ]
-                          : [],
                     ),
                     child: Text(
-                      tag.label,
-                      style: GoogleFonts.spaceMono(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w700,
-                        color: selected
-                            ? (tag.color.computeLuminance() > 0.4
-                                ? c.textOnTertiary
-                                : c.textOnPrimary)
-                            : c.textSecondary,
+                      tag.label.toLowerCase(),
+                      style: GoogleFonts.jetBrainsMono(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                        color: selected ? c.canvas : c.textSecondary,
+                        letterSpacing: -0.1,
                       ),
                     ),
                   ),
                 );
               }).toList(),
             ),
-            const SizedBox(height: AppSpacing.lg),
+            const SizedBox(height: 28),
 
-            // Save button
-            RetroButton(
-              label: 'Save',
-              icon: Icons.check,
-              color: c.oliveGreen,
-              shadowColor: c.borderColor,
-              textColor: c.textOnPrimary,
-              onPressed: _save,
+            // Save
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: _save,
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                decoration: BoxDecoration(
+                  color: c.ink,
+                  border: Border.all(color: c.ink, width: 1.5),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  'save',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: c.canvas,
+                  ),
+                ),
+              ),
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: 8),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _FieldLabel extends StatelessWidget {
+  final String text;
+  const _FieldLabel({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.appColors;
+    return Text(
+      text,
+      style: GoogleFonts.inter(
+        fontSize: 13,
+        fontWeight: FontWeight.w600,
+        color: c.textSecondary,
+        letterSpacing: 0.1,
       ),
     );
   }

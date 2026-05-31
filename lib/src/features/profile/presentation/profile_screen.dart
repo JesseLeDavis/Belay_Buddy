@@ -3,14 +3,12 @@ import 'package:belay_buddy/src/features/auth/data/auth_repository.dart';
 import 'package:belay_buddy/src/features/notifications/data/notifications_repository.dart';
 import 'package:belay_buddy/src/features/connections/presentation/find_climbers_screen.dart';
 import 'package:belay_buddy/src/features/notifications/presentation/notifications_screen.dart';
-import 'package:belay_buddy/src/features/profile/presentation/widgets/profile_widgets.dart';
 import 'package:belay_buddy/src/features/profile/presentation/widgets/sticker_tags_card.dart';
 import 'package:belay_buddy/src/features/profile/presentation/widgets/favorites_card.dart';
 import 'package:belay_buddy/src/features/profile/presentation/widgets/connections_card.dart';
 import 'package:belay_buddy/src/features/profile/presentation/widgets/edit_profile_sheet.dart';
 import 'package:belay_buddy/src/common/theme/app_theme.dart';
 import 'package:belay_buddy/src/common/theme/theme_mode_provider.dart';
-import 'package:belay_buddy/src/common/widgets/retro_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -35,91 +33,46 @@ class ProfileScreen extends ConsumerWidget {
     final unreadCount = ref.watch(unreadNotificationCountProvider);
 
     return Scaffold(
-      backgroundColor: c.background,
+      backgroundColor: c.canvas,
       appBar: AppBar(
+        backgroundColor: c.canvas,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        foregroundColor: c.ink,
         title: Text(
-          'PROFILE',
-          style: GoogleFonts.spaceMono(
+          'Me',
+          style: GoogleFonts.inter(
             fontSize: 22,
-            fontWeight: FontWeight.w700,
-            color: c.borderColor,
+            fontWeight: FontWeight.w600,
+            color: c.ink,
           ),
         ),
         actions: [
-          Semantics(
-            label: unreadCount > 0
-                ? 'Notifications, $unreadCount unread'
-                : 'Notifications',
-            button: true,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.notifications_outlined,
-                      color: c.borderColor),
-                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => const NotificationsScreen(),
-                  )),
-                ),
-                if (unreadCount > 0)
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Container(
-                      width: 16,
-                      height: 16,
-                      decoration: BoxDecoration(
-                        color: c.dullOrange,
-                        border:
-                            Border.all(color: c.borderColor, width: 1.5),
-                        borderRadius: BorderRadius.circular(AppRadius.sm),
-                      ),
-                      child: Center(
-                        child: Text(
-                          '$unreadCount',
-                          style: GoogleFonts.spaceMono(
-                              fontSize: 8,
-                              fontWeight: FontWeight.w700,
-                              color: c.textOnPrimary),
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(width: AppSpacing.xs),
+          _NotificationsButton(unreadCount: unreadCount),
+          const SizedBox(width: 8),
         ],
+        shape: Border(
+          bottom: BorderSide(color: c.borderColor, width: 1.5),
+        ),
       ),
       body: userAsync.when(
         data: (user) {
-          if (user == null) {
-            return Center(
-              child: Text(
-                'USER NOT FOUND',
-                style: GoogleFonts.spaceMono(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: c.error),
-              ),
-            );
-          }
+          if (user == null) return const _UserNotFound();
           return _buildProfile(context, ref, user);
         },
         loading: () => Center(
           child: Text(
-            'LOADING...',
-            style: GoogleFonts.spaceMono(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
+            'loading…',
+            style: GoogleFonts.jetBrainsMono(
+              fontSize: 12,
               color: c.textSecondary,
             ),
           ),
         ),
         error: (e, _) => Center(
           child: Text(
-            'Error: $e',
-            style: GoogleFonts.cabin(fontSize: 16, color: c.error),
+            'error: $e',
+            style: GoogleFonts.inter(fontSize: 14, color: c.error),
           ),
         ),
       ),
@@ -129,285 +82,306 @@ class ProfileScreen extends ConsumerWidget {
   Widget _buildProfile(BuildContext context, WidgetRef ref, AppUser user) {
     final c = context.appColors;
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Profile header
-          Center(
-            child: Column(
+          // ── Header ────────────────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const SizedBox(height: AppSpacing.md),
-                // Avatar with edit badge
-                Stack(
-                  children: [
-                    Container(
-                      width: 96,
-                      height: 96,
-                      decoration: BoxDecoration(
-                        color: c.dullOrange,
-                        shape: BoxShape.circle,
-                        border:
-                            Border.all(color: c.borderColor, width: 3),
-                      ),
-                      child: Center(
-                        child: Text(
-                          user.displayName.isNotEmpty
-                              ? user.displayName[0].toUpperCase()
-                              : '?',
-                          style: GoogleFonts.spaceMono(
-                            fontSize: 40,
-                            fontWeight: FontWeight.w700,
-                            color: c.textOnPrimary,
-                          ),
+                _Avatar(
+                  initial: user.displayName.isNotEmpty
+                      ? user.displayName[0].toLowerCase()
+                      : '?',
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        user.displayName,
+                        style: GoogleFonts.inter(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
+                          color: c.ink,
+                          height: 1.1,
                         ),
                       ),
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: GestureDetector(
-                        onTap: () => _openEditSheet(context, ref, user),
-                        child: Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            color: c.accentBlue,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                                color: c.borderColor, width: 2),
-                          ),
-                          child: Icon(Icons.edit,
-                              size: 14, color: c.textOnPrimary),
+                      const SizedBox(height: 4),
+                      Text(
+                        user.email,
+                        style: GoogleFonts.jetBrainsMono(
+                          fontSize: 12,
+                          color: c.textSecondary,
+                          letterSpacing: -0.1,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.md),
-                Text(
-                  user.displayName,
-                  style: GoogleFonts.spaceMono(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                    color: c.textPrimary,
+                      if (user.bio != null && user.bio!.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          user.bio!,
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            color: c.ink,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  user.email,
-                  style: GoogleFonts.spaceMono(
-                    fontSize: 12,
-                    color: c.textSecondary,
-                  ),
+                IconButton(
+                  icon: Icon(Icons.edit_outlined, color: c.ink, size: 20),
+                  onPressed: () => _openEditSheet(context, ref, user),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: AppSpacing.lg),
 
-          // Stats card — yellow header
-          ProfileCard(
-            title: 'USER INFO',
-            stripColor: c.amber,
-            titleColor: c.textOnTertiary,
-            children: [
-              StatLine(
-                  label: 'NAME',
-                  value: user.displayName),
-              StatLine(
-                  label: 'EMAIL',
-                  value: user.email),
-              if (user.bio != null)
-                StatLine(label: 'BIO', value: user.bio!),
-            ],
+          _hairline(c),
+
+          // ── Sticker tags ──────────────────────────────────────────────
+          if (user.climbingTags.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+              child: StickerTagsCard(tags: user.climbingTags),
+            ),
+
+          if (user.climbingTags.isNotEmpty) _hairline(c),
+
+          // ── Favorites ─────────────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+            child: FavoritesCard(ref: ref),
           ),
-          const SizedBox(height: AppSpacing.md),
 
-          // Sticker tags
-          if (user.climbingTags.isNotEmpty) ...[
-            StickerTagsCard(tags: user.climbingTags),
-            const SizedBox(height: AppSpacing.md),
-          ],
+          _hairline(c),
 
-          // Favorites — orange header
-          FavoritesCard(ref: ref),
-          const SizedBox(height: AppSpacing.md),
+          // ── Connections ───────────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+            child: ConnectionsCard(user: user, ref: ref),
+          ),
 
-          // Connections — blue header
-          ConnectionsCard(user: user, ref: ref),
-          const SizedBox(height: AppSpacing.lg),
+          _hairline(c),
 
-          // Find climbers button
-          GestureDetector(
+          // ── Find climbers ─────────────────────────────────────────────
+          _ListRow(
+            label: 'Find climbers',
             onTap: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => const FindClimbersScreen(),
             )),
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              decoration: BoxDecoration(
-                color: c.accentBlue,
-                border: Border.fromBorderSide(
-                    BorderSide(color: c.borderColor, width: 2.5)),
-                borderRadius: BorderRadius.circular(AppRadius.sm),
-                boxShadow: [
-                  BoxShadow(
-                      color: c.shadowColor,
-                      offset: const Offset(4, 4),
-                      blurRadius: 0)
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.group_add_outlined,
-                      color: c.textOnPrimary, size: 18),
-                  const SizedBox(width: AppSpacing.sm),
-                  Text(
-                    'FIND CLIMBERS',
-                    style: GoogleFonts.spaceMono(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: c.textOnPrimary,
-                    ),
-                  ),
-                ],
+          ),
+
+          _hairline(c),
+
+          // ── Theme ─────────────────────────────────────────────────────
+          const _ThemeModeRow(),
+
+          _hairline(c),
+
+          // ── Sign out ──────────────────────────────────────────────────
+          _ListRow(
+            label: 'Sign out',
+            onTap: () => context.go('/login'),
+          ),
+
+          const SizedBox(height: 40),
+        ],
+      ),
+    );
+  }
+
+  Widget _hairline(AppColorsExtension c) =>
+      Container(height: 1.5, color: c.borderColor);
+}
+
+// ─── Atoms ──────────────────────────────────────────────────────────────────
+
+class _Avatar extends StatelessWidget {
+  final String initial;
+  const _Avatar({required this.initial});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.appColors;
+    return Container(
+      width: 72,
+      height: 72,
+      decoration: BoxDecoration(
+        color: c.canvas,
+        shape: BoxShape.circle,
+        border: Border.all(color: c.ink, width: 1.5),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        initial,
+        style: GoogleFonts.jetBrainsMono(
+          fontSize: 30,
+          fontWeight: FontWeight.w500,
+          color: c.ink,
+        ),
+      ),
+    );
+  }
+}
+
+class _ListRow extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+  const _ListRow({required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.appColors;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style: GoogleFonts.inter(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: c.ink,
+                ),
               ),
             ),
+            Icon(Icons.chevron_right, size: 20, color: c.ink),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NotificationsButton extends StatelessWidget {
+  final int unreadCount;
+  const _NotificationsButton({required this.unreadCount});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.appColors;
+    return Semantics(
+      label: unreadCount > 0
+          ? 'Notifications, $unreadCount unread'
+          : 'Notifications',
+      button: true,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          IconButton(
+            icon: Icon(Icons.notifications_outlined, color: c.ink),
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => const NotificationsScreen(),
+            )),
           ),
-          const SizedBox(height: AppSpacing.md),
-
-          // Theme mode toggle
-          _ThemeModeToggle(),
-          const SizedBox(height: AppSpacing.lg),
-
-          // Sign out — ink fill, orange shadow
-          Center(
-            child: RetroButton(
-              label: 'Sign Out',
-              icon: Icons.logout,
-              color: c.borderColor,
-              shadowColor: c.dullOrange,
-              textColor: c.background,
-              onPressed: () {
-                context.go('/login');
-              },
+          if (unreadCount > 0)
+            Positioned(
+              top: 10,
+              right: 8,
+              child: Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: c.ink,
+                  shape: BoxShape.circle,
+                ),
+              ),
             ),
-          ),
-          const SizedBox(height: AppSpacing.xl),
         ],
       ),
     );
   }
 }
 
-class _ThemeModeToggle extends ConsumerWidget {
+class _UserNotFound extends StatelessWidget {
+  const _UserNotFound();
+  @override
+  Widget build(BuildContext context) {
+    final c = context.appColors;
+    return Center(
+      child: Text(
+        'user not found',
+        style: GoogleFonts.inter(
+          fontSize: 15,
+          fontWeight: FontWeight.w500,
+          color: c.error,
+        ),
+      ),
+    );
+  }
+}
+
+class _ThemeModeRow extends ConsumerWidget {
+  const _ThemeModeRow();
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.appColors;
     final mode = ref.watch(themeModeProvider);
 
     const modes = [
-      (ThemeMode.light, Icons.light_mode, 'LIGHT'),
-      (ThemeMode.dark, Icons.dark_mode, 'DARK'),
-      (ThemeMode.system, Icons.settings_brightness, 'AUTO'),
+      (ThemeMode.light, 'light'),
+      (ThemeMode.dark, 'dark'),
+      (ThemeMode.system, 'auto'),
     ];
 
-    return Container(
-      decoration: BoxDecoration(
-        color: c.surface,
-        border: Border.all(color: c.borderColor, width: 2.5),
-        borderRadius: BorderRadius.circular(AppRadius.sm),
-        boxShadow: [
-          BoxShadow(
-            color: c.shadowColor,
-            offset: const Offset(4, 4),
-            blurRadius: 0,
-          ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+      child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.smMd, vertical: 10),
-            color: c.darkGrey,
+          Expanded(
             child: Text(
-              'APPEARANCE',
-              style: GoogleFonts.spaceMono(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: c.textPrimary,
+              'Theme',
+              style: GoogleFonts.inter(
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+                color: c.ink,
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(AppSpacing.sm),
-            child: Row(
-              children: modes.map((entry) {
-                final (value, icon, label) = entry;
-                final isSelected = mode == value;
-                return Expanded(
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
-                    child: GestureDetector(
-                      onTap: () {
-                        final notifier =
-                            ref.read(themeModeProvider.notifier);
-                        switch (value) {
-                          case ThemeMode.light:
-                            notifier.setLight();
-                          case ThemeMode.dark:
-                            notifier.setDark();
-                          case ThemeMode.system:
-                            notifier.setSystem();
-                        }
-                      },
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 150),
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        decoration: BoxDecoration(
-                          color:
-                              isSelected ? c.dullOrange : c.chipBg,
-                          borderRadius:
-                              BorderRadius.circular(AppRadius.sm),
-                          border: Border.all(
-                            color: isSelected
-                                ? c.borderColor
-                                : c.darkGrey,
-                            width: 2,
-                          ),
-                        ),
-                        child: Column(
-                          children: [
-                            Icon(icon,
-                                size: 20,
-                                color: isSelected
-                                    ? c.textOnPrimary
-                                    : c.textSecondary),
-                            const SizedBox(height: 4),
-                            Text(
-                              label,
-                              style: GoogleFonts.spaceMono(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                                color: isSelected
-                                    ? c.textOnPrimary
-                                    : c.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+          ...modes.map((entry) {
+            final (value, label) = entry;
+            final isSelected = mode == value;
+            return GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                final notifier = ref.read(themeModeProvider.notifier);
+                switch (value) {
+                  case ThemeMode.light:
+                    notifier.setLight();
+                  case ThemeMode.dark:
+                    notifier.setDark();
+                  case ThemeMode.system:
+                    notifier.setSystem();
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Text(
+                  label,
+                  style: GoogleFonts.jetBrainsMono(
+                    fontSize: 12,
+                    fontWeight:
+                        isSelected ? FontWeight.w600 : FontWeight.w400,
+                    color: isSelected ? c.ink : c.textDisabled,
+                    decoration:
+                        isSelected ? TextDecoration.underline : null,
+                    decorationColor: c.ink,
+                    decorationThickness: 1.5,
                   ),
-                );
-              }).toList(),
-            ),
-          ),
+                ),
+              ),
+            );
+          }),
         ],
       ),
     );

@@ -10,81 +10,47 @@ class StickerTagsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
-    return Container(
-      decoration: BoxDecoration(
-        color: c.surface,
-        border: Border.all(color: c.borderColor, width: 2.5),
-        borderRadius: BorderRadius.circular(AppRadius.sm),
-        boxShadow: [
-          BoxShadow(
-            color: c.shadowColor,
-            offset: const Offset(4, 4),
-            blurRadius: 0,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Vibes',
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: c.textSecondary,
+            letterSpacing: 0.1,
           ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.smMd, vertical: 10),
-            color: c.oliveGreen,
-            child: Text(
-              'VIBE CHECK',
-              style: GoogleFonts.spaceMono(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: c.textOnPrimary,
+        ),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: tags.map((tagId) {
+            final tag = ClimbingTags.getById(tagId);
+            if (tag == null) return const SizedBox.shrink();
+            return Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 6,
               ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Wrap(
-              spacing: AppSpacing.sm,
-              runSpacing: AppSpacing.sm + 2,
-              children: tags.map((tagId) {
-                final tag = ClimbingTags.getById(tagId);
-                if (tag == null) return const SizedBox.shrink();
-                final rotation = ClimbingTags.rotationFor(tagId);
-                return Transform.rotate(
-                  angle: rotation * 3.14159 / 180,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.smMd,
-                      vertical: AppSpacing.sm,
-                    ),
-                    decoration: BoxDecoration(
-                      color: tag.color,
-                      border: Border.all(color: c.borderColor, width: 2),
-                      borderRadius: BorderRadius.circular(AppRadius.xs),
-                      boxShadow: [
-                        BoxShadow(
-                          color: tag.color.withAlpha(80),
-                          offset: const Offset(2, 2),
-                          blurRadius: 0,
-                        ),
-                      ],
-                    ),
-                    child: Text(
-                      tag.label,
-                      style: GoogleFonts.spaceMono(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: tag.color.computeLuminance() > 0.4
-                            ? c.textOnTertiary
-                            : c.textOnPrimary,
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        ],
-      ),
+              decoration: BoxDecoration(
+                color: c.canvas,
+                border: Border.all(color: c.ink, width: 1.5),
+              ),
+              child: Text(
+                tag.label.toLowerCase(),
+                style: GoogleFonts.jetBrainsMono(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  color: c.ink,
+                  letterSpacing: -0.1,
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 }
