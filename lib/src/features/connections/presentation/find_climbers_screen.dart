@@ -15,269 +15,238 @@ class FindClimbersScreen extends ConsumerWidget {
     final usersAsync = ref.watch(discoverableUsersProvider);
 
     return Scaffold(
-      backgroundColor: c.background,
+      backgroundColor: c.canvas,
       appBar: AppBar(
-        backgroundColor: c.accentBlue,
+        backgroundColor: c.canvas,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        foregroundColor: c.ink,
         title: Text(
-          'FIND CLIMBERS',
-          style: GoogleFonts.spaceMono(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: c.textOnPrimary,
+          'Find climbers',
+          style: GoogleFonts.inter(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: c.ink,
           ),
         ),
-        iconTheme: IconThemeData(color: c.textOnPrimary),
         shape: Border(
-          bottom: BorderSide(color: c.borderColor, width: 3),
+          bottom: BorderSide(color: c.borderColor, width: 1.5),
         ),
       ),
       body: usersAsync.when(
         data: (users) {
           if (users.isEmpty) {
             return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.people_outline,
-                      size: 64, color: c.textDisabled),
-                  const SizedBox(height: AppSpacing.md),
-                  Text(
-                    'NO CLIMBERS FOUND',
-                    style: GoogleFonts.spaceMono(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: c.textDisabled,
-                    ),
-                  ),
-                ],
+              child: Text(
+                'No climbers found.',
+                style: GoogleFonts.inter(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: c.textSecondary,
+                ),
               ),
             );
           }
           return ListView.builder(
-            padding: const EdgeInsets.all(AppSpacing.md),
+            padding: EdgeInsets.zero,
             itemCount: users.length,
-            itemBuilder: (context, i) => Padding(
-              padding: const EdgeInsets.only(bottom: AppSpacing.md),
-              child: _ClimberCard(user: users[i]),
-            ),
+            itemBuilder: (context, i) => _ClimberRow(user: users[i]),
           );
         },
         loading: () => Center(
           child: Text(
-            'LOADING...',
-            style: GoogleFonts.spaceMono(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: c.textSecondary),
+            'loading…',
+            style: GoogleFonts.jetBrainsMono(
+              fontSize: 12,
+              color: c.textSecondary,
+            ),
           ),
         ),
         error: (e, _) => Center(
-          child: Text('Error: $e',
-              style: GoogleFonts.cabin(fontSize: 16, color: c.error)),
+          child: Text(
+            'error: $e',
+            style: GoogleFonts.inter(fontSize: 14, color: c.error),
+          ),
         ),
       ),
     );
   }
 }
 
-class _ClimberCard extends ConsumerStatefulWidget {
+class _ClimberRow extends ConsumerStatefulWidget {
   final AppUser user;
-  const _ClimberCard({required this.user});
+  const _ClimberRow({required this.user});
 
   @override
-  ConsumerState<_ClimberCard> createState() => _ClimberCardState();
+  ConsumerState<_ClimberRow> createState() => _ClimberRowState();
 }
 
-class _ClimberCardState extends ConsumerState<_ClimberCard> {
+class _ClimberRowState extends ConsumerState<_ClimberRow> {
   bool _requestSent = false;
 
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
     final isConnected = ref.watch(isConnectedProvider(widget.user.uid));
-    final hasPending = ref.watch(hasPendingRequestFromProvider(widget.user.uid));
+    final hasPending =
+        ref.watch(hasPendingRequestFromProvider(widget.user.uid));
 
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () => context.push('/profile/${widget.user.uid}'),
       child: Container(
-      decoration: BoxDecoration(
-        color: c.surface,
-        borderRadius: BorderRadius.circular(AppRadius.sm),
-        border: Border.all(color: c.borderColor, width: 2.5),
-        boxShadow: [
-          BoxShadow(
-              color: c.shadowColor, offset: const Offset(4, 4), blurRadius: 0)
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Header row
-          Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Row(
-              children: [
-                // Avatar
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: _avatarColor(c, widget.user.uid),
-                    borderRadius: BorderRadius.circular(AppRadius.sm),
-                    border: Border.all(color: c.borderColor, width: 2),
-                  ),
-                  child: Center(
-                    child: Text(
-                      widget.user.displayName.isNotEmpty
-                          ? widget.user.displayName[0].toUpperCase()
-                          : '?',
-                      style: GoogleFonts.spaceMono(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color: c.textOnPrimary,
-                      ),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: c.borderColor, width: 1.5),
+          ),
+        ),
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _AvatarDot(
+              initial: widget.user.displayName.isNotEmpty
+                  ? widget.user.displayName[0].toLowerCase()
+                  : '?',
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.user.displayName,
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: c.ink,
                     ),
                   ),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.user.displayName,
-                        style: GoogleFonts.spaceMono(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: c.textPrimary,
-                        ),
+                  if (widget.user.bio != null &&
+                      widget.user.bio!.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      widget.user.bio!,
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        color: c.textSecondary,
+                        height: 1.3,
                       ),
-                    ],
-                  ),
-                ),
-                _buildConnectionButton(c, isConnected, hasPending),
-              ],
-            ),
-          ),
-
-          // Bio
-          if (widget.user.bio != null) ...[
-            Divider(height: 1, thickness: 1, color: c.darkGrey),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-              child: Text(
-                widget.user.bio!,
-                style: GoogleFonts.cabin(
-                    fontSize: 13, color: c.textSecondary, height: 1.4),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ],
               ),
             ),
+            const SizedBox(width: 10),
+            _PillButton(
+              isConnected: isConnected,
+              hasPending: hasPending || _requestSent,
+              onConnect: () {
+                setState(() => _requestSent = true);
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text(
+                    'request sent to ${widget.user.displayName}',
+                    style:
+                        GoogleFonts.inter(color: c.canvas, fontSize: 14),
+                  ),
+                ));
+              },
+            ),
           ],
-
-        ],
-      ),
+        ),
       ),
     );
   }
+}
 
-  Widget _buildConnectionButton(AppColorsExtension c, bool isConnected, bool hasPending) {
+class _PillButton extends StatelessWidget {
+  final bool isConnected;
+  final bool hasPending;
+  final VoidCallback onConnect;
+
+  const _PillButton({
+    required this.isConnected,
+    required this.hasPending,
+    required this.onConnect,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.appColors;
+    late final Color fill;
+    late final Color textColor;
+    late final Color borderColor;
+    late final String label;
+    late final VoidCallback? onTap;
+
     if (isConnected) {
-      return Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 6),
-        decoration: BoxDecoration(
-          color: c.oliveGreen,
-          borderRadius: BorderRadius.circular(AppRadius.sm),
-          border: Border.all(color: c.borderColor, width: 2),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.check, size: 12, color: c.textOnPrimary),
-            const SizedBox(width: 4),
-            Text(
-              'CONNECTED',
-              style: GoogleFonts.spaceMono(
-                fontSize: 9,
-                fontWeight: FontWeight.w700,
-                color: c.textOnPrimary,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    if (hasPending || _requestSent) {
-      return Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 6),
-        decoration: BoxDecoration(
-          color: c.chipBg,
-          borderRadius: BorderRadius.circular(AppRadius.sm),
-          border: Border.all(color: c.borderColor, width: 2),
-        ),
-        child: Text(
-          'PENDING',
-          style: GoogleFonts.spaceMono(
-            fontSize: 9,
-            fontWeight: FontWeight.w700,
-            color: c.textSecondary,
-          ),
-        ),
-      );
+      fill = c.canvas;
+      textColor = c.textSecondary;
+      borderColor = c.textDisabled;
+      label = 'connected';
+      onTap = null;
+    } else if (hasPending) {
+      fill = c.canvas;
+      textColor = c.textDisabled;
+      borderColor = c.textDisabled;
+      label = 'pending';
+      onTap = null;
+    } else {
+      fill = c.ink;
+      textColor = c.canvas;
+      borderColor = c.ink;
+      label = 'connect';
+      onTap = onConnect;
     }
 
     return GestureDetector(
-      onTap: () {
-        setState(() => _requestSent = true);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-            'Connection request sent to ${widget.user.displayName}',
-            style: GoogleFonts.cabin(color: c.textOnPrimary, fontSize: 14),
-          ),
-          backgroundColor: c.accentBlue,
-        ));
-      },
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
       child: Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: c.accentBlue,
-          borderRadius: BorderRadius.circular(AppRadius.sm),
-          border: Border.all(color: c.borderColor, width: 2),
-          boxShadow: [
-            BoxShadow(
-                color: c.shadowColor, offset: const Offset(4, 4), blurRadius: 0)
-          ],
+          color: fill,
+          border: Border.all(color: borderColor, width: 1.5),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.person_add_outlined, size: 12, color: c.textOnPrimary),
-            const SizedBox(width: 4),
-            Text(
-              'CONNECT',
-              style: GoogleFonts.spaceMono(
-                fontSize: 9,
-                fontWeight: FontWeight.w700,
-                color: c.textOnPrimary,
-              ),
-            ),
-          ],
+        child: Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: textColor,
+          ),
         ),
       ),
     );
   }
+}
 
-  Color _avatarColor(AppColorsExtension c, String uid) {
-    final colors = [
-      c.dullOrange,
-      c.accentBlue,
-      c.oliveGreen,
-      c.amber,
-    ];
-    return colors[uid.hashCode % colors.length];
+class _AvatarDot extends StatelessWidget {
+  final String initial;
+  const _AvatarDot({required this.initial});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.appColors;
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: c.canvas,
+        shape: BoxShape.circle,
+        border: Border.all(color: c.ink, width: 1.5),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        initial,
+        style: GoogleFonts.jetBrainsMono(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          color: c.ink,
+        ),
+      ),
+    );
   }
 }

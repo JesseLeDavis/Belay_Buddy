@@ -17,15 +17,22 @@ class UserProfileScreen extends ConsumerWidget {
     final userAsync = ref.watch(userByIdProvider(userId));
 
     return Scaffold(
-      backgroundColor: c.background,
+      backgroundColor: c.canvas,
       appBar: AppBar(
+        backgroundColor: c.canvas,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        foregroundColor: c.ink,
         title: Text(
-          'PROFILE',
-          style: GoogleFonts.spaceMono(
+          'Profile',
+          style: GoogleFonts.inter(
             fontSize: 22,
-            fontWeight: FontWeight.w700,
-            color: c.borderColor,
+            fontWeight: FontWeight.w600,
+            color: c.ink,
           ),
+        ),
+        shape: Border(
+          bottom: BorderSide(color: c.borderColor, width: 1.5),
         ),
       ),
       body: userAsync.when(
@@ -33,11 +40,12 @@ class UserProfileScreen extends ConsumerWidget {
           if (user == null) {
             return Center(
               child: Text(
-                'USER NOT FOUND',
-                style: GoogleFonts.spaceMono(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: c.error),
+                'user not found',
+                style: GoogleFonts.inter(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: c.error,
+                ),
               ),
             );
           }
@@ -45,18 +53,17 @@ class UserProfileScreen extends ConsumerWidget {
         },
         loading: () => Center(
           child: Text(
-            'LOADING...',
-            style: GoogleFonts.spaceMono(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
+            'loading…',
+            style: GoogleFonts.jetBrainsMono(
+              fontSize: 12,
               color: c.textSecondary,
             ),
           ),
         ),
         error: (e, _) => Center(
           child: Text(
-            'Error: $e',
-            style: GoogleFonts.cabin(fontSize: 16, color: c.error),
+            'error: $e',
+            style: GoogleFonts.inter(fontSize: 14, color: c.error),
           ),
         ),
       ),
@@ -83,384 +90,370 @@ class _UserProfileBodyState extends ConsumerState<_UserProfileBody> {
     final hasPending = ref.watch(hasPendingRequestFromProvider(user.uid));
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Header
-          Center(
-            child: Column(
+          // ── Header ────────────────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 28, 20, 20),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const SizedBox(height: AppSpacing.md),
-                Container(
-                  width: 96,
-                  height: 96,
-                  decoration: BoxDecoration(
-                    color: _avatarColor(c, user.uid),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: c.borderColor, width: 3),
-                  ),
-                  child: Center(
-                    child: Text(
-                      user.displayName.isNotEmpty
-                          ? user.displayName[0].toUpperCase()
-                          : '?',
-                      style: GoogleFonts.spaceMono(
-                        fontSize: 40,
-                        fontWeight: FontWeight.w700,
-                        color: c.textOnPrimary,
-                      ),
-                    ),
-                  ),
+                _Avatar(
+                  initial: user.displayName.isNotEmpty
+                      ? user.displayName[0].toLowerCase()
+                      : '?',
                 ),
-                const SizedBox(height: AppSpacing.md),
-                Text(
-                  user.displayName,
-                  style: GoogleFonts.spaceMono(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                    color: c.textPrimary,
-                  ),
-                ),
-                if (user.bio != null) ...[
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    user.bio!,
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.cabin(
-                      fontSize: 14,
-                      color: c.textSecondary,
-                      height: 1.4,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-
-          // Action buttons
-          Row(
-            children: [
-              Expanded(
-                child: _buildConnectionButton(
-                    context, c, user, isConnected, hasPending),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text(
-                        'Messaging coming soon',
-                        style:
-                            GoogleFonts.cabin(color: c.textOnPrimary, fontSize: 14),
-                      ),
-                    ));
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    decoration: BoxDecoration(
-                      color: c.surface,
-                      border: Border.all(color: c.borderColor, width: 2.5),
-                      borderRadius: BorderRadius.circular(AppRadius.sm),
-                      boxShadow: [
-                        BoxShadow(
-                          color: c.shadowColor,
-                          offset: const Offset(4, 4),
-                          blurRadius: 0,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        user.displayName,
+                        style: GoogleFonts.inter(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
+                          color: c.ink,
+                          height: 1.1,
                         ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.chat_bubble_outline,
-                            size: 16, color: c.textPrimary),
-                        const SizedBox(width: AppSpacing.sm),
+                      ),
+                      if (user.bio != null && user.bio!.isNotEmpty) ...[
+                        const SizedBox(height: 6),
                         Text(
-                          'MESSAGE',
-                          style: GoogleFonts.spaceMono(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: c.textPrimary,
+                          user.bio!,
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            color: c.textSecondary,
+                            height: 1.4,
                           ),
                         ),
                       ],
-                    ),
+                    ],
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-          const SizedBox(height: AppSpacing.lg),
 
-          // Sticker tags
+          // ── Action row ────────────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 22),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _ConnectionButton(
+                    displayName: user.displayName,
+                    isConnected: isConnected,
+                    hasPending: hasPending || _requestSent,
+                    onConnect: () {
+                      setState(() => _requestSent = true);
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(
+                          'connection request sent to ${user.displayName}',
+                          style: GoogleFonts.inter(
+                            color: c.canvas,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ));
+                    },
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _SecondaryButton(
+                    label: 'message',
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(
+                          'messaging coming soon',
+                          style: GoogleFonts.inter(
+                            color: c.canvas,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ));
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          Container(height: 1.5, color: c.borderColor),
+
+          // ── Vibes ─────────────────────────────────────────────────────
           if (user.climbingTags.isNotEmpty) ...[
-            _StickerTagsSection(tags: user.climbingTags),
-            const SizedBox(height: AppSpacing.md),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+              child: _VibesSection(tags: user.climbingTags),
+            ),
+            Container(height: 1.5, color: c.borderColor),
           ],
 
-          // Mutual connections
-          _MutualConnectionsSection(userId: user.uid),
+          // ── Mutual connections ───────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+            child: _MutualConnections(userId: user.uid),
+          ),
         ],
       ),
     );
   }
-
-  Widget _buildConnectionButton(
-      BuildContext context, AppColorsExtension c, AppUser user, bool isConnected, bool hasPending) {
-    Color bgColor;
-    Color textColor;
-    String label;
-    IconData icon;
-    VoidCallback? onTap;
-
-    if (isConnected) {
-      bgColor = c.oliveGreen;
-      textColor = c.textOnPrimary;
-      label = 'CONNECTED';
-      icon = Icons.check;
-      onTap = null;
-    } else if (hasPending || _requestSent) {
-      bgColor = c.chipBg;
-      textColor = c.textSecondary;
-      label = 'PENDING';
-      icon = Icons.schedule;
-      onTap = null;
-    } else {
-      bgColor = c.accentBlue;
-      textColor = c.textOnPrimary;
-      label = 'CONNECT';
-      icon = Icons.person_add_outlined;
-      onTap = () {
-        setState(() => _requestSent = true);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-            'Connection request sent to ${user.displayName}',
-            style: GoogleFonts.cabin(color: c.textOnPrimary, fontSize: 14),
-          ),
-          backgroundColor: c.accentBlue,
-        ));
-      };
-    }
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: bgColor,
-          border: Border.all(color: c.borderColor, width: 2.5),
-          borderRadius: BorderRadius.circular(AppRadius.sm),
-          boxShadow: onTap != null
-              ? [
-                  BoxShadow(
-                    color: c.shadowColor,
-                    offset: const Offset(4, 4),
-                    blurRadius: 0,
-                  ),
-                ]
-              : [],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 16, color: textColor),
-            const SizedBox(width: AppSpacing.sm),
-            Text(
-              label,
-              style: GoogleFonts.spaceMono(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: textColor,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Color _avatarColor(AppColorsExtension c, String uid) {
-    final colors = [
-      c.dullOrange,
-      c.accentBlue,
-      c.oliveGreen,
-      c.amber,
-    ];
-    return colors[uid.hashCode % colors.length];
-  }
 }
 
-// ── Sticker tags section ────────────────────────────────────────────────────
+// ─── Atoms ──────────────────────────────────────────────────────────────────
 
-class _StickerTagsSection extends StatelessWidget {
-  final List<String> tags;
-  const _StickerTagsSection({required this.tags});
+class _Avatar extends StatelessWidget {
+  final String initial;
+  const _Avatar({required this.initial});
 
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
     return Container(
+      width: 72,
+      height: 72,
       decoration: BoxDecoration(
-        color: c.surface,
-        border: Border.all(color: c.borderColor, width: 2.5),
-        borderRadius: BorderRadius.circular(AppRadius.sm),
-        boxShadow: [
-          BoxShadow(
-            color: c.shadowColor,
-            offset: const Offset(4, 4),
-            blurRadius: 0,
-          ),
-        ],
+        color: c.canvas,
+        shape: BoxShape.circle,
+        border: Border.all(color: c.ink, width: 1.5),
       ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.smMd, vertical: 10),
-            color: c.oliveGreen,
-            child: Text(
-              'VIBE CHECK',
-              style: GoogleFonts.spaceMono(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: c.textOnPrimary,
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Wrap(
-              spacing: AppSpacing.sm,
-              runSpacing: AppSpacing.sm + 2,
-              children: tags.map((tagId) {
-                final tag = ClimbingTags.getById(tagId);
-                if (tag == null) return const SizedBox.shrink();
-                final rotation = ClimbingTags.rotationFor(tagId);
-                return Transform.rotate(
-                  angle: rotation * 3.14159 / 180,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.smMd,
-                      vertical: AppSpacing.sm,
-                    ),
-                    decoration: BoxDecoration(
-                      color: tag.color,
-                      border: Border.all(color: c.borderColor, width: 2),
-                      borderRadius: BorderRadius.circular(AppRadius.xs),
-                      boxShadow: [
-                        BoxShadow(
-                          color: tag.color.withAlpha(80),
-                          offset: const Offset(2, 2),
-                          blurRadius: 0,
-                        ),
-                      ],
-                    ),
-                    child: Text(
-                      tag.label,
-                      style: GoogleFonts.spaceMono(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: tag.color.computeLuminance() > 0.4
-                            ? c.textOnTertiary
-                            : c.textOnPrimary,
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        ],
+      alignment: Alignment.center,
+      child: Text(
+        initial,
+        style: GoogleFonts.jetBrainsMono(
+          fontSize: 30,
+          fontWeight: FontWeight.w500,
+          color: c.ink,
+        ),
       ),
     );
   }
 }
 
-// ── Mutual connections ──────────────────────────────────────────────────────
+class _ConnectionButton extends StatelessWidget {
+  final String displayName;
+  final bool isConnected;
+  final bool hasPending;
+  final VoidCallback onConnect;
 
-class _MutualConnectionsSection extends ConsumerWidget {
+  const _ConnectionButton({
+    required this.displayName,
+    required this.isConnected,
+    required this.hasPending,
+    required this.onConnect,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.appColors;
+    late final Color fill;
+    late final Color textColor;
+    late final Color borderColor;
+    late final String label;
+    late final VoidCallback? onTap;
+
+    if (isConnected) {
+      fill = c.canvas;
+      textColor = c.textSecondary;
+      borderColor = c.textDisabled;
+      label = 'connected';
+      onTap = null;
+    } else if (hasPending) {
+      fill = c.canvas;
+      textColor = c.textDisabled;
+      borderColor = c.textDisabled;
+      label = 'pending';
+      onTap = null;
+    } else {
+      fill = c.ink;
+      textColor = c.canvas;
+      borderColor = c.ink;
+      label = 'connect';
+      onTap = onConnect;
+    }
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: fill,
+          border: Border.all(color: borderColor, width: 1.5),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: textColor,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SecondaryButton extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+  const _SecondaryButton({required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.appColors;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: c.canvas,
+          border: Border.all(color: c.ink, width: 1.5),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: c.ink,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _VibesSection extends StatelessWidget {
+  final List<String> tags;
+  const _VibesSection({required this.tags});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.appColors;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Vibes',
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: c.textSecondary,
+            letterSpacing: 0.1,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: tags.map((tagId) {
+            final tag = ClimbingTags.getById(tagId);
+            if (tag == null) return const SizedBox.shrink();
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: c.canvas,
+                border: Border.all(color: c.ink, width: 1.5),
+              ),
+              child: Text(
+                tag.label.toLowerCase(),
+                style: GoogleFonts.jetBrainsMono(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  color: c.ink,
+                  letterSpacing: -0.1,
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+}
+
+class _MutualConnections extends ConsumerWidget {
   final String userId;
-  const _MutualConnectionsSection({required this.userId});
+  const _MutualConnections({required this.userId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.appColors;
-    final myConnections =
-        ref.watch(connectionsProvider).valueOrNull ?? [];
-    final targetUserAsync = ref.watch(userByIdProvider(userId));
-    final targetUser = targetUserAsync.valueOrNull;
+    final myConnections = ref.watch(connectionsProvider).valueOrNull ?? [];
+    final targetUser = ref.watch(userByIdProvider(userId)).valueOrNull;
     if (targetUser == null) return const SizedBox.shrink();
 
     final mutual = myConnections
         .where((conn) => targetUser.connectionIds.contains(conn.uid))
         .toList();
 
-    if (mutual.isEmpty) return const SizedBox.shrink();
+    if (mutual.isEmpty) {
+      return Text(
+        'No mutual connections.',
+        style: GoogleFonts.inter(
+          fontSize: 13,
+          color: c.textSecondary,
+        ),
+      );
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'MUTUAL CONNECTIONS',
-          style: GoogleFonts.spaceMono(
-            fontSize: 10,
-            fontWeight: FontWeight.w700,
+          'Mutual connections',
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
             color: c.textSecondary,
+            letterSpacing: 0.1,
           ),
         ),
-        const SizedBox(height: AppSpacing.sm),
+        const SizedBox(height: 12),
         Wrap(
-          spacing: AppSpacing.sm,
-          runSpacing: AppSpacing.sm,
+          spacing: 8,
+          runSpacing: 8,
           children: mutual.map((u) {
-            return Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.sm + 2, vertical: AppSpacing.xs + 2),
-              decoration: BoxDecoration(
-                color: c.chipBg,
-                border: Border.all(color: c.borderColor, width: 2),
-                borderRadius: BorderRadius.circular(AppRadius.sm),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 20,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      color: c.accentBlue,
-                      borderRadius: BorderRadius.circular(AppRadius.xs),
-                      border: Border.all(color: c.borderColor, width: 1.5),
-                    ),
-                    child: Center(
-                      child: Text(
-                        u.displayName.isNotEmpty
-                            ? u.displayName[0].toUpperCase()
-                            : '?',
-                        style: GoogleFonts.spaceMono(
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
-                          color: c.textOnPrimary,
-                        ),
-                      ),
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: c.canvas,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: c.ink, width: 1.5),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    u.displayName.isNotEmpty
+                        ? u.displayName[0].toLowerCase()
+                        : '?',
+                    style: GoogleFonts.jetBrainsMono(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: c.ink,
                     ),
                   ),
-                  const SizedBox(width: AppSpacing.xs),
-                  Text(
-                    u.displayName,
-                    style: GoogleFonts.cabin(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: c.textPrimary,
-                    ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  u.displayName,
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: c.ink,
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 6),
+              ],
             );
           }).toList(),
         ),
