@@ -28,13 +28,52 @@ class _NowScreenState extends ConsumerState<NowScreen> {
   // In-memory only for the preview; will become a provider on Firebase wire-up.
   final Set<String> _confirmed = {};
 
+  // Keys for the avatars between which the Route Line draws on confirm.
+  final GlobalKey _meAvatarKey = GlobalKey();
+  final Map<String, GlobalKey> _cardAvatarKeys = {};
+
+  GlobalKey _keyFor(String userId) =>
+      _cardAvatarKeys.putIfAbsent(userId, GlobalKey.new);
+
   void _toggleConfirm(String userId) {
+    final wasConfirmed = _confirmed.contains(userId);
     setState(() {
-      if (_confirmed.contains(userId)) {
+      if (wasConfirmed) {
         _confirmed.remove(userId);
       } else {
         _confirmed.add(userId);
       }
+    });
+    // The brand's signature motion — a hairline contour drawn between the
+    // ME avatar and the climber you just said you're coming to. See the
+    // brief's "Route Line on trial" round 3 memo for the rules: only at
+    // confirmation, never on undo, never on first-load.
+    if (!wasConfirmed) _showRouteLine(userId);
+  }
+
+  void _showRouteLine(String userId) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final meCtx = _meAvatarKey.currentContext;
+      final cardCtx = _cardAvatarKeys[userId]?.currentContext;
+      if (meCtx == null || cardCtx == null || !mounted) return;
+      final meBox = meCtx.findRenderObject() as RenderBox?;
+      final cardBox = cardCtx.findRenderObject() as RenderBox?;
+      if (meBox == null || cardBox == null) return;
+
+      final start = meBox.localToGlobal(meBox.size.center(Offset.zero));
+      final end = cardBox.localToGlobal(cardBox.size.center(Offset.zero));
+      final ink = context.appColors.ink;
+
+      late OverlayEntry entry;
+      entry = OverlayEntry(
+        builder: (_) => _RouteLineOverlay(
+          start: start,
+          end: end,
+          ink: ink,
+          onDone: () => entry.remove(),
+        ),
+      );
+      Overlay.of(context).insert(entry);
     });
   }
 
@@ -54,7 +93,9 @@ class _NowScreenState extends ConsumerState<NowScreen> {
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            const SliverToBoxAdapter(child: _TopBar(venue: venue)),
+            SliverToBoxAdapter(
+              child: _TopBar(venue: venue, meAvatarKey: _meAvatarKey),
+            ),
             SliverToBoxAdapter(child: _hairline(c)),
             const SliverToBoxAdapter(
                 child: _SectionHeader(text: 'Tonight at your gym')),
@@ -68,6 +109,7 @@ class _NowScreenState extends ConsumerState<NowScreen> {
                 session: sessions[i],
                 isConfirmedByMe: _confirmed.contains(sessions[i].userId),
                 onConfirm: () => _toggleConfirm(sessions[i].userId),
+                avatarKey: _keyFor(sessions[i].userId),
               ),
             ),
             if (forwardLoaded != null)
@@ -93,7 +135,8 @@ class _NowScreenState extends ConsumerState<NowScreen> {
 
 class _TopBar extends StatelessWidget {
   final _Venue venue;
-  const _TopBar({required this.venue});
+  final Key meAvatarKey;
+  const _TopBar({required this.venue, required this.meAvatarKey});
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +170,7 @@ class _TopBar extends StatelessWidget {
           GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () => context.push('/profile'),
-            child: const _AvatarDot(initial: 't', size: 28),
+            child: _AvatarDot(key: meAvatarKey, initial: 't', size: 28),
           ),
         ],
       ),
@@ -272,10 +315,12 @@ class _SessionCard extends StatelessWidget {
   final NowSession session;
   final bool isConfirmedByMe;
   final VoidCallback onConfirm;
+  final Key avatarKey;
   const _SessionCard({
     required this.session,
     required this.isConfirmedByMe,
     required this.onConfirm,
+    required this.avatarKey,
   });
 
   @override
@@ -312,6 +357,7 @@ class _SessionCard extends StatelessWidget {
                     _SessionHeaderRow(
                       session: session,
                       isConfirmed: isConfirmed,
+                      avatarKey: avatarKey,
                     ),
                     if (session.subtitle.isNotEmpty) ...[
                       const SizedBox(height: 4),
@@ -379,7 +425,12 @@ class _SessionCard extends StatelessWidget {
 class _SessionHeaderRow extends StatelessWidget {
   final NowSession session;
   final bool isConfirmed;
-  const _SessionHeaderRow({required this.session, required this.isConfirmed});
+  final Key avatarKey;
+  const _SessionHeaderRow({
+    required this.session,
+    required this.isConfirmed,
+    required this.avatarKey,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -388,7 +439,7 @@ class _SessionHeaderRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        _AvatarDot(initial: session.initial, size: 24),
+        _AvatarDot(key: avatarKey, initial: session.initial, size: 24),
         const SizedBox(width: 10),
         Expanded(
           child: Wrap(
@@ -438,6 +489,7 @@ class _AvatarDot extends StatelessWidget {
   final Color? ringColor;
   final double ringWidth;
   const _AvatarDot({
+    super.key,
     required this.initial,
     required this.size,
     this.ringColor,
@@ -828,4 +880,163 @@ class _DemoModeToggle extends ConsumerWidget {
       ),
     );
   }
+}
+
+// ─── Route Line ────────────────────────────────────────────────────────────
+//
+// The brand's signature motion. A hairline cubic-bezier contour drawn from
+// the ME avatar to a climber's avatar at the moment of mutual confirmation.
+// 240ms draw-in, 600ms hold, 400ms fade. Endpoint dots appear once the line
+// fully draws. Inserted into the Overlay so it can cross widget boundaries
+// — the line spans from the top-right of the app down into a card body.
+
+class _RouteLineOverlay extends StatefulWidget {
+  final Offset start;
+  final Offset end;
+  final Color ink;
+  final VoidCallback onDone;
+  const _RouteLineOverlay({
+    required this.start,
+    required this.end,
+    required this.ink,
+    required this.onDone,
+  });
+
+  @override
+  State<_RouteLineOverlay> createState() => _RouteLineOverlayState();
+}
+
+class _RouteLineOverlayState extends State<_RouteLineOverlay>
+    with TickerProviderStateMixin {
+  late final AnimationController _drawCtrl;
+  late final AnimationController _fadeCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _drawCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 240),
+    );
+    _fadeCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+      value: 1.0,
+    );
+    _run();
+  }
+
+  Future<void> _run() async {
+    await _drawCtrl.forward();
+    await Future.delayed(const Duration(milliseconds: 600));
+    if (!mounted) return;
+    await _fadeCtrl.reverse();
+    if (!mounted) return;
+    widget.onDone();
+  }
+
+  @override
+  void dispose() {
+    _drawCtrl.dispose();
+    _fadeCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: AnimatedBuilder(
+        animation: Listenable.merge([_drawCtrl, _fadeCtrl]),
+        builder: (_, __) {
+          return CustomPaint(
+            size: Size.infinite,
+            painter: _RouteLinePainter(
+              start: widget.start,
+              end: widget.end,
+              ink: widget.ink,
+              drawProgress: Curves.easeOutCubic.transform(_drawCtrl.value),
+              opacity: _fadeCtrl.value,
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _RouteLinePainter extends CustomPainter {
+  final Offset start;
+  final Offset end;
+  final Color ink;
+  final double drawProgress;
+  final double opacity;
+
+  _RouteLinePainter({
+    required this.start,
+    required this.end,
+    required this.ink,
+    required this.drawProgress,
+    required this.opacity,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (opacity <= 0) return;
+    final color = ink.withOpacity(opacity);
+
+    final path = _buildPath();
+    final metrics = path.computeMetrics().toList();
+    final total = metrics.fold<double>(0, (a, m) => a + m.length);
+    final drawn = total * drawProgress;
+
+    final partial = Path();
+    var cursor = 0.0;
+    for (final m in metrics) {
+      if (cursor + m.length <= drawn) {
+        partial.addPath(m.extractPath(0, m.length), Offset.zero);
+      } else {
+        partial.addPath(m.extractPath(0, drawn - cursor), Offset.zero);
+        break;
+      }
+      cursor += m.length;
+    }
+
+    final stroke = Paint()
+      ..color = color
+      ..strokeWidth = 1.5
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+    canvas.drawPath(partial, stroke);
+
+    // Anchor dots appear once the line lands.
+    if (drawProgress >= 1.0) {
+      final dot = Paint()..color = color;
+      canvas.drawCircle(start, 3, dot);
+      canvas.drawCircle(end, 3, dot);
+    }
+  }
+
+  /// A gentle cubic that bows toward whichever side the path is travelling.
+  /// Real topo contours are never straight lines.
+  Path _buildPath() {
+    final path = Path()..moveTo(start.dx, start.dy);
+    final delta = end - start;
+    final dist = delta.distance;
+    // Perpendicular unit vector (rotate 90°).
+    final perp = Offset(-delta.dy, delta.dx) / dist;
+    // Bow outward by ~12% of the path length, biased toward the longer axis.
+    final bow = perp * (dist * 0.12);
+    final ctrl1 = start + delta * 0.30 + bow;
+    final ctrl2 = start + delta * 0.70 + bow;
+    path.cubicTo(ctrl1.dx, ctrl1.dy, ctrl2.dx, ctrl2.dy, end.dx, end.dy);
+    return path;
+  }
+
+  @override
+  bool shouldRepaint(_RouteLinePainter old) =>
+      old.drawProgress != drawProgress ||
+      old.opacity != opacity ||
+      old.start != start ||
+      old.end != end;
 }
