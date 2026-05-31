@@ -1,193 +1,116 @@
 import 'package:belay_buddy/src/common/theme/app_theme.dart';
-import 'package:belay_buddy/src/common/widgets/retro_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class LoginScreen extends ConsumerStatefulWidget {
+class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
 
   @override
-  ConsumerState<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends ConsumerState<LoginScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _blinkController;
-  bool _showCursor = true;
-
-  final List<String> _bootLines = [
-    'BELAY_BUDDY OS v1.0',
-    '(c) 2026 CragTech Systems',
-    '',
-    'Initializing chalk bag...... OK',
-    'Loading topo maps........... OK',
-    'Calibrating carabiners...... OK',
-    'Detecting climbing partners.. OK',
-    '',
-    'SYSTEM READY.',
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _blinkController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    )..addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          setState(() => _showCursor = !_showCursor);
-          _blinkController.reset();
-          _blinkController.forward();
-        }
-      });
-    _blinkController.forward();
-  }
-
-  @override
-  void dispose() {
-    _blinkController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.appColors;
     return Scaffold(
-      backgroundColor: c.background,
-      body: Column(
-        children: [
-          // Top color block — bold orange panel
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.only(
-              top: MediaQuery.of(context).padding.top + AppSpacing.xl,
-              bottom: AppSpacing.xl,
-              left: AppSpacing.lg,
-              right: AppSpacing.lg,
-            ),
-            decoration: BoxDecoration(
-              color: c.dullOrange,
-              border: Border(
-                bottom: BorderSide(color: c.borderColor, width: 3),
+      backgroundColor: c.canvas,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(28, 60, 28, 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Brand mark
+              Text(
+                'tue',
+                style: GoogleFonts.jetBrainsMono(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: c.textSecondary,
+                  fontStyle: FontStyle.italic,
+                  letterSpacing: 0.4,
+                ),
               ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'BELAY\nBUDDY',
-                  style: GoogleFonts.spaceMono(
-                    fontSize: 36,
-                    fontWeight: FontWeight.w700,
-                    color: c.textOnPrimary,
-                    height: 1.1,
-                  ),
+              const SizedBox(height: 6),
+              Text(
+                'Belay Buddy',
+                style: GoogleFonts.inter(
+                  fontSize: 44,
+                  fontWeight: FontWeight.w600,
+                  color: c.ink,
+                  height: 1.0,
+                  letterSpacing: -0.5,
                 ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  'FIND YOUR CLIMBING PARTNER',
-                  style: GoogleFonts.spaceMono(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: c.textOnPrimary.withAlpha(204),
-                  ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'who’s on the wall tonight?',
+                style: GoogleFonts.inter(
+                  fontSize: 16,
+                  color: c.textSecondary,
+                  height: 1.4,
                 ),
-              ],
-            ),
-          ),
+              ),
+              const Spacer(),
 
-          // Bottom form area
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.lg),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+              // Lime status pill — the brand bet on the splash
+              Row(
                 children: [
-                  const SizedBox(height: AppSpacing.lg),
-
-                  // Status card
                   Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(AppSpacing.md),
+                    width: 10,
+                    height: 10,
                     decoration: BoxDecoration(
-                      color: c.surface,
-                      borderRadius: BorderRadius.circular(AppRadius.sm),
-                      border: Border.fromBorderSide(
-                        BorderSide(color: c.borderColor, width: 2.5),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: c.shadowColor,
-                          offset: const Offset(5, 5),
-                          blurRadius: 0,
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ..._bootLines.map(
-                          (line) => Padding(
-                            padding: const EdgeInsets.only(bottom: 2),
-                            child: Text(
-                              line,
-                              style: GoogleFonts.spaceMono(
-                                fontSize: 11,
-                                color: line.contains('OK')
-                                    ? c.success
-                                    : c.textSecondary,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.sm),
-                        Text(
-                          _showCursor ? '_' : ' ',
-                          style: GoogleFonts.spaceMono(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: c.dullOrange,
-                          ),
-                        ),
-                      ],
+                      color: c.lime,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: c.ink, width: 1.5),
                     ),
                   ),
-
-                  const Spacer(),
-
-                  // Login button
-                  SizedBox(
-                    width: double.infinity,
-                    child: RetroButton(
-                      label: 'Enter',
-                      icon: Icons.login,
-                      color: c.borderColor,
-                      shadowColor: c.dullOrange,
-                      textColor: c.background,
-                      onPressed: () {
-                        context.go('/');
-                      },
+                  const SizedBox(width: 10),
+                  Text(
+                    'lime means someone is on the wall.',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: c.ink,
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.md),
-                  Center(
-                    child: Text(
-                      'NO ACCOUNT NEEDED FOR DEMO',
-                      style: GoogleFonts.spaceMono(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: c.dullOrange,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.xxl),
                 ],
               ),
-            ),
+              const SizedBox(height: 24),
+
+              // Enter button
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => context.go('/now'),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  decoration: BoxDecoration(
+                    color: c.ink,
+                    border: Border.all(color: c.ink, width: 1.5),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    'enter',
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: c.canvas,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+              Center(
+                child: Text(
+                  'no account needed — demo',
+                  style: GoogleFonts.jetBrainsMono(
+                    fontSize: 11,
+                    color: c.textDisabled,
+                    letterSpacing: -0.1,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
