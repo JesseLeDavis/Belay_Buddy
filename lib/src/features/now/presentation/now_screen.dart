@@ -75,6 +75,7 @@ class _NowScreenState extends ConsumerState<NowScreen> {
           start: start,
           end: end,
           ink: ink,
+          seed: userId.hashCode,
           onDone: () => entry.remove(),
         ),
       );
@@ -970,11 +971,13 @@ class _RouteLineOverlay extends StatefulWidget {
   final Offset start;
   final Offset end;
   final Color ink;
+  final int seed;
   final VoidCallback onDone;
   const _RouteLineOverlay({
     required this.start,
     required this.end,
     required this.ink,
+    required this.seed,
     required this.onDone,
   });
 
@@ -1030,6 +1033,7 @@ class _RouteLineOverlayState extends State<_RouteLineOverlay>
               start: widget.start,
               end: widget.end,
               ink: widget.ink,
+              seed: widget.seed,
               drawProgress: Curves.easeOutCubic.transform(_drawCtrl.value),
               opacity: _fadeCtrl.value,
             ),
@@ -1044,6 +1048,7 @@ class _RouteLinePainter extends CustomPainter {
   final Offset start;
   final Offset end;
   final Color ink;
+  final int seed;
   final double drawProgress;
   final double opacity;
 
@@ -1051,6 +1056,7 @@ class _RouteLinePainter extends CustomPainter {
     required this.start,
     required this.end,
     required this.ink,
+    required this.seed,
     required this.drawProgress,
     required this.opacity,
   });
@@ -1094,9 +1100,10 @@ class _RouteLinePainter extends CustomPainter {
   }
 
   /// A topo-style polyline — straight segments meeting at angular corners,
-  /// the way real climbing routes are drawn on a guidebook. Waypoints bow
-  /// alternately off the direct path; connections are sharp `lineTo`s.
-  /// Deterministic — same start/end always produces the same path.
+  /// the way real climbing routes are drawn on a guidebook. Waypoint pattern
+  /// is picked deterministically by seed (typically `userId.hashCode`), so
+  /// each climber gets their own signature route that stays stable across
+  /// rebuilds. Five variations: gentle, dramatic, top-heavy, busy, traverse.
   Path _buildPath() {
     final path = Path()..moveTo(start.dx, start.dy);
     final delta = end - start;
@@ -1107,16 +1114,7 @@ class _RouteLinePainter extends CustomPainter {
     }
 
     final perp = Offset(-delta.dy, delta.dx) / dist;
-
-    // (fraction-along-path, perpendicular-bow-as-fraction-of-distance).
-    // Smaller magnitudes than the curved version — sharp corners read as
-    // bigger swings, so the bows can be subtler.
-    const beats = <(double, double)>[
-      (0.22, 0.08),
-      (0.45, -0.10),
-      (0.68, 0.07),
-      (0.85, -0.05),
-    ];
+    final beats = _patternFor(seed);
 
     for (final beat in beats) {
       final p = start + delta * beat.$1 + perp * (dist * beat.$2);
@@ -1125,6 +1123,30 @@ class _RouteLinePainter extends CustomPainter {
     path.lineTo(end.dx, end.dy);
 
     return path;
+  }
+
+  /// (fraction-along-path, perpendicular-bow-as-fraction-of-distance).
+  /// Sign alternates within each pattern; magnitudes vary to give the
+  /// route its character.
+  static const _patterns = <List<(double, double)>>[
+    // 0 — Gentle: balanced bows, no drama. The friendly route.
+    [(0.22, 0.08), (0.45, -0.10), (0.68, 0.07), (0.85, -0.05)],
+    // 1 — Crux middle: small at the start, big swing in the middle, calm at top.
+    [(0.18, 0.05), (0.40, -0.13), (0.55, 0.14), (0.80, -0.06)],
+    // 2 — Top-heavy: long approach, sharper finishing moves.
+    [(0.30, 0.06), (0.55, -0.05), (0.72, 0.11), (0.88, -0.09)],
+    // 3 — Wandering: more beats, smaller throws. Reads as a sustained pitch.
+    [
+      (0.16, 0.06), (0.30, -0.09), (0.46, 0.07),
+      (0.62, -0.08), (0.78, 0.06), (0.90, -0.04),
+    ],
+    // 4 — Traverse: bigger lateral movement, fewer waypoints.
+    [(0.25, 0.13), (0.50, -0.10), (0.78, 0.12)],
+  ];
+
+  static List<(double, double)> _patternFor(int seed) {
+    final i = seed.abs() % _patterns.length;
+    return _patterns[i];
   }
 
   @override
