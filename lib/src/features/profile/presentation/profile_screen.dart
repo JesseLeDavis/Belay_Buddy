@@ -3,6 +3,7 @@ import 'package:belay_buddy/src/features/auth/data/auth_repository.dart';
 import 'package:belay_buddy/src/features/notifications/data/notifications_repository.dart';
 import 'package:belay_buddy/src/features/connections/presentation/find_climbers_screen.dart';
 import 'package:belay_buddy/src/features/notifications/presentation/notifications_screen.dart';
+import 'package:belay_buddy/src/features/profile/presentation/widgets/availability_card.dart';
 import 'package:belay_buddy/src/features/profile/presentation/widgets/sticker_tags_card.dart';
 import 'package:belay_buddy/src/features/profile/presentation/widgets/favorites_card.dart';
 import 'package:belay_buddy/src/features/profile/presentation/widgets/connections_card.dart';
@@ -151,6 +152,14 @@ class ProfileScreen extends ConsumerWidget {
             ),
 
           if (user.climbingTags.isNotEmpty) _hairline(c),
+
+          // ── My availability ───────────────────────────────────────────
+          const Padding(
+            padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
+            child: AvailabilityCard(),
+          ),
+
+          _hairline(c),
 
           // ── Favorites ─────────────────────────────────────────────────
           Padding(
