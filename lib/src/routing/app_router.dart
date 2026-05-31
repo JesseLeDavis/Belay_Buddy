@@ -95,14 +95,18 @@ final appRouter = GoRouter(
 );
 
 // ============================================================
-// Shell scaffold with persistent bottom nav bar
+// Shell scaffold — bottom nav + directional tab transitions
 // ============================================================
 
-class ScaffoldWithNavBar extends StatelessWidget {
+class ScaffoldWithNavBar extends StatefulWidget {
   final Widget child;
   final String location;
 
-  const ScaffoldWithNavBar({super.key, required this.child, required this.location});
+  const ScaffoldWithNavBar({
+    super.key,
+    required this.child,
+    required this.location,
+  });
 
   // IA-flipped: just NOW + CHATS. ME lives behind the top-right avatar on
   // NOW; the map is reachable via URL or future "Change home gym" sheet
@@ -122,35 +126,94 @@ class ScaffoldWithNavBar extends StatelessWidget {
     ),
   ];
 
-  int get _selectedIndex {
-    if (location.startsWith('/messages')) return 1;
+  static int _indexFor(String loc) {
+    if (loc.startsWith('/messages')) return 1;
     return 0; // NOW is the default for /, /now, /crag/*, /profile
   }
 
   @override
+  State<ScaffoldWithNavBar> createState() => _ScaffoldWithNavBarState();
+}
+
+class _ScaffoldWithNavBarState extends State<ScaffoldWithNavBar> {
+  // Tracks the previous tab index so we know which way to slide on rebuild.
+  int _prevIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _prevIndex = ScaffoldWithNavBar._indexFor(widget.location);
+  }
+
+  @override
+  void didUpdateWidget(ScaffoldWithNavBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final oldIndex = ScaffoldWithNavBar._indexFor(oldWidget.location);
+    final newIndex = ScaffoldWithNavBar._indexFor(widget.location);
+    if (oldIndex != newIndex) {
+      _prevIndex = oldIndex;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final selectedIdx = _selectedIndex;
+    final currentIndex = ScaffoldWithNavBar._indexFor(widget.location);
+    final goingRight = currentIndex > _prevIndex;
 
     return Scaffold(
-      body: child,
-      bottomNavigationBar: _NeoNavBar(
-        selectedIndex: selectedIdx,
-        tabs: _tabs,
-        onTap: (index) => context.go(_tabs[index].path),
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 220),
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeOutCubic,
+        layoutBuilder: (current, previous) {
+          // Stack so incoming + outgoing slide past each other.
+          return Stack(
+            alignment: Alignment.topCenter,
+            children: [
+              ...previous,
+              if (current != null) current,
+            ],
+          );
+        },
+        transitionBuilder: (child, animation) {
+          final key = (child.key as ValueKey?)?.value;
+          final isIncoming = key == currentIndex;
+          final sign = goingRight ? 1.0 : -1.0;
+          // Incoming begins off-screen on the direction of travel.
+          // Outgoing ends off-screen on the opposite side.
+          final beginX = isIncoming ? sign : -sign;
+          return SlideTransition(
+            position: animation.drive(
+              Tween<Offset>(begin: Offset(beginX, 0), end: Offset.zero),
+            ),
+            child: child,
+          );
+        },
+        child: KeyedSubtree(
+          key: ValueKey(currentIndex),
+          child: widget.child,
+        ),
+      ),
+      bottomNavigationBar: _NavBar(
+        selectedIndex: currentIndex,
+        tabs: ScaffoldWithNavBar._tabs,
+        onTap: (i) => context.go(ScaffoldWithNavBar._tabs[i].path),
       ),
     );
   }
 }
 
-// -- Custom Neobrutalist nav bar --
+// ============================================================
+// Bottom nav bar — Chalk & Static
+// ============================================================
 
-class _NeoNavBar extends StatelessWidget {
+class _NavBar extends StatelessWidget {
   final int selectedIndex;
   final List<({String path, IconData icon, IconData activeIcon, String label})>
       tabs;
   final void Function(int) onTap;
 
-  const _NeoNavBar({
+  const _NavBar({
     required this.selectedIndex,
     required this.tabs,
     required this.onTap,
@@ -161,47 +224,39 @@ class _NeoNavBar extends StatelessWidget {
     final c = context.appColors;
     return Container(
       decoration: BoxDecoration(
-        color: c.surface,
+        color: c.canvas,
         border: Border(
-          top: BorderSide(color: c.borderColor, width: 3),
+          top: BorderSide(color: c.borderColor, width: 1.5),
         ),
       ),
-      child: Row(
+      child: SafeArea(
+        top: false,
+        child: Row(
           children: List.generate(tabs.length, (i) {
             final tab = tabs[i];
             final isSelected = i == selectedIndex;
-
             return Expanded(
               child: GestureDetector(
-                onTap: () => onTap(i),
                 behavior: HitTestBehavior.opaque,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 120),
-                  decoration: BoxDecoration(
-                    color: isSelected ? c.dullOrange : c.surface,
-                    border: i < tabs.length - 1
-                        ? Border(
-                            right: BorderSide(
-                                color: c.borderColor, width: 2),
-                          )
-                        : null,
-                  ),
+                onTap: () => onTap(i),
+                child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
                         isSelected ? tab.activeIcon : tab.icon,
-                        size: 22,
-                        color: isSelected ? c.textOnPrimary : c.borderColor,
+                        size: 20,
+                        color: isSelected ? c.ink : c.textDisabled,
                       ),
-                      const SizedBox(height: 3),
+                      const SizedBox(height: 4),
                       Text(
-                        tab.label,
-                        style: GoogleFonts.spaceMono(
+                        tab.label.toLowerCase(),
+                        style: GoogleFonts.jetBrainsMono(
                           fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: isSelected ? c.textOnPrimary : c.borderColor,
+                          fontWeight: FontWeight.w500,
+                          color: isSelected ? c.ink : c.textDisabled,
+                          letterSpacing: -0.1,
                         ),
                       ),
                     ],
@@ -210,12 +265,16 @@ class _NeoNavBar extends StatelessWidget {
               ),
             );
           }),
+        ),
       ),
     );
   }
 }
 
-/// Fallback widget shown when CreatePostScreen is reached without a Crag object.
+// ============================================================
+// Fallback
+// ============================================================
+
 class _CreatePostFallback extends StatelessWidget {
   const _CreatePostFallback();
 
@@ -223,22 +282,30 @@ class _CreatePostFallback extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.appColors;
     return Scaffold(
+      backgroundColor: c.canvas,
       appBar: AppBar(
+        backgroundColor: c.canvas,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        foregroundColor: c.ink,
         title: Text(
-          'POST',
-          style: GoogleFonts.spaceMono(
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
-            color: c.borderColor,
+          'Post',
+          style: GoogleFonts.inter(
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+            color: c.ink,
           ),
+        ),
+        shape: Border(
+          bottom: BorderSide(color: c.borderColor, width: 1.5),
         ),
       ),
       body: Center(
         child: Text(
-          'ERROR: NO CRAG SELECTED',
-          style: GoogleFonts.spaceMono(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
+          'no crag selected',
+          style: GoogleFonts.inter(
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
             color: c.error,
           ),
         ),
